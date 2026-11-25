@@ -49,9 +49,7 @@ fn main() -> anyhow::Result<()> {
 
     let mut masters: Vec<M> = Vec::new();
     for m in &doc.masters {
-        let Some(root) = m.shapes.first() else {
-            continue;
-        };
+        let Some(root) = m.shapes.first() else { continue };
         let cell = |n: &str| root.sheet.cell(n).and_then(|c| c.numeric());
         let strcell = |n: &str| {
             root.sheet
@@ -67,9 +65,7 @@ fn main() -> anyhow::Result<()> {
             .join(";");
         let walk_glue = root.sheet.cell("WalkPreference").is_some();
         let mut guards = Vec::new();
-        for n in [
-            "Width", "Height", "Angle", "LocPinX", "LocPinY", "PinX", "PinY",
-        ] {
+        for n in ["Width", "Height", "Angle", "LocPinX", "LocPinY", "PinX", "PinY"] {
             if let Some(c) = root.sheet.cell(n) {
                 let f = c.f.as_deref().unwrap_or("");
                 let u = f.to_uppercase();
@@ -167,7 +163,10 @@ fn main() -> anyhow::Result<()> {
             }
         }
     }
-    println!("\n== {} masters ==", masters.len());
+    println!(
+        "\n== {} masters ==",
+        masters.len()
+    );
     Ok(())
 }
 

@@ -776,10 +776,7 @@ fn zero_length_placeholder_parses_as_an_empty_stencil() {
     // document is a fixed point of write→parse.
     let out = tmp.path().join("out.vssx");
     vsdx::write::save(&doc, &out).unwrap();
-    assert!(
-        out.metadata().unwrap().len() > 0,
-        "the written file is a real zip"
-    );
+    assert!(out.metadata().unwrap().len() > 0, "the written file is a real zip");
     let reopened = vsdx::parse::parse(&out).unwrap();
     assert!(
         reopened.masters.is_empty() && reopened.pages.is_empty(),
