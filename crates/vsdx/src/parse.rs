@@ -37,7 +37,11 @@ pub fn parse(path: &Path) -> Result<Document> {
     if std::fs::metadata(path).is_ok_and(|m| m.len() == 0) {
         return parse_bytes(&fresh_empty_package()?);
     }
-    let pkg = Package::open(path).context("opening OPC package")?;
+    let bytes = std::fs::read(path).context("reading file")?;
+    if crate::vsd::is_ole(&bytes) {
+        return parse_bytes(&bytes);
+    }
+    let pkg = Package::from_reader(std::io::Cursor::new(bytes)).context("opening OPC package")?;
     parse_package(pkg)
 }
 
@@ -49,6 +53,12 @@ pub fn parse_bytes(bytes: &[u8]) -> Result<Document> {
     // files) check the length before calling.
     if bytes.is_empty() {
         return parse_bytes(&fresh_empty_package()?);
+    }
+    // #36: legacy binary Visio (.vsd/.vss/.vst, an OLE compound file)
+    // is converted to the equivalent VSDX package first.
+    if crate::vsd::is_ole(bytes) {
+        let pkg = crate::vsd::to_package(bytes).context("converting legacy binary Visio file")?;
+        return parse_bytes(&pkg);
     }
     let pkg = Package::from_reader(std::io::Cursor::new(bytes)).context("opening OPC package")?;
     parse_package(pkg)

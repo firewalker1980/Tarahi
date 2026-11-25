@@ -1086,7 +1086,7 @@ impl App {
         if path
             .extension()
             .and_then(|e| e.to_str())
-            .is_some_and(|e| e.eq_ignore_ascii_case("vssx"))
+            .is_some_and(|e| e.eq_ignore_ascii_case("vssx") || e.eq_ignore_ascii_case("vss"))
         {
             self.open_stencil(path);
             return;
@@ -1651,7 +1651,9 @@ impl App {
     }
 
     fn do_save(&mut self, save_as: bool) {
-        if save_as || self.path.as_os_str().is_empty() {
+        // A legacy binary file (#36) is read-only: Save asks for a new
+        // .vsdx-family name instead of writing a package over the .vsd.
+        if save_as || self.path.as_os_str().is_empty() || is_legacy_visio(&self.path) {
             self.begin_dialog(PendingKind::SaveAs);
         } else {
             let path = self.path.clone();
@@ -1933,12 +1935,12 @@ impl App {
                     PendingKind::Open => rfd::FileDialog::new()
                         .add_filter(
                             crate::i18n::strs().msg_visio_vsdx_family(),
-                            &["vsdx", "vstx", "vssx"],
+                            &["vsdx", "vstx", "vssx", "vsd", "vst", "vss"],
                         )
                         .pick_file(),
                     PendingKind::OpenStencil => {
                         let mut dlg = rfd::FileDialog::new()
-                            .add_filter(crate::i18n::strs().msg_visio_stencil(), &["vssx"]);
+                            .add_filter(crate::i18n::strs().msg_visio_stencil(), &["vssx", "vss"]);
                         if let Some(dir) = Self::my_shapes_dir() {
                             let _ = std::fs::create_dir_all(&dir);
                             dlg = dlg.set_directory(dir);
@@ -18975,4 +18977,12 @@ fn find_master_by_name<'a>(doc: &'a Document, name: &str) -> Option<&'a vsdx::Ma
     doc.masters
         .iter()
         .find(|m| m.name_u.as_deref() == Some(name))
+}
+
+/// A legacy binary Visio file (.vsd/.vss/.vst, #36): opened through the
+/// converter, never overwritten in place.
+fn is_legacy_visio(path: &Path) -> bool {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| ["vsd", "vss", "vst"].iter().any(|x| e.eq_ignore_ascii_case(x)))
 }

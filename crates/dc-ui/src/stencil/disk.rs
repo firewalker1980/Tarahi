@@ -73,7 +73,7 @@ fn name_sort_key(name: &std::ffi::OsStr) -> String {
 
 fn is_vssx(path: &Path) -> bool {
     path.extension()
-        .is_some_and(|e| e.eq_ignore_ascii_case("vssx"))
+        .is_some_and(|e| e.eq_ignore_ascii_case("vssx") || e.eq_ignore_ascii_case("vss"))
 }
 
 /// Scan My Shapes for user stencils (#266): root `.vssx` files plus

@@ -17,6 +17,7 @@ pub mod model;
 pub mod opc;
 pub mod parse;
 pub mod text;
+pub mod vsd;
 pub mod write;
 
 pub use model::{Cell, Document, Master, Page, Row, Section, Shape, Sheet};
