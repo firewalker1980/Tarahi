@@ -295,7 +295,9 @@ pub fn split_cdata_at_plain(raw: &str, boundaries: &[usize]) -> String {
         if c == '&' {
             // An entity resolves to its unescaped characters.
             let semi = raw[i..].find(';').map_or(raw.len(), |k| i + k + 1);
-            let n = crate::opc::unescape(&raw.as_bytes()[i..semi]).chars().count();
+            let n = crate::opc::unescape(&raw.as_bytes()[i..semi])
+                .chars()
+                .count();
             out.push_str(&raw[i..semi]);
             count += n;
             i = semi;

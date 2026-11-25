@@ -13,11 +13,11 @@ fn walk(dir: &Path, out: &mut Vec<PathBuf>) {
         let p = e.path();
         if p.is_dir() {
             walk(&p, out);
-        } else if p
-            .extension()
-            .and_then(|e| e.to_str())
-            .is_some_and(|e| ["vsd", "vss", "vst"].iter().any(|x| e.eq_ignore_ascii_case(x)))
-        {
+        } else if p.extension().and_then(|e| e.to_str()).is_some_and(|e| {
+            ["vsd", "vss", "vst"]
+                .iter()
+                .any(|x| e.eq_ignore_ascii_case(x))
+        }) {
             out.push(p);
         }
     }
@@ -37,7 +37,9 @@ fn legacy_corpus_converts() {
     for f in &files {
         let bytes = std::fs::read(f).unwrap();
         // only Visio 2003–2010 (v11) binaries are in scope
-        let Ok(vd) = vsdx::vsd::visio_stream(&bytes) else { continue };
+        let Ok(vd) = vsdx::vsd::visio_stream(&bytes) else {
+            continue;
+        };
         if vd[0x1A] != 11 {
             continue;
         }
@@ -53,5 +55,10 @@ fn legacy_corpus_converts() {
         }
     }
     eprintln!("checked {checked} legacy files");
-    assert!(failed.is_empty(), "{} failed:\n{}", failed.len(), failed.join("\n"));
+    assert!(
+        failed.is_empty(),
+        "{} failed:\n{}",
+        failed.len(),
+        failed.join("\n")
+    );
 }

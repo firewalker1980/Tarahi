@@ -1305,9 +1305,8 @@ mod snap_glue_tests {
             (doc.page_line_jump_factor(&doc.pages[0]) - 1.5).abs() < 1e-9,
             "LineJumpFactorX comes off the style chain"
         );
-        let radius = doc.page_line_to_line_x(&doc.pages[0])
-            * doc.page_line_jump_factor(&doc.pages[0])
-            / 2.0;
+        let radius =
+            doc.page_line_to_line_x(&doc.pages[0]) * doc.page_line_jump_factor(&doc.pages[0]) / 2.0;
         assert!((radius - 0.15).abs() < 1e-9);
 
         // An inline PageSheet cell wins over the chain (the GUI's jump
@@ -1334,8 +1333,7 @@ mod snap_glue_tests {
             id: 7,
             ..Default::default()
         };
-        mid.attrs
-            .push(("LineStyle".to_string(), "8".to_string()));
+        mid.attrs.push(("LineStyle".to_string(), "8".to_string()));
         let mut top = StyleSheet {
             id: 8,
             ..Default::default()

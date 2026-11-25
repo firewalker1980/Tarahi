@@ -1032,7 +1032,10 @@ mod tests {
     /// (CodeRabbit PR review).
     #[test]
     fn short_date_failure_fallback_keeps_whitespace() {
-        assert_eq!(format_value("  not a date  ", None, "c", U), "  not a date  ");
+        assert_eq!(
+            format_value("  not a date  ", None, "c", U),
+            "  not a date  "
+        );
         // A valid date still formats through the trimmed view.
         assert_eq!(format_value(" 42005 ", None, "c", U), "1/1/2015");
     }

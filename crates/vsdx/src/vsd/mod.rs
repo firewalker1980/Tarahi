@@ -16,6 +16,8 @@ use std::io::Read;
 
 pub mod cells;
 pub mod emit;
+pub mod formula;
+mod ftables;
 
 pub use emit::to_package;
 
@@ -29,7 +31,9 @@ pub fn is_ole(bytes: &[u8]) -> bool {
 /// The `VisioDocument` stream of an OLE file.
 pub fn visio_stream(bytes: &[u8]) -> Result<Vec<u8>> {
     let mut cf = cfb::CompoundFile::open(std::io::Cursor::new(bytes)).context("OLE container")?;
-    let mut s = cf.open_stream("/VisioDocument").context("no VisioDocument stream")?;
+    let mut s = cf
+        .open_stream("/VisioDocument")
+        .context("no VisioDocument stream")?;
     let mut out = Vec::new();
     s.read_to_end(&mut out)?;
     if !out.starts_with(b"Visio (TM) Drawing") || out.len() < 0x36 {
@@ -79,7 +83,8 @@ pub fn lzss(src: &[u8]) -> Vec<u8> {
 }
 
 pub fn u16_at(d: &[u8], p: usize) -> u16 {
-    d.get(p..p + 2).map_or(0, |b| u16::from_le_bytes([b[0], b[1]]))
+    d.get(p..p + 2)
+        .map_or(0, |b| u16::from_le_bytes([b[0], b[1]]))
 }
 pub fn u32_at(d: &[u8], p: usize) -> u32 {
     d.get(p..p + 4)
@@ -229,13 +234,27 @@ pub fn tree_records(ch: &[Chunk], base: u16) -> Vec<Rec> {
         }
         if c.level == base {
             if c.list != 0 {
-                cur = if c.typ == 0x68 { None } else { Some((c.typ, c.id)) };
+                cur = if c.typ == 0x68 {
+                    None
+                } else {
+                    Some((c.typ, c.id))
+                };
             } else {
                 cur = None;
-                out.push(Rec { typ: c.typ, id: c.id, list: None, data: c.data.to_vec() });
+                out.push(Rec {
+                    typ: c.typ,
+                    id: c.id,
+                    list: None,
+                    data: c.data.to_vec(),
+                });
             }
         } else {
-            out.push(Rec { typ: c.typ, id: c.id, list: cur, data: c.data.to_vec() });
+            out.push(Rec {
+                typ: c.typ,
+                id: c.id,
+                list: cur,
+                data: c.data.to_vec(),
+            });
         }
     }
     out
@@ -250,12 +269,22 @@ pub fn shape_records(doc: &[u8], p: &Ptr) -> Vec<Rec> {
     if p.has_chunks() {
         let ch = chunks(&s);
         if let Some(h) = ch.iter().find(|c| c.level == 0) {
-            out.push(Rec { typ: h.typ, id: u32::MAX, list: None, data: h.data.to_vec() });
+            out.push(Rec {
+                typ: h.typ,
+                id: u32::MAX,
+                list: None,
+                data: h.data.to_vec(),
+            });
         }
         out.extend(tree_records(&ch, 1));
     } else {
         let base = if p.compressed() { 4 } else { 0 };
-        out.push(Rec { typ: p.typ, id: u32::MAX, list: None, data: s.get(base..).unwrap_or(&[]).to_vec() });
+        out.push(Rec {
+            typ: p.typ,
+            id: u32::MAX,
+            list: None,
+            data: s.get(base..).unwrap_or(&[]).to_vec(),
+        });
     }
     if p.has_children() {
         for (i, c) in children(p, &s).iter().enumerate() {
@@ -270,25 +299,92 @@ fn collect(doc: &[u8], p: &Ptr, slot: u32, list: Option<(u32, u32)>, out: &mut V
         return;
     }
     let s = stream(doc, p);
-    let sect = if p.typ == 0x68 { None } else { Some((p.typ, slot)) };
+    let sect = if p.typ == 0x68 {
+        None
+    } else {
+        Some((p.typ, slot))
+    };
     if p.has_chunks() {
         for c in chunks(&s) {
-            out.push(Rec { typ: c.typ, id: c.id, list: sect, data: c.data.to_vec() });
+            out.push(Rec {
+                typ: c.typ,
+                id: c.id,
+                list: sect,
+                data: c.data.to_vec(),
+            });
         }
     } else if p.has_children() {
         for (i, c) in children(p, &s).iter().enumerate() {
             collect(doc, c, i as u32, sect, out);
         }
     } else {
-        let data = if p.compressed() { s.get(4..).unwrap_or(&[]).to_vec() } else { s };
-        out.push(Rec { typ: p.typ, id: slot, list, data });
+        let data = if p.compressed() {
+            s.get(4..).unwrap_or(&[]).to_vec()
+        } else {
+            s
+        };
+        out.push(Rec {
+            typ: p.typ,
+            id: slot,
+            list,
+            data,
+        });
     }
+}
+
+/// The sheets (page sheet, shapes) of a page or master container `p`,
+/// by shape id: (stream/chunk type, records with the header first as
+/// `id == u32::MAX`). Shapes are stored either as child streams (slot
+/// = id) or inline in the container's own chunk stream, where each
+/// level-1 shape chunk opens a shape whose records follow one level
+/// deeper.
+pub fn sheets(doc: &[u8], p: &Ptr) -> Vec<(u32, u32, Vec<Rec>)> {
+    let s = stream(doc, p);
+    let mut out = vec![];
+    if p.has_chunks() {
+        let ch = chunks(&s);
+        let mut i = 0;
+        while i < ch.len() {
+            let c = &ch[i];
+            if c.level == 1 && is_shape_type(c.typ) {
+                let mut j = i + 1;
+                while j < ch.len() && ch[j].level > 1 {
+                    j += 1;
+                }
+                let mut recs = vec![Rec {
+                    typ: c.typ,
+                    id: u32::MAX,
+                    list: None,
+                    data: c.data.to_vec(),
+                }];
+                recs.extend(tree_records(&ch[i + 1..j], 2));
+                out.push((c.typ, c.id, recs));
+                i = j;
+            } else {
+                i += 1;
+            }
+        }
+    }
+    if p.has_children() {
+        for (i, c) in children(p, &s).iter().enumerate() {
+            if is_shape_type(c.typ) {
+                out.push((c.typ, i as u32, shape_records(doc, c)));
+            }
+        }
+    }
+    out
 }
 
 /// Walk every stream reachable from the trailer (depth-first, each
 /// stream once), calling `f(depth, ptr, data)`.
 pub fn walk(doc: &[u8], mut f: impl FnMut(usize, &Ptr, &[u8])) {
-    fn rec(doc: &[u8], p: Ptr, depth: usize, seen: &mut std::collections::HashSet<(u32, u32)>, f: &mut dyn FnMut(usize, &Ptr, &[u8])) {
+    fn rec(
+        doc: &[u8],
+        p: Ptr,
+        depth: usize,
+        seen: &mut std::collections::HashSet<(u32, u32)>,
+        f: &mut dyn FnMut(usize, &Ptr, &[u8]),
+    ) {
         if p.typ == 0 || p.len == 0 || !seen.insert((p.off, p.len)) {
             return;
         }
@@ -311,7 +407,7 @@ mod tests {
     #[test]
     fn lzss_literals_and_backref() {
         // flags 0b0000_0111: 3 literals "abc", then ref to window offset 18-18=0, len 3
-        let src = [0x07, b'a', b'b', b'c', 0x00 , 0x00];
+        let src = [0x07, b'a', b'b', b'c', 0x00, 0x00];
         // offset field (0x000 + 18) & 0xFFF = 18 → ring[18..21], which is zeros;
         // so encode offset so that it lands at 0: stored = 0 - 18 mod 4096 = 4078 = 0xFEE
         let src2 = [0x07, b'a', b'b', b'c', 0xEE, 0xF0];

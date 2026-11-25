@@ -113,6 +113,15 @@ pub const CELLS: &[CellDef] = &[
     c(0xa0, 1, U8, "LockHeight"),
     c(0xa0, 4, U8, "LockAspect"),
     c(0xa0, 10, U8, "LockVtxEdit"),
+    // Misc: flag bits of byte 0, object type, drop scale
+    c(0xa4, 0, Bit(0), "NoObjHandles"),
+    c(0xa4, 0, Bit(1), "NonPrinting"),
+    c(0xa4, 0, Bit(2), "NoCtlHandles"),
+    c(0xa4, 0, Bit(3), "NoAlignBox"),
+    c(0xa4, 0, Bit(4), "UpdateAlignBox"),
+    c(0xa4, 0, Bit(5), "HideText"),
+    c(0xa4, 6, U8, "ObjType"),
+    c(0xa4, 24, F64, "DropOnPageScale"),
     // Page properties (page/master sheet)
     c(0x92, 1, F64, "PageWidth"),
     c(0x92, 10, F64, "PageHeight"),
@@ -130,6 +139,10 @@ pub const SECTIONS: &[(u32, &str)] = &[
     (0x71, "Connection"),
     (0x70, "Control"),
     (0x64, "Scratch"),
+    (0x67, "User"),
+    (0x6d, "Property"),
+    (0x6e, "Actions"),
+    (0x73, "Hyperlink"),
 ];
 
 pub struct RowDef {
@@ -141,22 +154,148 @@ pub struct RowDef {
 }
 
 const XY: &[(&str, usize, Enc)] = &[("X", 1, F64), ("Y", 10, F64)];
-const XYABCD: &[(&str, usize, Enc)] = &[("X", 1, F64), ("Y", 10, F64), ("A", 19, F64), ("B", 28, F64), ("C", 37, F64), ("D", 46, F64)];
+const XYABCD: &[(&str, usize, Enc)] = &[
+    ("X", 1, F64),
+    ("Y", 10, F64),
+    ("A", 19, F64),
+    ("B", 28, F64),
+    ("C", 37, F64),
+    ("D", 46, F64),
+];
 
 pub const ROWS: &[RowDef] = &[
-    RowDef { t: 0x89, header: true, row_t: None, cells: &[("NoFill", 0, Bit(0)), ("NoLine", 0, Bit(1)), ("NoShow", 0, Bit(2)), ("NoSnap", 0, Bit(3))] },
-    RowDef { t: 0x8a, header: false, row_t: Some("MoveTo"), cells: XY },
-    RowDef { t: 0x8b, header: false, row_t: Some("LineTo"), cells: XY },
-    RowDef { t: 0x8c, header: false, row_t: Some("ArcTo"), cells: &[("X", 1, F64), ("Y", 10, F64), ("A", 19, F64)] },
-    RowDef { t: 0x8f, header: false, row_t: Some("Ellipse"), cells: XYABCD },
-    RowDef { t: 0x90, header: false, row_t: Some("EllipticalArcTo"), cells: XYABCD },
-    RowDef { t: 0xc1, header: false, row_t: Some("PolylineTo"), cells: XY },
-    RowDef { t: 0xc3, header: false, row_t: Some("NURBSTo"), cells: XYABCD },
-    RowDef { t: 0x94, header: false, row_t: None, cells: &[("Font", 4, U16), ("Color", 6, Color), ("ColorTrans", 10, Trans), ("Style", 11, U8), ("Pos", 13, U8), ("Size", 18, F64)] },
-    RowDef { t: 0x95, header: false, row_t: None, cells: &[("IndFirst", 5, F64), ("IndLeft", 14, F64), ("IndRight", 23, F64), ("SpLine", 32, F64), ("HorzAlign", 58, U8)] },
-    RowDef { t: 0x99, header: false, row_t: Some("Connection"), cells: &[("X", 1, F64), ("Y", 10, F64), ("DirX", 19, F64), ("DirY", 28, F64), ("Type", 36, U8)] },
-    RowDef { t: 0xaa, header: false, row_t: None, cells: &[("X", 1, F64), ("Y", 10, F64), ("XDyn", 19, F64), ("YDyn", 28, F64)] },
-    RowDef { t: 0x9e, header: false, row_t: None, cells: XYABCD },
+    RowDef {
+        t: 0x89,
+        header: true,
+        row_t: None,
+        cells: &[
+            ("NoFill", 0, Bit(0)),
+            ("NoLine", 0, Bit(1)),
+            ("NoShow", 0, Bit(2)),
+            ("NoSnap", 0, Bit(3)),
+        ],
+    },
+    RowDef {
+        t: 0x8a,
+        header: false,
+        row_t: Some("MoveTo"),
+        cells: XY,
+    },
+    RowDef {
+        t: 0x8b,
+        header: false,
+        row_t: Some("LineTo"),
+        cells: XY,
+    },
+    RowDef {
+        t: 0x8c,
+        header: false,
+        row_t: Some("ArcTo"),
+        cells: &[("X", 1, F64), ("Y", 10, F64), ("A", 19, F64)],
+    },
+    RowDef {
+        t: 0x8f,
+        header: false,
+        row_t: Some("Ellipse"),
+        cells: XYABCD,
+    },
+    RowDef {
+        t: 0x90,
+        header: false,
+        row_t: Some("EllipticalArcTo"),
+        cells: XYABCD,
+    },
+    RowDef {
+        t: 0xc1,
+        header: false,
+        row_t: Some("PolylineTo"),
+        cells: XY,
+    },
+    RowDef {
+        t: 0xc3,
+        header: false,
+        row_t: Some("NURBSTo"),
+        cells: XYABCD,
+    },
+    RowDef {
+        t: 0x94,
+        header: false,
+        row_t: None,
+        cells: &[
+            ("Font", 4, U16),
+            ("Color", 6, Color),
+            ("ColorTrans", 10, Trans),
+            ("Style", 11, U8),
+            ("Pos", 13, U8),
+            ("Size", 18, F64),
+        ],
+    },
+    RowDef {
+        t: 0x95,
+        header: false,
+        row_t: None,
+        cells: &[
+            ("IndFirst", 5, F64),
+            ("IndLeft", 14, F64),
+            ("IndRight", 23, F64),
+            ("SpLine", 32, F64),
+            ("HorzAlign", 58, U8),
+        ],
+    },
+    RowDef {
+        t: 0x99,
+        header: false,
+        row_t: Some("Connection"),
+        cells: &[
+            ("X", 1, F64),
+            ("Y", 10, F64),
+            ("DirX", 19, F64),
+            ("DirY", 28, F64),
+            ("Type", 36, U8),
+        ],
+    },
+    RowDef {
+        t: 0xaa,
+        header: false,
+        row_t: None,
+        cells: &[
+            ("X", 1, F64),
+            ("Y", 10, F64),
+            ("XDyn", 19, F64),
+            ("YDyn", 28, F64),
+        ],
+    },
+    RowDef {
+        t: 0x9e,
+        header: false,
+        row_t: None,
+        cells: XYABCD,
+    },
+    // value cells of these rows are formula-only in practice
+    RowDef {
+        t: 0xb4,
+        header: false,
+        row_t: None,
+        cells: &[],
+    },
+    RowDef {
+        t: 0xb6,
+        header: false,
+        row_t: None,
+        cells: &[],
+    },
+    RowDef {
+        t: 0xa9,
+        header: false,
+        row_t: None,
+        cells: &[],
+    },
+    RowDef {
+        t: 0xc4,
+        header: false,
+        row_t: None,
+        cells: &[],
+    },
 ];
 
 /// Unit code (the byte before an f64) → the `U` attribute Visio writes.
