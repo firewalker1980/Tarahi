@@ -429,6 +429,12 @@ fn value(
             ));
         }
         Enc::Trans => *d.get(off)? as f64 / 256.0,
+        Enc::Num => {
+            if off == 0 || off + 8 > d.len() || d[off - 1] == 0xE8 {
+                return None;
+            }
+            return Some((num(f64_at(d, off)), cells::unit(d[off - 1])));
+        }
         Enc::U8 => *d.get(off)? as f64,
         Enc::U16 => {
             if off + 2 > d.len() {
@@ -471,6 +477,7 @@ fn formula_names(typ: u32) -> Option<&'static [&'static str]> {
         0xb4 => section_cells(242),
         0xb6 => section_cells(243),
         0xc4 => section_cells(244),
+        0xa1 => Some(&["Value", "", "Format"]),
         _ => None,
     }
 }
@@ -484,6 +491,14 @@ fn first_cell(sec: &str) -> &'static str {
         "Control" => "X",
         _ => "",
     }
+}
+
+/// `"text"` (quotes doubled inside) → `text`; None for anything else.
+fn plain_string(f: &str) -> Option<String> {
+    let inner = f.strip_prefix('"')?.strip_suffix('"')?;
+    let s = inner.replace("\"\"", "\"");
+    // a lone quote left over means it was not one literal
+    (!inner.replace("\"\"", "").contains('"')).then_some(s)
 }
 
 /// One emitted cell: name, value (V, U) and formula.
@@ -522,6 +537,18 @@ fn record_cells(
             let Some(f) = super::formula::decode(tok, &cx.pool, cx.cur) else {
                 continue;
             };
+            // a plain string literal in a cell without a stored number is
+            // the cell's text value, as Visio writes it (a numeric cell
+            // keeps its value and the string stays the formula)
+            let has_value = out.iter().any(|c| c.0 == n && c.1.is_some());
+            if let (Some(s), false) = (plain_string(&f), has_value) {
+                let u = (n == "Value").then_some("STR");
+                match out.iter_mut().find(|c| c.0 == n) {
+                    Some(c) => c.1 = Some((s, u)),
+                    None => out.push((n.to_string(), Some((s, u)), None)),
+                }
+                continue;
+            }
             match out.iter_mut().find(|c| c.0 == n) {
                 Some(c) => c.2 = Some(f),
                 None => out.push((n.to_string(), None, Some(f))),
@@ -628,11 +655,7 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
     if let Some(r) = recs.iter().find(|r| r.typ == 0x0e) {
         let txt = utf16(r.data.get(8..).unwrap_or(&[]));
         if !txt.is_empty() {
-            let _ = write!(
-                out,
-                "<Text><cp IX='0'/><pp IX='0'/>{}</Text>",
-                esc(&txt.replace('\r', "\n"))
-            );
+            let _ = write!(out, "<Text>{}</Text>", text_runs(&txt, recs));
         }
     }
     // foreign data (0x0C) described by the Foreign record (0x98)
@@ -647,6 +670,53 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
         ) {
             out.push_str(&x);
         }
+    }
+    out
+}
+
+/// Text with `<cp>`/`<pp>` run markers. Character (0x94) and paragraph
+/// (0x95) rows start with a u32 run length in UTF-16 units; 0 or a
+/// missing tail means "to the end".
+fn text_runs(txt: &str, recs: &[Rec]) -> String {
+    let lens = |t: u32| {
+        let mut rows: Vec<&Rec> = recs.iter().filter(|r| r.typ == t).collect();
+        rows.sort_by_key(|r| r.id);
+        rows.iter().map(|r| u32_at(&r.data, 0) as usize).collect::<Vec<_>>()
+    };
+    // run starts (in UTF-16 units) → marker index
+    let starts = |l: Vec<usize>| {
+        let mut s = vec![0usize];
+        let mut acc = 0;
+        for n in l.iter().take(l.len().saturating_sub(1)) {
+            if *n == 0 {
+                break;
+            }
+            acc += n;
+            s.push(acc);
+        }
+        s
+    };
+    let (cps, pps) = (starts(lens(0x94)), starts(lens(0x95)));
+    let mut out = String::new();
+    let mut pos = 0usize;
+    let mut fields = 0;
+    let mut buf = [0u16; 2];
+    for ch in txt.chars() {
+        if let Some(i) = cps.iter().position(|&s| s == pos) {
+            let _ = write!(out, "<cp IX='{i}'/>");
+        }
+        if let Some(i) = pps.iter().position(|&s| s == pos) {
+            let _ = write!(out, "<pp IX='{i}'/>");
+        }
+        if ch == '\u{FFFC}' {
+            // field placeholder: the renderer evaluates the Field row
+            let _ = write!(out, "<fld IX='{fields}'></fld>");
+            fields += 1;
+        } else {
+            let c = if ch == '\r' { '\n' } else { ch };
+            out.push_str(&esc(c.encode_utf8(&mut [0; 4])));
+        }
+        pos += ch.encode_utf16(&mut buf).len();
     }
     out
 }

@@ -18,6 +18,8 @@ pub enum Enc {
     Color,
     /// transparency byte, 0..=255 → 0..1 (in 1/256 steps)
     Trans,
+    /// f64 value unless its unit byte is 0xE8 (string kept in the formula)
+    Num,
 }
 use Enc::*;
 
@@ -143,6 +145,7 @@ pub const SECTIONS: &[(u32, &str)] = &[
     (0x6d, "Property"),
     (0x6e, "Actions"),
     (0x73, "Hyperlink"),
+    (0x66, "Field"),
 ];
 
 pub struct RowDef {
@@ -271,18 +274,26 @@ pub const ROWS: &[RowDef] = &[
         row_t: None,
         cells: XYABCD,
     },
-    // value cells of these rows are formula-only in practice
+    // Text field: Value/Format come from formula slots 0/2
+    RowDef {
+        t: 0xa1,
+        header: false,
+        row_t: None,
+        cells: &[("UICod", 29, U8)],
+    },
+    // User / Prop: a value at 1 unless held as a string formula (unit
+    // byte 0xE8); Prop's data type at 25. Other cells come from formulas.
     RowDef {
         t: 0xb4,
         header: false,
         row_t: None,
-        cells: &[],
+        cells: &[("Value", 1, Num)],
     },
     RowDef {
         t: 0xb6,
         header: false,
         row_t: None,
-        cells: &[],
+        cells: &[("Value", 1, Num), ("Type", 25, U8)],
     },
     RowDef {
         t: 0xa9,
