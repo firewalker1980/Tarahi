@@ -874,12 +874,7 @@ impl ShapeLayers {
         self.deferred = false;
         let mut quads = Vec::new();
         let mut status = None;
-        let hidden_member = |s: &vsdx::Shape| -> bool {
-            s.sheet
-                .cell("LayerMember")
-                .and_then(|c| c.numeric())
-                .is_some_and(|m| hidden.contains(&(m as i64)))
-        };
+        let hidden_member = |s: &vsdx::Shape| -> bool { dc_core::layers::hidden_by(s, hidden) };
         // ONE field context for the whole repaint (CodeRabbit agent
         // review): the shared `Sheet.N!` layer caches per context, so
         // a per-root context rebuilt the page tree for every

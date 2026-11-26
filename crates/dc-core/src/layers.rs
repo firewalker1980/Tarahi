@@ -259,3 +259,50 @@ impl crate::Command for RenameLayer {
         Ok(())
     }
 }
+
+/// The layer row indexes a shape belongs to: its `LayerMember` cell,
+/// `"2"` or `"0;2"` (Visio's `;`-separated list).
+pub fn members(shape: &vsdx::Shape) -> Vec<i64> {
+    shape
+        .sheet
+        .cell("LayerMember")
+        .and_then(|c| c.v.as_deref())
+        .map(|v| v.split(';').filter_map(|p| p.trim().parse::<f64>().ok()).map(|f| f as i64).collect())
+        .unwrap_or_default()
+}
+
+/// Whether a shape is hidden by its layers: Visio shows a shape while
+/// any of its layers is visible, so it is hidden only when it belongs
+/// to layers and all of them are in `hidden`.
+pub fn hidden_by(shape: &vsdx::Shape, hidden: &[i64]) -> bool {
+    if hidden.is_empty() {
+        return false;
+    }
+    let m = members(shape);
+    !m.is_empty() && m.iter().all(|ix| hidden.contains(ix))
+}
+
+/// The page's layers switched off in the file (`Visible` = 0).
+pub fn invisible(doc: &Document, page: i64) -> Vec<i64> {
+    layer_rows(doc, page)
+        .unwrap_or_default()
+        .iter()
+        .filter(|r| r.cell("Visible").and_then(|c| c.numeric()) == Some(0.0))
+        .map(|r| r.ix)
+        .collect()
+}
+
+#[cfg(test)]
+mod member_tests {
+    use super::*;
+
+    #[test]
+    fn multi_layer_shapes_hide_only_when_all_layers_hide() {
+        let mut s = vsdx::Shape::default();
+        s.sheet.set_cell("LayerMember", Cell::value("0;2"));
+        assert_eq!(members(&s), vec![0, 2]);
+        assert!(!hidden_by(&s, &[2]));
+        assert!(hidden_by(&s, &[0, 2]));
+        assert!(!hidden_by(&vsdx::Shape::default(), &[0]));
+    }
+}

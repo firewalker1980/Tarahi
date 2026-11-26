@@ -472,6 +472,14 @@ layer = لایه
 layer-composite-failed = لایهٔ { $id }: { $e }
 # $ix - شاخص سطر لایه
 layer-ix-fallback = لایهٔ { $ix }
+layer-lock = قفل
+layer-print = چاپ
+layer-properties = ویژگی‌های لایه
+layer-properties-tip = نمایش، پنهان‌کردن، قفل، تغییر نام و اختصاص لایه‌های صفحه
+layer-visible = نمایان
+layers = لایه‌ها
+new-layer = لایهٔ جدید
+selection-on-layers = انتخاب روی این لایه‌هاست:
 layout = چیدمان
 layout-options = گزینه‌های چیدمان
 layout-options-planned = گزینه‌های چیدمان — برنامه‌ریزی شده

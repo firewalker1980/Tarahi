@@ -255,6 +255,10 @@ pub struct App {
     align_to_page: bool,
     /// The Select by Type dialog is open (#110, URS-1160).
     selby_open: bool,
+    /// Layer Properties dialog (Home ▸ Editing ▸ Layers): open flag
+    /// and the layer name being edited.
+    layers_open: bool,
+    layer_edit: Option<(i64, String)>,
     /// Select-by-Type criterion: 0 shape type, 1 master, 2 layer.
     selby_criterion: u8,
     /// Select-by-Type chosen value.
@@ -785,6 +789,8 @@ impl App {
             tool: Tool::Pointer,
             align_to_page: false,
             selby_open: false,
+            layers_open: false,
+            layer_edit: None,
             selby_criterion: 0,
             selby_value: String::new(),
             pagesetup_open: false,
@@ -2146,6 +2152,39 @@ impl App {
         Some((x.min(x + w), y.min(y + h), w.abs(), h.abs()))
     }
 
+    /// The current page's layer indexes whose shapes don't draw:
+    /// layers switched off (Visible = 0), plus the Annotation layer
+    /// while Review ▸ Show Comments is off (#29).
+    fn hidden_layers(&self) -> Vec<i64> {
+        let Some((ed, page)) = self.ed.as_ref().and_then(|ed| Some((ed, ed.doc.pages.get(self.page_idx)?))) else {
+            return vec![];
+        };
+        let mut hidden = dc_core::layers::invisible(&ed.doc, page.id);
+        if !self.show_comments {
+            for r in dc_core::layers::layer_rows(&ed.doc, page.id).unwrap_or_default() {
+                if dc_core::layers::layer_name(&r) == Some("Annotation") {
+                    hidden.push(r.ix);
+                }
+            }
+        }
+        hidden
+    }
+
+    /// Shapes the pointer can't pick: hidden by their layers, or on a
+    /// locked layer (Visio's Lock: not selectable).
+    fn unpickable(&self, page: i64, hidden: &[i64], shape: &vsdx::Shape) -> bool {
+        if dc_core::layers::hidden_by(shape, hidden) {
+            return true;
+        }
+        let m = dc_core::layers::members(shape);
+        !m.is_empty()
+            && self.ed.as_ref().is_some_and(|ed| {
+                dc_core::layers::layer_rows(&ed.doc, page).unwrap_or_default().iter().any(|r| {
+                    m.contains(&r.ix) && r.cell("Lock").and_then(|c| c.numeric()).is_some_and(|v| v != 0.0)
+                })
+            })
+    }
+
     fn shape_hit(&self, page_pos: (f64, f64)) -> Option<i64> {
         let ed = self.ed()?;
         // Guides sit above shapes in hit priority (#113): a press on
@@ -2165,9 +2204,13 @@ impl App {
         // the chord; a belly click would otherwise land on whatever
         // shape's bbox overlaps it). Master instances count (#172):
         // `ObjType=2` often lives on the master.
+        let hidden = self.hidden_layers();
         if self.group_edit.is_empty() {
             let threshold = 5.0 / self.view.px_per_in() as f64;
             for shape in page.shapes.iter().rev() {
+                if self.unpickable(page.id, &hidden, shape) {
+                    continue;
+                }
                 if let Ok(chain) = shape_chain(&ed.doc, page.id, shape.id) {
                     if !crate::connectors::is_connector_in(&ed.doc, &chain, shape) {
                         continue;
@@ -2257,6 +2300,9 @@ impl App {
             return None;
         }
         for shape in page.shapes.iter().rev() {
+            if self.unpickable(page.id, &hidden, shape) {
+                continue;
+            }
             // #179: a rotated shape's claim uses its ROTATED bounds —
             // the unrotated Pin/Width/Height rect of a rotated box is
             // far bigger than the visible ink and steals clicks from
@@ -3510,6 +3556,7 @@ impl App {
     /// manage their own Esc (Hyperlinks, Shape Data, Comments, About).
     fn shell_surface_open(&self) -> bool {
         self.selby_open
+            || self.layers_open
             || self.snap_dlg_open
             || self.pagesetup_open
             || self.options_open
@@ -3636,7 +3683,8 @@ impl App {
                 collect_members(&group.sub_shapes, &mut members);
             }
         } else {
-            members.extend(page.shapes.iter());
+            let hidden = self.hidden_layers();
+            members.extend(page.shapes.iter().filter(|s| !self.unpickable(page_id, &hidden, s)));
         }
         for shape in members {
             if let Some((sx, sy, w, h)) = self.shape_rect(&ed.doc, page_id, shape) {
@@ -3669,7 +3717,8 @@ impl App {
                 collect_members(&group.sub_shapes, &mut members);
             }
         } else {
-            members.extend(page.shapes.iter());
+            let hidden = self.hidden_layers();
+            members.extend(page.shapes.iter().filter(|s| !self.unpickable(page_id, &hidden, s)));
         }
         for shape in members {
             if let Some((sx, sy, w, h)) = self.shape_rect(&ed.doc, page_id, shape) {
@@ -3699,6 +3748,10 @@ impl App {
     fn close_front_dialog(&mut self) -> bool {
         if self.selby_open {
             self.selby_open = false;
+            return true;
+        }
+        if self.layers_open {
+            self.layers_open = false;
             return true;
         }
         // #121: the Check Spelling dialog.
@@ -7667,7 +7720,13 @@ impl App {
         };
         let Some(ed) = self.ed() else { return };
         let page = &ed.doc.pages[self.page_idx];
-        let ids: Vec<(i64, i64)> = page.shapes.iter().map(|s| (page_id, s.id)).collect();
+        let hidden = self.hidden_layers();
+        let ids: Vec<(i64, i64)> = page
+            .shapes
+            .iter()
+            .filter(|s| !self.unpickable(page_id, &hidden, s))
+            .map(|s| (page_id, s.id))
+            .collect();
         if ids.is_empty() {
             return;
         }
@@ -8435,6 +8494,7 @@ impl App {
             Action::DistributeH => self.distribute_selection(false),
             Action::DistributeV => self.distribute_selection(true),
             Action::SelectAll => self.select_all(),
+            Action::Layers => self.layers_open = !self.layers_open,
             Action::SelectByType => {
                 self.selby_open = !self.selby_open;
                 if self.selby_open {
@@ -10004,22 +10064,7 @@ impl App {
         }
         let npages = self.ed.as_ref().unwrap().doc.pages.len();
         self.page_idx = self.page_idx.min(npages.saturating_sub(1));
-        // Annotation visibility (#29): hide the Annotation layer's
-        // members when the Review toggle is off.
-        let mut hidden: Vec<i64> = Vec::new();
-        if !self.show_comments {
-            if let Some(ed) = self.ed.as_ref() {
-                if let Some(page) = ed.doc.pages.get(self.page_idx) {
-                    if let Ok(rows) = dc_core::layers::layer_rows(&ed.doc, page.id) {
-                        for r in &rows {
-                            if dc_core::layers::layer_name(r) == Some("Annotation") {
-                                hidden.push(r.ix);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        let hidden = self.hidden_layers();
         // Group-edit breadcrumb bar (#78): "Page ▸ <Group> ▸ …" with a
         // Close Group control — Visio shows the path in the group
         // window's title; v1 pins a slim bar above the canvas. Esc
@@ -12093,6 +12138,175 @@ impl App {
     /// Editing ▸ Select ▸ Select by Type): pick a criterion — shape
     /// type, master, or layer — and a value from the page, and the
     /// matching shapes become the selection.
+    /// Layer Properties (Visio's Home ▸ Editing ▸ Layers): the page's
+    /// layers with Visible / Print / Lock and a rename field, New and
+    /// Remove, and — with a selection — which layers the selection is
+    /// on (Visio's Assign to Layer). Every change is one undo step.
+    /// Lock makes the layer's shapes unpickable (`unpickable`).
+    fn layers_window(&mut self, ctx: &egui::Context) {
+        if !self.layers_open {
+            return;
+        }
+        let (Some(ed), Some(page_id)) = (self.ed.as_ref(), self.page_id()) else {
+            self.layers_open = false;
+            return;
+        };
+        let rows = dc_core::layers::layer_rows(&ed.doc, page_id).unwrap_or_default();
+        let page = ed.doc.pages.iter().find(|p| p.id == page_id);
+        let count = |ix: i64| {
+            page.map_or(0, |p| {
+                p.shapes.iter().filter(|s| dc_core::layers::members(s).contains(&ix)).count()
+            })
+        };
+        let sel: Vec<i64> = self.sel_set.iter().filter(|(p, _)| *p == page_id).map(|(_, s)| *s).collect();
+        let sel_members: Vec<(i64, Vec<i64>)> = sel
+            .iter()
+            .filter_map(|sid| {
+                let sh = vsdx::model::find_shape_by_id(&page?.shapes, *sid)?;
+                Some((*sid, dc_core::layers::members(sh)))
+            })
+            .collect();
+        let flag = |r: &vsdx::model::Row, c: &str| r.cell(c).and_then(|c| c.numeric()).unwrap_or(1.0) != 0.0;
+        let s = crate::i18n::strs();
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
+        let mut label = s.msg_layer_properties();
+        let mut open = true;
+        egui::Window::new(s.msg_layer_properties())
+            .open(&mut open)
+            .resizable(false)
+            .collapsible(false)
+            .default_width(420.0)
+            .show(ctx, |ui| {
+                ui.with_layout(dialog_dir(), |ui| {
+                    egui::Grid::new("dc-layers").striped(true).show(ui, |ui| {
+                        ui.strong(s.msg_name());
+                        ui.strong("#");
+                        ui.strong(s.msg_layer_visible());
+                        ui.strong(s.msg_layer_print());
+                        ui.strong(s.msg_layer_lock());
+                        if !sel.is_empty() {
+                            ui.strong(s.msg_selection_on_layers());
+                        }
+                        ui.end_row();
+                        for r in &rows {
+                            let ix = r.ix;
+                            let name = dc_core::layers::layer_name(r).unwrap_or_default().to_string();
+                            let mut buf = match &self.layer_edit {
+                                Some((e, b)) if *e == ix => b.clone(),
+                                _ => name.clone(),
+                            };
+                            let resp = ui.add(egui::TextEdit::singleline(&mut buf).desired_width(140.0));
+                            resp.widget_info(|| {
+                                egui::WidgetInfo::text_edit(true, name.clone(), buf.clone(), format!("{} {name}", s.msg_name()))
+                            });
+                            if resp.changed() || resp.has_focus() {
+                                self.layer_edit = Some((ix, buf.clone()));
+                            }
+                            if resp.lost_focus() {
+                                self.layer_edit = None;
+                                if !buf.trim().is_empty() && buf != name {
+                                    cmds.push(Box::new(dc_core::RenameLayer::new(page_id, ix, buf.trim())));
+                                }
+                            }
+                            ui.label(count(ix).to_string());
+                            // Layer row cell names (.vsdx vocabulary)
+                            const FLAGS: [&str; 3] = ["Visible", "Print", "Lock"];
+                            for cell in FLAGS {
+                                let mut on = if cell == "Lock" {
+                                    r.cell(cell).and_then(|c| c.numeric()).unwrap_or(0.0) != 0.0
+                                } else {
+                                    flag(r, cell)
+                                };
+                                let what = match cell {
+                                    "Visible" => s.msg_layer_visible(),
+                                    "Print" => s.msg_layer_print(),
+                                    _ => s.msg_layer_lock(),
+                                };
+                                let r = ui.checkbox(&mut on, "");
+                                r.widget_info(|| {
+                                    egui::WidgetInfo::labeled(egui::Role::CheckBox, true, format!("{what} {name}"))
+                                });
+                                if r.changed() {
+                                    cmds.push(Box::new(dc_core::SetRowCell::new(
+                                        Scope::PageSheet { page: page_id },
+                                        "Layer",
+                                        0,
+                                        dc_core::commands::RowSel::Ix(ix),
+                                        cell,
+                                        vsdx::Cell::value(if on { "1" } else { "0" }),
+                                    )));
+                                }
+                            }
+                            if !sel.is_empty() {
+                                let on_n = sel_members.iter().filter(|(_, m)| m.contains(&ix)).count();
+                                let mut on = on_n == sel_members.len() && on_n > 0;
+                                let cb = egui::Checkbox::new(&mut on, "").indeterminate(on_n > 0 && on_n < sel_members.len());
+                                let r = ui.add(cb);
+                                r.widget_info(|| {
+                                    egui::WidgetInfo::labeled(
+                                        egui::Role::CheckBox,
+                                        true,
+                                        format!("{} {name}", s.msg_selection_on_layers()),
+                                    )
+                                });
+                                if r.changed() {
+                                    for (sid, m) in &sel_members {
+                                        let mut m = m.clone();
+                                        m.retain(|x| *x != ix);
+                                        if on {
+                                            m.push(ix);
+                                            m.sort();
+                                        }
+                                        cmds.push(Box::new(SetCell::new(
+                                            Scope::Shape { page: page_id, shape: *sid },
+                                            "LayerMember",
+                                            vsdx::Cell::value(m.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(";")),
+                                        )));
+                                    }
+                                }
+                            }
+                            if ui.small_button(s.msg_remove()).clicked() {
+                                // Remove the layer, keep its shapes:
+                                // drop it from their memberships first.
+                                for sh in page.into_iter().flat_map(|p| p.shapes.iter()) {
+                                    let m = dc_core::layers::members(sh);
+                                    if m.contains(&ix) {
+                                        let rest: Vec<String> =
+                                            m.iter().filter(|x| **x != ix).map(|x| x.to_string()).collect();
+                                        cmds.push(Box::new(SetCell::new(
+                                            Scope::Shape { page: page_id, shape: sh.id },
+                                            "LayerMember",
+                                            vsdx::Cell::value(rest.join(";")),
+                                        )));
+                                    }
+                                }
+                                cmds.push(Box::new(dc_core::RemoveLayer::new(page_id, ix)));
+                                label = format!("{} {name}", s.msg_remove());
+                            }
+                            ui.end_row();
+                        }
+                    });
+                    ui.separator();
+                    if ui.button(s.msg_new_layer()).clicked() {
+                        // "Layer N", the first free N (renamed inline)
+                        let names: Vec<&str> = rows.iter().filter_map(dc_core::layers::layer_name).collect();
+                        let name = (1..)
+                            .map(|n| format!("{} {n}", s.msg_layer()))
+                            .find(|n| !names.contains(&n.as_str()))
+                            .unwrap_or_default();
+                        cmds.push(Box::new(dc_core::AddLayer::new(page_id, name)));
+                        label = s.msg_new_layer();
+                    }
+                });
+            });
+        if !cmds.is_empty() {
+            self.apply(Macro::new(label, cmds));
+        }
+        if !open {
+            self.layers_open = false;
+        }
+    }
+
     fn select_by_type_window(&mut self, ctx: &egui::Context) {
         if !self.selby_open {
             return;
@@ -12155,12 +12369,7 @@ impl App {
                             let ids: Vec<i64> = page
                                 .shapes
                                 .iter()
-                                .filter(|sh| {
-                                    sh.sheet
-                                        .cell("LayerMember")
-                                        .and_then(|c| c.numeric())
-                                        .is_some_and(|m| m as i64 == *ix)
-                                })
+                                .filter(|sh| dc_core::layers::members(sh).contains(ix))
                                 .map(|sh| sh.id)
                                 .collect();
                             if !ids.is_empty() {
@@ -16552,6 +16761,7 @@ impl App {
         self.container_gallery_window(&ctx);
         self.backgrounds_window(&ctx);
         self.select_by_type_window(&ctx);
+        self.layers_window(&ctx);
         self.snap_glue_window(&ctx);
         self.hyperlink_window(&ctx);
         self.fields_insert_window(&ctx);

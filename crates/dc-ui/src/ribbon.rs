@@ -145,6 +145,8 @@ pub(crate) fn anchor_labels(tab: Tab, ctx: &TabCtx) -> Vec<String> {
 /// Everything the ribbon can ask the app to do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
+    /// Home ▸ Editing ▸ Layers: the Layer Properties dialog.
+    Layers,
     /// Clipboard group (the same paths as Ctrl+X / Ctrl+C / Ctrl+V).
     Cut,
     Copy,

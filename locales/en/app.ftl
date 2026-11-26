@@ -507,6 +507,14 @@ layer = Layer
 layer-composite-failed = layer { $id }: { $e }
 # $ix (Number) - layer row index
 layer-ix-fallback = layer { $ix }
+layer-lock = Lock
+layer-print = Print
+layer-properties = Layer Properties
+layer-properties-tip = Show, hide, lock, rename and assign the page's layers
+layer-visible = Visible
+layers = Layers
+new-layer = New layer
+selection-on-layers = The selection is on:
 layout = Layout
 layout-options = Layout Options
 layout-options-planned = Layout options — planned

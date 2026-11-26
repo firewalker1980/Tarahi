@@ -3005,6 +3005,62 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
+        message: "layer-lock",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layer-print",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layer-properties",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layer-properties-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layer-visible",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layers",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "new-layer",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "selection-on-layers",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
         message: "layout",
         attribute: None,
         vars: &[],
@@ -6778,13 +6834,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..47749,
-            Self::En => 47749..93870,
-            Self::Es => 93870..144643,
-            Self::Fa => 144643..204926,
-            Self::Ja => 204926..256034,
-            Self::Ko => 256034..303093,
-            Self::ZhHans => 303093..344231,
+            Self::De => 0..48030,
+            Self::En => 48030..94407,
+            Self::Es => 94407..145475,
+            Self::Fa => 145475..206133,
+            Self::Ja => 206133..257577,
+            Self::Ko => 257577..304929,
+            Self::ZhHans => 304929..346327,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -8475,6 +8531,30 @@ impl L10nLanguage {
         let mut _args = FluentArgs::new();
         _args.set("ix", ix.into());
         self.0.msg("layer-ix-fallback", Some(_args)).unwrap()
+    }
+    pub fn msg_layer_lock(&self) -> String {
+        self.0.msg("layer-lock", None).unwrap()
+    }
+    pub fn msg_layer_print(&self) -> String {
+        self.0.msg("layer-print", None).unwrap()
+    }
+    pub fn msg_layer_properties(&self) -> String {
+        self.0.msg("layer-properties", None).unwrap()
+    }
+    pub fn msg_layer_properties_tip(&self) -> String {
+        self.0.msg("layer-properties-tip", None).unwrap()
+    }
+    pub fn msg_layer_visible(&self) -> String {
+        self.0.msg("layer-visible", None).unwrap()
+    }
+    pub fn msg_layers(&self) -> String {
+        self.0.msg("layers", None).unwrap()
+    }
+    pub fn msg_new_layer(&self) -> String {
+        self.0.msg("new-layer", None).unwrap()
+    }
+    pub fn msg_selection_on_layers(&self) -> String {
+        self.0.msg("selection-on-layers", None).unwrap()
     }
     pub fn msg_layout(&self) -> String {
         self.0.msg("layout", None).unwrap()

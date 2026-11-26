@@ -505,6 +505,14 @@ layer = Capa
 layer-composite-failed = capa { $id }: { $e }
 # $ix - índice de la fila de capa
 layer-ix-fallback = capa { $ix }
+layer-lock = Bloquear
+layer-print = Imprimir
+layer-properties = Propiedades de capa
+layer-properties-tip = Mostrar, ocultar, bloquear, cambiar el nombre y asignar las capas de la página
+layer-visible = Visible
+layers = Capas
+new-layer = Nueva capa
+selection-on-layers = La selección está en:
 layout = Diseño
 layout-options = Opciones de diseño
 layout-options-planned = Opciones de diseño — planeado

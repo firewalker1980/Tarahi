@@ -1124,12 +1124,7 @@ fn render_shape_layer_inner(
     let Some(shape) = page.shapes.iter().find(|s| s.id == shape_id) else {
         anyhow::bail!("shape {shape_id} not found on page {}", page.id);
     };
-    let hidden_member = |s: &Shape| -> bool {
-        s.sheet
-            .cell("LayerMember")
-            .and_then(|c| c.numeric())
-            .is_some_and(|m| hidden.contains(&(m as i64)))
-    };
+    let hidden_member = |s: &Shape| -> bool { dc_core::layers::hidden_by(s, hidden) };
     let greek = greek_ppi.map(GreekCtx::new);
     let mut svg = String::new();
     let (bx, by, bw, bh) = bounds;
@@ -1202,6 +1197,10 @@ fn render_page_full(
 ) -> anyhow::Result<String> {
     let w = num(page.sheet().and_then(|s| s.cell("PageWidth"))).unwrap_or(8.5);
     let h = num(page.sheet().and_then(|s| s.cell("PageHeight"))).unwrap_or(11.0);
+    // Layers switched off in the file never render (Visio's Visible).
+    let mut all_hidden = dc_core::layers::invisible(doc, page.id);
+    all_hidden.extend_from_slice(hidden);
+    let hidden = &all_hidden[..];
 
     let mut svg = String::new();
     let _ = writeln!(
@@ -1229,12 +1228,7 @@ fn render_page_full(
             r##"<rect x="0" y="0" width="{w}" height="{h}" fill="#ffffff"/>"##,
         );
     }
-    let hidden_member = |s: &Shape| -> bool {
-        s.sheet
-            .cell("LayerMember")
-            .and_then(|c| c.numeric())
-            .is_some_and(|m| hidden.contains(&(m as i64)))
-    };
+    let hidden_member = |s: &Shape| -> bool { dc_core::layers::hidden_by(s, hidden) };
     // ONE field context for the whole walk (CodeRabbit agent
     // review): the shared `Sheet.N!` layer caches per CONTEXT, so a
     // per-shape context rebuilt it for every root — the quadratic

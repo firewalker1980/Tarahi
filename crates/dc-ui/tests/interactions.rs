@@ -10471,3 +10471,51 @@ fn home_font_paragraph_and_order_buttons_act_on_selection() {
     assert_eq!(h.state().debug_shape_count(), n + 1, "ribbon Copy + Paste");
 }
 
+/// Home ▸ Editing ▸ Layers: add a layer, put the selection on it, then
+/// hide it (shape no longer pickable) and lock it; one undo per step.
+#[test]
+fn layers_dialog_adds_assigns_hides_and_locks() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, a) = place_master(&mut h, 2);
+    let center = h.state().debug_shape_screen_rect(a).unwrap().center();
+    h.get_by_label("Layers").click();
+    h.run();
+    h.get_by_label("New layer").click();
+    h.run();
+    h.run();
+    h.get_by_label("The selection is on: Layer 1").click();
+    h.run();
+    assert_eq!(h.state().debug_cell_for_test(a, "LayerMember").as_deref(), Some("0"));
+
+    h.get_by_label("Visible Layer 1").click();
+    h.run();
+    h.key_press(egui::Key::Escape); // close the dialog
+    h.run();
+    click_at(&mut h, center, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_sel(), None, "hidden layer's shape isn't pickable");
+
+    // undo the Visible change: pickable again
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    click_at(&mut h, center, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(a));
+
+    // Lock: still drawn, but not selectable (click, marquee or Ctrl+A)
+    h.get_by_label("Layers").click();
+    h.run();
+    h.get_by_label("Lock Layer 1").click();
+    h.run();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    click_at(&mut h, egui::pos2(640.0, 760.0), egui::PointerButton::Primary); // deselect
+    h.run();
+    click_at(&mut h, center, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_sel(), None, "locked layer's shape isn't pickable");
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::A);
+    h.run();
+    assert_eq!(h.state().debug_sel_set_len(), 0, "Select All skips it too");
+}

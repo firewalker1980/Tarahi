@@ -472,6 +472,14 @@ layer = Ebene
 layer-composite-failed = Layer { $id }: { $e }
 # $ix - Layer-Zeilenindex
 layer-ix-fallback = Layer { $ix }
+layer-lock = Sperren
+layer-print = Drucken
+layer-properties = Ebeneneigenschaften
+layer-properties-tip = Ebenen der Seite ein-/ausblenden, sperren, umbenennen und zuweisen
+layer-visible = Sichtbar
+layers = Ebenen
+new-layer = Neue Ebene
+selection-on-layers = Die Auswahl liegt auf:
 layout = Layout
 layout-options = Layoutoptionen
 layout-options-planned = Layoutoptionen — geplant
