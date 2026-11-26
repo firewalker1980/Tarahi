@@ -5275,10 +5275,12 @@ mod reconcile_jump_tests {
 /// (after the steps before it in the same Macro): `build` makes the
 /// inner commands once; redo replays them. `touch` names what it may
 /// change, for the layer cache.
+type BuildFn = Box<dyn FnOnce(&Document) -> Vec<Box<dyn Command>>>;
+
 pub struct Deferred {
     label: String,
     touch: dc_core::TouchList,
-    build: Option<Box<dyn FnOnce(&Document) -> Vec<Box<dyn Command>>>>,
+    build: Option<BuildFn>,
     inner: Option<dc_core::Macro>,
 }
 
