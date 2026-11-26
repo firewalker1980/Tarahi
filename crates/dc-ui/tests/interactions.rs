@@ -3447,9 +3447,7 @@ fn insert_field_dialog_writes_row_and_marker_caret_precise() {
         egui::PointerButton::Primary,
     );
     h.run();
-    // Establish the cursor (the accesskit text set leaves none) and
-    // step it left of the B.
-    h.key_press(egui::Key::ArrowLeft);
+    // (the editor centres the text, so the click put the caret at A|B)
     h.run();
 
     // Insert ▸ Text ▸ Text Field: switch to the Insert tab, then the
@@ -3563,7 +3561,7 @@ fn second_field_insertion_lands_after_the_first() {
         egui::PointerButton::Primary,
     );
     h.run();
-    h.key_press(egui::Key::ArrowLeft);
+    // (the editor centres the text, so the click put the caret at A|B)
     h.run();
 
     // First insertion (the tab click commits the edit; the captured
@@ -11811,8 +11809,20 @@ fn text_background_stays_while_editing() {
     h.run();
     let r = h.state().debug_shape_screen_rect_for_test(sid).expect("on screen");
     let img = h.render().unwrap();
-    let p = img.get_pixel((r.center().x + r.width() * 0.3) as u32, (r.center().y + r.height() * 0.3) as u32);
-    assert!(p[0] < 60 && p[1] < 60 && p[2] < 60, "text background while editing: {p:?}");
+    // around the text in the middle of the box: mostly the black
+    // background (white glyphs over it)
+    let (cx, cy) = (r.center().x as u32, r.center().y as u32);
+    let (mut dark, mut n) = (0, 0);
+    for y in cy - 4..cy + 4 {
+        for x in cx - 20..cx + 20 {
+            let p = img.get_pixel(x, y);
+            n += 1;
+            if p[0] < 60 && p[1] < 60 && p[2] < 60 {
+                dark += 1;
+            }
+        }
+    }
+    assert!(dark * 2 > n, "text background while editing: {dark}/{n} dark");
 }
 
 /// A stencil opened with no drawing (double-clicked in the file manager,
@@ -11839,4 +11849,33 @@ fn stencil_opened_without_a_drawing_shows_in_a_blank_one() {
     h.run();
     assert!(h.state().debug_doc_open(), "a blank drawing opened");
     assert_eq!(h.state().debug_stencil_entries(), vec![("epsilon".to_string(), true)]);
+}
+
+/// A label below its shape's outline (a device's text block) opens on
+/// a double-click at the label (Visio picks a shape by its text too),
+/// and editing rich text keeps its formatting runs (<cp> markers): the
+/// commit replaces only the changed span.
+#[test]
+fn label_outside_outline_edits_and_rich_text_keeps_its_runs() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    let page = h.state().debug_page_ids()[0];
+    // text block a full shape-height below the shape
+    h.state_mut().set_cell_for_test(page, sid, "TxtPinY", "-0.5", None);
+    h.state_mut().debug_set_raw_text_for_test(sid, "<cp IX='0'/>Core <cp IX='1'/>Router");
+    h.run();
+    let doc = h.state().debug_doc().unwrap().clone();
+    let pg = &doc.pages[0];
+    let (x, y, w, hh) = dc::svg::text_block_page_rect(&doc, pg, sid).unwrap();
+    h.state_mut().debug_select_for_test(-1);
+    h.state_mut().debug_dbl_click_page((x + w / 2.0, y + hh / 2.0));
+    assert_eq!(h.state().debug_text_edit().map(|(_, id)| id), Some(sid), "the label opened its shape's text");
+    assert_eq!(h.state().debug_text_edit_draft().as_deref(), Some("Core Router"));
+    h.state_mut().debug_set_draft_for_test("Core Switch");
+    h.state_mut().debug_end_edit_commit();
+    h.run();
+    let doc = h.state().debug_doc().unwrap();
+    let raw = vsdx::model::find_shape_by_id(&doc.pages[0].shapes, sid).unwrap().sheet.text_raw.clone();
+    assert_eq!(raw.as_deref(), Some("<cp IX='0'/>Core <cp IX='1'/>Switch"));
 }

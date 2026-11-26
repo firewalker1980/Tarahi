@@ -96,6 +96,11 @@ pub struct TextEditSession {
     /// draft as last checked.
     pub autocorrect: Option<crate::autocorrect::AutoCorrect>,
     ac_seen: String,
+    /// The text as editing began and each of its characters' look
+    /// (rich text: colours, bold, sizes per run), carried through the
+    /// edits so the editor shows what the canvas shows.
+    pub base: String,
+    pub looks: Option<(Vec<usize>, Vec<dc::svg::CharLook>)>,
 }
 
 impl TextEditSession {
@@ -113,6 +118,8 @@ impl TextEditSession {
             focus_requested: false,
             autocorrect: None,
             ac_seen: String::new(),
+            base: String::new(),
+            looks: None,
         }
     }
 
@@ -364,10 +371,6 @@ pub fn show_overlay(
     // The text background (TextBkgnd) is drawn with the text, which the
     // canvas leaves out while editing: paint it here, or white text on
     // a dark text box turns invisible.
-    if let Some((c, a)) = &tb.text_bkgnd {
-        let c = parse_hex_color(c);
-        ui.painter().rect_filled(screen, 0.0, Color32::from_rgba_unmultiplied(c.r(), c.g(), c.b(), *a));
-    }
     // Editor chrome: Visio hairlines the text block while editing.
     ui.painter().rect_stroke(
         screen,
@@ -411,9 +414,55 @@ pub fn show_overlay(
         _ => egui::Align::Center,
     };
     let wrap_width = (screen.width() - m_left as f32 - m_right as f32).max(8.0);
+    // per-run looks, as (family, size, colour) per style index
+    let run_fmt: Option<(Vec<usize>, Vec<egui::TextFormat>)> = session.looks.as_ref().map(|(per, looks)| {
+        let fmts = looks
+            .iter()
+            .map(|(c, b, i, z)| {
+                let (fam, _) = overlay_font(ui.ctx(), tb.font.as_deref(), b.unwrap_or(tb.bold), i.unwrap_or(tb.italic));
+                let size = z.map_or(font_pts, |z| (z as f32 * 96.0 * view.zoom).clamp(4.0, 400.0));
+                egui::TextFormat {
+                    font_id: FontId::new(size, fam),
+                    color: c.as_deref().map_or(color, parse_hex_color),
+                    line_height: Some(line_pts),
+                    ..Default::default()
+                }
+            })
+            .collect();
+        (per.clone(), fmts)
+    });
+    let base = session.base.clone();
     let build_job = |text: &str| {
-        let mut job =
-            egui::text::LayoutJob::simple(text.to_owned(), font_id.clone(), color, wrap_width);
+        // Visio's soft line break (U+2028, Shift+Enter) and paragraph
+        // separator have no glyph (egui panics on them): shown as a line
+        // break, one char for one so caret offsets stay put
+        let shown: String = text.chars().map(|c| if matches!(c, '\u{2028}' | '\u{2029}') { '\n' } else { c }).collect();
+        let mut job = match &run_fmt {
+            Some((per, fmts)) if !fmts.is_empty() => {
+                // each char's look from the text as editing began:
+                // unchanged text keeps its run, typed text takes the run
+                // of the char before it
+                let (p, old_len, ins) = dc::textfunc::changed_span(&base, text);
+                let ins_len = ins.chars().count();
+                let look = |i: usize| {
+                    let b = if i < p { i } else if i >= p + ins_len { i - ins_len + old_len } else { p.saturating_sub(1) };
+                    per.get(b).or(per.last()).copied().unwrap_or(0).min(fmts.len() - 1)
+                };
+                let mut job = egui::text::LayoutJob { wrap: egui::text::TextWrapping { max_width: wrap_width, ..Default::default() }, ..Default::default() };
+                let chars: Vec<(usize, char)> = shown.char_indices().collect();
+                let mut start = 0usize;
+                for k in 1..=chars.len() {
+                    if k == chars.len() || look(k) != look(start) {
+                        let a = chars[start].0;
+                        let b = chars.get(k).map_or(shown.len(), |c| c.0);
+                        job.append(&shown[a..b], 0.0, fmts[look(start)].clone());
+                        start = k;
+                    }
+                }
+                job
+            }
+            _ => egui::text::LayoutJob::simple(shown, font_id.clone(), color, wrap_width),
+        };
         job.halign = halign;
         job.keep_trailing_whitespace = true;
         for section in &mut job.sections {
@@ -427,8 +476,10 @@ pub fn show_overlay(
     };
     // The wrapped line count drives the renderer's vertical band
     // (VertAlign centers total_h, not the glyph ink).
+    // (the trailing paragraph mark is no line: the renderer drops it, as
+    // Visio does; counting it put the editor's text a line too high)
     let n_lines = ui
-        .fonts_mut(|f| f.layout_job(build_job(session.draft.as_str())))
+        .fonts_mut(|f| f.layout_job(build_job(session.draft.trim_end_matches(['\r', '\n', ' ', '\t']))))
         .rows
         .len()
         .max(1) as f64;
@@ -534,7 +585,7 @@ pub fn show_overlay(
     let baseline_page_y_up = (by + bh) - baseline_off_in;
     let baseline_screen = canvas::page_to_screen(bx, baseline_page_y_up, view, geom).y;
     let editor_top = baseline_screen - (ascent_em * font_pts as f64) as f32;
-    let content_h = (n_lines as f32 * line_pts + 2.0).clamp(line_pts, screen.height());
+    let content_h = (n_lines as f32 * line_pts + 2.0).clamp(line_pts, screen.height().max(line_pts));
     let place = Rect::from_min_size(
         Pos2::new(screen.left(), editor_top),
         Vec2::new(screen.width(), content_h),
@@ -554,8 +605,32 @@ pub fn show_overlay(
             state.store(ui.ctx(), id);
         }
     }
+    // The text background (TextBkgnd) is drawn with the text, which the
+    // canvas leaves out while editing: painted here behind the text's own
+    // rows (as the renderer does), or white text on a dark text box turns
+    // invisible.
+    if let Some((c, a)) = &tb.text_bkgnd {
+        let c = parse_hex_color(c);
+        let fill = Color32::from_rgba_unmultiplied(c.r(), c.g(), c.b(), *a);
+        let galley = ui.fonts_mut(|f| f.layout_job(build_job(session.draft.trim_end_matches(['\r', '\n']))));
+        let (l, r) = (place.left() + m_left as f32, place.right() - m_right as f32);
+        for row in &galley.rows {
+            let w = row.rect().width();
+            if w <= 0.0 {
+                continue;
+            }
+            let x0 = match halign {
+                egui::Align::Min => l,
+                egui::Align::Max => r - w,
+                _ => (l + r - w) / 2.0,
+            };
+            let y0 = place.top() + row.rect().top();
+            ui.painter().rect_filled(Rect::from_min_size(Pos2::new(x0 - 2.0, y0), Vec2::new(w + 4.0, row.rect().height())), 0.0, fill);
+        }
+    }
     let edit = egui::TextEdit::multiline(&mut session.draft)
         .id(id)
+        .align(egui::Align2([halign, egui::Align::Min]))
         .hint_text(crate::i18n::strs().msg_shape_text())
         .desired_width(f32::INFINITY)
         // One row of the OVERLAY font drives the widget's minimum —
@@ -1133,3 +1208,4 @@ mod field_mark_tests {
         assert!(s.field_marks.is_empty(), "Backspace ate the field");
     }
 }
+

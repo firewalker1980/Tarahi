@@ -2327,3 +2327,16 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod action_lock_tests {
+    use super::*;
+    #[test]
+    fn vendor_label_lock_follows_the_action_checkbox() {
+        let mut env = Env::new();
+        env.insert("Actions.Row_2.Checked".into(), 0.0);
+        assert_eq!(eval("GUARD(NOT(Actions.Row_2.Checked))", &env).unwrap().as_f64(), Some(1.0));
+        env.insert("Actions.Row_2.Checked".into(), 1.0);
+        assert_eq!(eval("GUARD(NOT(Actions.Row_2.Checked))", &env).unwrap().as_f64(), Some(0.0));
+    }
+}

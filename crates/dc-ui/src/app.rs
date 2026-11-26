@@ -2421,81 +2421,17 @@ impl App {
         // shape's bbox overlaps it). Master instances count (#172):
         // `ObjType=2` often lives on the master.
         let hidden = self.hidden_layers();
+        // Topmost first, as Visio: a connector by its ink, any shape by
+        // its text (own or a member's: a label below a device's
+        // outline); outlines come after.
         if self.group_edit.is_empty() {
             let threshold = 5.0 / self.view.px_per_in() as f64;
             for shape in page.shapes.iter().rev() {
                 if self.unpickable(page.id, &hidden, shape) {
                     continue;
                 }
-                if let Ok(chain) = shape_chain(&ed.doc, page.id, shape.id) {
-                    if !crate::connectors::is_connector_in(&ed.doc, &chain, shape) {
-                        continue;
-                    }
-                    let g = |n: &str| {
-                        ed.doc
-                            .resolve_cell(shape, &chain, n)
-                            .and_then(|c| c.numeric())
-                    };
-                    if let (Some(bx), Some(by), Some(ex), Some(ey)) =
-                        (g("BeginX"), g("BeginY"), g("EndX"), g("EndY"))
-                    {
-                        if segment_hit((bx, by), (ex, ey), page_pos, threshold) {
-                            return Some(shape.id);
-                        }
-                    }
-                    // The geometry walk (master root rows when the
-                    // instance carries none), mapped through the
-                    // chain-resolved bbox.
-                    let (root, msize) = shape
-                        .master
-                        .and_then(|mid| {
-                            ed.doc.master(mid).and_then(|m| {
-                                m.shapes.first().map(|root| {
-                                    let size = (
-                                        root.sheet
-                                            .cell("Width")
-                                            .and_then(|c| c.numeric())
-                                            .unwrap_or(1.0),
-                                        root.sheet
-                                            .cell("Height")
-                                            .and_then(|c| c.numeric())
-                                            .unwrap_or(1.0),
-                                    );
-                                    (root, size)
-                                })
-                            })
-                        })
-                        .map(|(r, s)| (Some(r), s))
-                        .unwrap_or((None, (1.0, 1.0)));
-                    // #179: the full placement frame (rotation +
-                    // flips) — a rotated connector's ink lives outside
-                    // its unrotated rect, so the gate uses the
-                    // rotated corner union.
-                    let frame = crate::connectors::hit_frame(&ed.doc, &chain, shape, msize);
-                    let (bx0, by0, bx1, by1) = frame.page_bounds();
-                    if page_pos.0 >= bx0 - threshold
-                        && page_pos.0 <= bx1 + threshold
-                        && page_pos.1 >= by0 - threshold
-                        && page_pos.1 <= by1 + threshold
-                    {
-                        // #294: connector ink strips stored jump arcs —
-                        // the hit walk agrees with the rendered ink,
-                        // with the SAME radius evidence the strip uses.
-                        let strip_jumps =
-                            crate::connectors::is_connector_in(&ed.doc, &chain, shape);
-                        let radius = crate::connectors::jump_radii_in(&ed.doc, page);
-                        let segs = crate::connectors::geometry_hit_segments(
-                            shape,
-                            root,
-                            &frame,
-                            if strip_jumps { Some(radius) } else { None },
-                        );
-                        for (a, b) in segs {
-                            if segment_hit(a, b, page_pos, threshold) {
-                                return Some(shape.id);
-                            }
-                        }
-                    }
+                if Self::connector_ink_hit(&ed.doc, page, shape, page_pos, threshold) || Self::text_under(&ed.doc, page, shape, page_pos) {
+                    return Some(shape.id);
                 }
             }
         }
@@ -2564,6 +2500,152 @@ impl App {
             }
         }
         None
+    }
+
+    /// Whether a shape shows text (its own or inherited).
+    pub fn has_text(doc: &Document, page: i64, id: i64) -> bool {
+        // hidden text (HideText, e.g. a device's "Hide Equipment Label")
+        // is neither shown nor clickable
+        let hidden = doc.pages.iter().find(|p| p.id == page).and_then(|p| vsdx::model::find_shape_by_id(&p.shapes, id)).is_some_and(|s| {
+            // the instance's cached result first: an `F='Inh'` cell still
+            // caches this instance's value of the master's formula
+            s.sheet.cell("HideText").and_then(|c| c.numeric())
+                .or_else(|| shape_chain(doc, page, id).ok().and_then(|ch| doc.resolve_cell(s, &ch, "HideText")).and_then(|c| c.numeric()))
+                .is_some_and(|v| v != 0.0)
+        });
+        !hidden && dc::spellcheck::effective_raw(doc, page, id)
+            .is_some_and(|raw| vsdx::text::text_pieces(&raw).iter().any(|p| !p.plain().trim().is_empty()))
+    }
+
+    /// The shape whose text editing `id` opens: itself, or for a group
+    /// with `IsTextEditTarget=0` its topmost member holding text (else
+    /// its topmost member), followed down while members redirect too.
+    fn text_edit_target(doc: &Document, page: i64, id: i64) -> i64 {
+        let mut cur = id;
+        for _ in 0..8 {
+            let Some(p) = doc.pages.iter().find(|p| p.id == page) else { return cur };
+            let Some(s) = vsdx::model::find_shape_by_id(&p.shapes, cur) else { return cur };
+            let Ok(chain) = shape_chain(doc, page, cur) else { return cur };
+            let redirect = !s.sub_shapes.is_empty()
+                && doc.resolve_cell(s, &chain, "IsTextEditTarget").and_then(|c| c.numeric()) == Some(0.0);
+            if !redirect {
+                return cur;
+            }
+            let next = s.sub_shapes.iter().rev().find(|m| Self::has_text(doc, page, m.id)).or(s.sub_shapes.last());
+            match next {
+                Some(m) => cur = m.id,
+                None => return cur,
+            }
+        }
+        cur
+    }
+
+    /// For a group passing its text editing on (IsTextEditTarget=0):
+    /// its deepest member whose shown text is under `pos`.
+    fn clicked_text_member(&self, page_id: i64, id: i64, pos: (f64, f64)) -> Option<i64> {
+        let ed = self.ed()?;
+        let doc = &ed.doc;
+        let page = doc.pages.iter().find(|p| p.id == page_id)?;
+        let s = vsdx::model::find_shape_by_id(&page.shapes, id)?;
+        let chain = shape_chain(doc, page_id, id).ok()?;
+        if doc.resolve_cell(s, &chain, "IsTextEditTarget").and_then(|c| c.numeric()) != Some(0.0) {
+            return None;
+        }
+        fn deepest(doc: &Document, page: &vsdx::Page, s: &Shape, pos: (f64, f64)) -> Option<i64> {
+            s.sub_shapes.iter().rev().find_map(|m| {
+                deepest(doc, page, m, pos).or_else(|| {
+                    (App::has_text(doc, page.id, m.id)
+                        && dc::svg::text_block_page_rect(doc, page, m.id)
+                            .is_some_and(|(x, y, w, h)| pos.0 >= x && pos.0 <= x + w && pos.1 >= y && pos.1 <= y + h))
+                    .then_some(m.id)
+                })
+            })
+        }
+        deepest(doc, page, s, pos)
+    }
+
+    /// Whether `s`'s text (its own or a member's) is under `pos`.
+    fn text_under(doc: &Document, page: &vsdx::Page, s: &Shape, pos: (f64, f64)) -> bool {
+        let own = Self::has_text(doc, page.id, s.id)
+            && dc::svg::text_block_page_rect(doc, page, s.id)
+                .is_some_and(|(x, y, w, h)| pos.0 >= x && pos.0 <= x + w && pos.1 >= y && pos.1 <= y + h);
+        own || s.sub_shapes.iter().any(|m| Self::text_under(doc, page, m, pos))
+    }
+
+    /// A connector's ink (Begin→End chord, then its geometry rows)
+    /// within `threshold` of `page_pos`; false for other shapes.
+    fn connector_ink_hit(doc: &Document, page: &vsdx::Page, shape: &Shape, page_pos: (f64, f64), threshold: f64) -> bool {
+        if let Ok(chain) = shape_chain(doc, page.id, shape.id) {
+            if !crate::connectors::is_connector_in(doc, &chain, shape) {
+                return false;
+            }
+            let g = |n: &str| {
+                doc
+                    .resolve_cell(shape, &chain, n)
+                    .and_then(|c| c.numeric())
+            };
+            // The Begin→End chord is ink only for a connector without
+            // route geometry: a routed (elbow) connector's chord is an
+            // invisible diagonal that stole clicks from labels it crossed
+            let chord = || {
+                matches!((g("BeginX"), g("BeginY"), g("EndX"), g("EndY")), (Some(bx), Some(by), Some(ex), Some(ey))
+                    if segment_hit((bx, by), (ex, ey), page_pos, threshold))
+            };
+            // The geometry walk (master root rows when the
+            // instance carries none), mapped through the
+            // chain-resolved bbox.
+            let (root, msize) = shape
+                .master
+                .and_then(|mid| {
+                    doc.master(mid).and_then(|m| {
+                        m.shapes.first().map(|root| {
+                            let size = (
+                                root.sheet
+                                    .cell("Width")
+                                    .and_then(|c| c.numeric())
+                                    .unwrap_or(1.0),
+                                root.sheet
+                                    .cell("Height")
+                                    .and_then(|c| c.numeric())
+                                    .unwrap_or(1.0),
+                            );
+                            (root, size)
+                        })
+                    })
+                })
+                .map(|(r, s)| (Some(r), s))
+                .unwrap_or((None, (1.0, 1.0)));
+            // #179: the full placement frame (rotation +
+            // flips) — a rotated connector's ink lives outside
+            // its unrotated rect, so the gate uses the
+            // rotated corner union.
+            let frame = crate::connectors::hit_frame(&doc, &chain, shape, msize);
+            let (bx0, by0, bx1, by1) = frame.page_bounds();
+            if page_pos.0 >= bx0 - threshold
+                && page_pos.0 <= bx1 + threshold
+                && page_pos.1 >= by0 - threshold
+                && page_pos.1 <= by1 + threshold
+            {
+                // #294: connector ink strips stored jump arcs —
+                // the hit walk agrees with the rendered ink,
+                // with the SAME radius evidence the strip uses.
+                let strip_jumps =
+                    crate::connectors::is_connector_in(&doc, &chain, shape);
+                let radius = crate::connectors::jump_radii_in(&doc, page);
+                let segs = crate::connectors::geometry_hit_segments(
+                    shape,
+                    root,
+                    &frame,
+                    if strip_jumps { Some(radius) } else { None },
+                );
+                if segs.is_empty() {
+                    return chord();
+                }
+                return segs.into_iter().any(|(a, b)| segment_hit(a, b, page_pos, threshold));
+            }
+            return chord();
+        }
+        false
     }
 
     /// No fill and no text: picked by its outline only (Visio).
@@ -6827,7 +6909,7 @@ impl App {
         let dbl = match classify_dbl_click(formula.as_deref()) {
             DblClick::OpenText => 0,
             DblClick::OpenGroup => 1,
-            DblClick::OpenSheet => 2,
+            DblClick::OpenSheet | DblClick::ShapeData => 2,
             DblClick::Nothing => 3,
             DblClick::Deferred(_) => 4,
         };
@@ -10513,7 +10595,9 @@ impl App {
         match classify_dbl_click(formula.as_deref()) {
             DblClick::OpenText => {
                 // The F2 path reached by mouse: seed the draft and let
-                // the in-place editor run it.
+                // the in-place editor run it. In a group that hands its
+                // text editing on, the member whose text was clicked.
+                let shape_id = self.clicked_text_member(page_id, shape_id, page_pos).unwrap_or(shape_id);
                 let draft = self.selected_text(shape_id).unwrap_or_default();
                 self.begin_text_edit(shape_id, draft);
                 self.status = crate::i18n::strs().msg_editing_text_of_shape_shape_id(shape_id);
@@ -10524,6 +10608,13 @@ impl App {
                 }
             }
             DblClick::OpenSheet => self.toggle_shapesheet(shape_id),
+            // DOCMD(1312), visCmdFormatCustPropEdit: the Shape Data
+            // window (vendor device stencils); text edits via F2
+            DblClick::ShapeData => {
+                self.shape_data_open = Some(shape_id);
+                self.prop_bufs.clear();
+                self.prop_add = None;
+            }
             DblClick::Nothing => {}
             DblClick::Deferred(msg) => self.status = msg,
         }
@@ -16237,7 +16328,7 @@ impl App {
         let Ok(chain) = dc_core::scope::shape_chain(&ed.doc, page_id, shape_id) else {
             return;
         };
-        let env = dc::svg::shape_env(&ed.doc, shape, &chain);
+        let env = action_env(&ed.doc, shape, &chain);
         let scope = Scope::Shape {
             page: page_id,
             shape: shape_id,
@@ -17491,7 +17582,12 @@ impl App {
         let ed = self.ed.as_ref()?;
         let page = ed.doc.pages.iter().find(|p| p.id == page_id)?;
         let s = vsdx::model::find_shape_by_id(&page.shapes, shape_id)?;
-        s.sheet.text.clone()
+        // own text, else the master's (an instance showing its master's
+        // label has no <Text> of its own)
+        s.sheet.text.clone().filter(|t| !t.is_empty()).or_else(|| {
+            let raw = dc::spellcheck::effective_raw(&ed.doc, page_id, shape_id)?;
+            Some(vsdx::text::text_pieces(&raw).iter().map(|p| p.plain()).collect())
+        })
     }
 
     /// Open the in-place WYSIWYG editor on a shape (GitHub #22): the
@@ -17502,15 +17598,25 @@ impl App {
         let Some(page_id) = self.page_id() else {
             return;
         };
-        if self.ed().is_some_and(|ed| dc_core::commands::shape_locked(&ed.doc, page_id, shape_id, "LockTextEdit")) {
+        // a group with IsTextEditTarget=0 (a container's heading) edits
+        // its text-holding member instead
+        let target = self.ed().map_or(shape_id, |ed| Self::text_edit_target(&ed.doc, page_id, shape_id));
+        let (shape_id, draft) = if target != shape_id { (target, self.selected_text(target).unwrap_or_default()) } else { (shape_id, draft) };
+        if self.ed().is_some_and(|ed| text_locked(&ed.doc, page_id, shape_id)) {
             self.status = crate::i18n::strs().msg_text_locked_status();
             return;
         }
         self.text_edit = Some(crate::textedit::TextEditSession::new(
             page_id, shape_id, draft, &self.view,
         ));
+        let looks = self.ed().and_then(|ed| {
+            let page = ed.doc.pages.iter().find(|p| p.id == page_id)?;
+            dc::svg::char_looks(&ed.doc, page, shape_id)
+        });
         if let Some(s) = self.text_edit.as_mut() {
             s.autocorrect = Some(self.options_store.autocorrect.clone());
+            s.base = s.draft.clone();
+            s.looks = looks;
         }
     }
 
@@ -17571,7 +17677,9 @@ impl App {
                 .map(|(_, c)| c)
                 .collect()
         };
-        let typed = strip_marks(&sess.draft, &sess.field_marks) != current;
+        // (an untouched draft of inherited text differs from the empty
+        // own text but is no edit)
+        let typed = strip_marks(&sess.draft, &sess.field_marks) != current && sess.draft != sess.base;
         if !sess.field_marks.is_empty() || sess.draft != current {
             let scope = Scope::Shape {
                 page: sess.page,
@@ -18038,6 +18146,106 @@ impl App {
     #[doc(hidden)]
     pub fn debug_text_edit_caret(&self) -> Option<usize> {
         self.text_edit.as_ref().map(|s| s.caret)
+    }
+
+    /// Probe seam: the open document.
+    #[doc(hidden)]
+    pub fn debug_doc(&self) -> Option<&vsdx::model::Document> {
+        self.ed.as_ref().map(|e| &e.doc)
+    }
+    /// Probe seam: a canvas double-click at page inches (y-up).
+    #[doc(hidden)]
+    pub fn debug_dbl_click_page(&mut self, pos: (f64, f64)) {
+        self.end_text_edit(false);
+        self.placed_last_click = false;
+        self.stencil.armed = None;
+        self.on_canvas_dbl_click(pos);
+    }
+    /// Probe seam: F2 on the selection (Visio's Edit Text).
+    #[doc(hidden)]
+    pub fn debug_f2(&mut self) {
+        if let Some((_, s)) = self.sel {
+            let draft = self.selected_text(s).unwrap_or_default();
+            self.begin_text_edit(s, draft);
+        }
+    }
+    /// Probe seam: run the selected shape's right-click action whose
+    /// menu label contains `label`; false when there is none.
+    #[doc(hidden)]
+    pub fn debug_run_action(&mut self, shape_id: i64, label: &str) -> bool {
+        let rows = self.master_actions(shape_id);
+        let Some(r) = rows.into_iter().find(|r| r.menu.replace('&', "").contains(label)) else { return false };
+        self.run_master_action(shape_id, &r);
+        true
+    }
+    /// Probe seam: select one shape on the current page.
+    #[doc(hidden)]
+    pub fn debug_select_for_test(&mut self, id: i64) {
+        if let Some(p) = self.page_id() {
+            self.set_selection(Some((p, id)));
+        }
+    }
+    /// kittest: set a shape's raw `<Text>` (markers included).
+    #[doc(hidden)]
+    pub fn debug_set_raw_text_for_test(&mut self, id: i64, raw: &str) {
+        let Some(page_id) = self.page_id() else { return };
+        if let Some(ed) = self.ed.as_mut() {
+            if let Some(s) = ed.doc.pages.iter_mut().find(|p| p.id == page_id).and_then(|p| vsdx::model::find_shape_by_id_mut(&mut p.shapes, id)) {
+                s.sheet.text_raw = Some(raw.to_string());
+                s.sheet.text = Some(vsdx::text::text_pieces(raw).iter().map(|p| p.plain()).collect());
+            }
+        }
+        self.version += 1;
+    }
+    /// kittest: replace the editor's draft (as typing would).
+    #[doc(hidden)]
+    pub fn debug_set_draft_for_test(&mut self, text: &str) {
+        if let Some(s) = self.text_edit.as_mut() {
+            s.draft = text.to_string();
+        }
+    }
+    /// kittest: leave the text editor, committing.
+    #[doc(hidden)]
+    pub fn debug_end_edit_commit(&mut self) {
+        self.end_text_edit(true);
+    }
+    /// Probe seam: save to `path` as File ▸ Save As does.
+    #[doc(hidden)]
+    pub fn debug_save_as_for_test(&mut self, path: &Path) {
+        self.save_to(path);
+    }
+    /// Probe seam: leave the text editor without committing.
+    #[doc(hidden)]
+    pub fn debug_end_edit(&mut self) {
+        self.end_text_edit(false);
+    }
+    /// Probe seam: set zoom and pan.
+    #[doc(hidden)]
+    pub fn debug_set_view(&mut self, zoom: f32, pan: (f32, f32)) {
+        self.view.zoom = zoom;
+        self.view.pan = Vec2::new(pan.0, pan.1);
+        self.view.fit_mode = false;
+        self.view.fit_pending = false;
+    }
+    /// Probe seam: zoom 1 and centre the canvas on a page point.
+    #[doc(hidden)]
+    pub fn debug_center_on(&mut self, pos: (f64, f64)) {
+        self.view.zoom = 1.0;
+        self.view.fit_mode = false;
+        self.view.fit_pending = false;
+        let c = if self.canvas_rect.is_positive() { self.canvas_rect.center() } else { Pos2::new(700.0, 450.0) };
+        let ppi = self.view.px_per_in();
+        let h = self.page_geom().h_in;
+        self.view.pan = Vec2::new(c.x - pos.0 as f32 * ppi, c.y - (h - pos.1) as f32 * ppi);
+    }
+    /// Probe seam: switch to page index `i`.
+    #[doc(hidden)]
+    pub fn debug_goto_page_idx(&mut self, i: usize) {
+        self.end_text_edit(false);
+        self.page_idx = i;
+        self.group_edit.clear();
+        self.view.zoom = 1.0;
+        self.view.fit_mode = false;
     }
 
     pub fn debug_text_edit(&self) -> Option<(i64, i64)> {
@@ -22147,6 +22355,8 @@ enum DblClick {
     OpenGroup,
     /// `OPENSHEETWIN()`: the ShapeSheet.
     OpenSheet,
+    /// `DOCMD(1312)`: the Shape Data window.
+    ShapeData,
     /// `0` / `DONOTHING()`: nothing (Developer ▸ Behavior's "No action").
     Nothing,
     /// Open the shape's text window: `OPENTEXTWIN()`, `DEFAULTEVENT()`
@@ -22159,6 +22369,59 @@ enum DblClick {
 }
 
 /// Classify an `EventDblClick` formula string.
+/// Probe seam: a connector's hit segments (page inches, y-up).
+#[doc(hidden)]
+pub fn debug_connector_segments(doc: &Document, page: &vsdx::Page, id: i64) -> Vec<((f64, f64), (f64, f64))> {
+    let Some(shape) = page.shapes.iter().find(|s| s.id == id) else { return vec![] };
+    let Ok(chain) = shape_chain(doc, page.id, id) else { return vec![] };
+    let (root, msize) = shape
+        .master
+        .and_then(|mid| doc.master(mid).and_then(|m| m.shapes.first()))
+        .map(|r| (Some(r), (r.sheet.cell("Width").and_then(|c| c.numeric()).unwrap_or(1.0), r.sheet.cell("Height").and_then(|c| c.numeric()).unwrap_or(1.0))))
+        .unwrap_or((None, (1.0, 1.0)));
+    let frame = crate::connectors::hit_frame(doc, &chain, shape, msize);
+    crate::connectors::geometry_hit_segments(shape, root, &frame, None)
+}
+
+/// The formula environment of a shape's right-click actions and the
+/// locks they drive: the geometry cells plus each Actions row's
+/// `Checked` (instance over master) and `HideText`.
+fn action_env(doc: &Document, s: &Shape, chain: &[&Shape]) -> vsdx::formula::Env {
+    let mut env = dc::svg::shape_env(doc, s, chain);
+    let src = doc.instance_source(s, chain);
+    for sheet in src.map(|m| &m.sheet).into_iter().chain([&s.sheet]) {
+        for sec in sheet.sections_named("Actions") {
+            for r in &sec.rows {
+                if let (Some(n), Some(v)) = (r.n.as_deref(), r.cell("Checked").and_then(|c| c.numeric())) {
+                    env.insert(format!("Actions.{n}.Checked"), v);
+                }
+            }
+        }
+    }
+    if let Some(v) = doc.resolve_cell(s, chain, "HideText").and_then(|c| c.numeric()) {
+        env.insert("HideText".into(), v);
+    }
+    env
+}
+
+/// LockTextEdit, its formula evaluated against the shape's Actions
+/// rows: vendor device stencils lock the label with
+/// `GUARD(NOT(Actions.Row_2.Checked))` until the right-click "Enable Text
+/// Label Editing" is ticked, while the master's cached value stays 1.
+fn text_locked(doc: &Document, page: i64, id: i64) -> bool {
+    let fallback = || dc_core::commands::shape_locked(doc, page, id, "LockTextEdit");
+    let Some(s) = doc.pages.iter().find(|p| p.id == page).and_then(|p| vsdx::model::find_shape_by_id(&p.shapes, id)) else { return false };
+    let Ok(chain) = shape_chain(doc, page, id) else { return fallback() };
+    let Some(f) = doc.resolve_cell(s, &chain, "LockTextEdit").and_then(|c| c.f).filter(|f| f != "Inh" && f != "No Formula") else {
+        return fallback();
+    };
+    let env = action_env(doc, s, &chain);
+    match vsdx::formula::eval(&f, &env).ok().and_then(|v| v.as_f64()) {
+        Some(v) => v != 0.0,
+        None => fallback(),
+    }
+}
+
 fn classify_dbl_click(formula: Option<&str>) -> DblClick {
     let f = formula.unwrap_or("").trim();
     // Compare the function head (everything before the argument list).
@@ -22178,6 +22441,8 @@ fn classify_dbl_click(formula: Option<&str>) -> DblClick {
         DblClick::OpenGroup
     } else if head == "OPENSHEETWIN" {
         DblClick::OpenSheet
+    } else if head == "DOCMD" && f.split('(').nth(1).is_some_and(|a| a.trim_end_matches(')').trim() == "1312") {
+        DblClick::ShapeData
     } else if f == "0" || head == "DONOTHING" {
         DblClick::Nothing
     } else {

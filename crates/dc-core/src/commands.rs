@@ -4519,6 +4519,12 @@ pub fn shape_action_commands(
             }
         };
         let cmd: Box<dyn crate::Command> = (|| -> Result<Box<dyn crate::Command>, String> {
+            // a menu row's own tick (`Actions.Row_2.Checked`): the
+            // vendor-stencil toggles ("Enable Text Label Editing")
+            if let Some(rest) = target.strip_prefix("Actions.").filter(|r| r.contains('.')) {
+                let (row, cellname) = named_target(rest)?;
+                return Ok(Box::new(SetRowCell::new(scope.clone(), "Actions", 0, RowSel::Named(row), cellname, cell)) as Box<dyn crate::Command>);
+            }
             if let Some(rest) = target.strip_prefix("User.") {
                 let (row, cellname) = named_target(rest)?;
                 Ok(Box::new(SetRowCell::new(

@@ -328,9 +328,41 @@ const TEXT_DERIVED_CELLS: [&str; 2] = ["TxtWidth", "TxtHeight"];
 /// returns a bare `SetText` macro, and untouched documents never
 /// re-evaluate (rendering stays byte-identical without an edit).
 pub fn text_edit_macro(doc: &Document, scope: &Scope, text: &str) -> Macro {
-    let mut cmds: Vec<Box<dyn Command>> = vec![Box::new(SetText::new(scope.clone(), text))];
+    // Only the changed span is replaced in the raw text, so every
+    // formatting marker around it (<cp>/<pp>/<tp>: colours, bold, sizes,
+    // paragraph alignment) survives; SetText stored the plain draft and
+    // flattened rich text to its first format.
+    let base = match scope {
+        Scope::Shape { page, shape } => crate::spellcheck::effective_raw(doc, *page, *shape)
+            .map(|raw| vsdx::text::text_pieces(&raw).iter().map(|p| p.plain()).collect::<String>()),
+        _ => None,
+    };
+    let edit: Box<dyn Command> = match base {
+        Some(base) if !base.is_empty() => {
+            let (start, len, repl) = changed_span(&base, text);
+            Box::new(dc_core::ReplaceTextRange::new(scope.clone(), start, len, repl))
+        }
+        _ => Box::new(SetText::new(scope.clone(), text)),
+    };
+    let mut cmds: Vec<Box<dyn Command>> = vec![edit];
     cmds.extend(text_cache_refreshes(doc, scope, text));
     Macro::new(format!("set text of {scope}"), cmds)
+}
+
+/// The span of `old` that `new` replaced: (start char, old char count,
+/// the new chars), from the common prefix and suffix.
+pub fn changed_span(old: &str, new: &str) -> (usize, usize, String) {
+    let a: Vec<char> = old.chars().collect();
+    let b: Vec<char> = new.chars().collect();
+    let mut p = 0;
+    while p < a.len() && p < b.len() && a[p] == b[p] {
+        p += 1;
+    }
+    let mut s = 0;
+    while s < a.len() - p && s < b.len() - p && a[a.len() - 1 - s] == b[b.len() - 1 - s] {
+        s += 1;
+    }
+    (p, a.len() - p - s, b[p..b.len() - s].iter().collect())
 }
 
 /// The `SetCellCache` refreshes for text-derived block cells
@@ -879,5 +911,26 @@ mod tests {
             (th - one_line).abs() < 1e-9,
             "one line (+ insets) at the refreshed width: {th} vs {one_line}"
         );
+    }
+}
+
+#[cfg(test)]
+mod keep_format_tests {
+    use super::*;
+
+    #[test]
+    fn editing_rich_text_keeps_its_formatting_markers() {
+        assert_eq!(changed_span("abc", "abXc"), (2, 0, "X".into()));
+        assert_eq!(changed_span("Rood = DMZ", "Rood = LAN"), (7, 3, "LAN".into()));
+        let mut ed = dc_core::Editor::new_blank();
+        let page = ed.doc.pages[0].id;
+        let mut s = vsdx::model::Shape { id: 1, type_: Some("Shape".into()), ..Default::default() };
+        s.sheet.text_raw = Some("<cp IX='0'/>Legend\n<cp IX='1'/>Rood = <cp IX='2'/>DMZ\n".into());
+        s.sheet.text = Some("Legend\nRood = DMZ\n".into());
+        ed.doc.pages[0].shapes.push(s);
+        let scope = Scope::Shape { page, shape: 1 };
+        ed.apply(text_edit_macro(&ed.doc, &scope, "Legend\nRood = LAN\n")).unwrap();
+        let raw = ed.doc.pages[0].shapes.last().unwrap().sheet.text_raw.clone().unwrap();
+        assert_eq!(raw, "<cp IX='0'/>Legend\n<cp IX='1'/>Rood = <cp IX='2'/>LAN\n");
     }
 }

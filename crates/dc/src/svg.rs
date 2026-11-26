@@ -4018,6 +4018,32 @@ fn text_runs(doc: &Document, s: &Shape, chain: &[&Shape], tb: &TextBlock) -> Opt
     })
 }
 
+/// One character's look in the text editor: colour, bold, italic, size
+/// (inches) where it differs from the block's first format.
+pub type CharLook = (Option<String>, Option<bool>, Option<bool>, Option<f64>);
+
+/// Per plain character of a shape's text, the index into the looks:
+/// the editor draws rich text (colours, bold, sizes per run) as the
+/// canvas does. None when the text has a single format.
+pub fn char_looks(doc: &Document, page: &vsdx::Page, id: i64) -> Option<(Vec<usize>, Vec<CharLook>)> {
+    let chain = dc_core::scope::shape_chain(doc, page.id, id).ok()?;
+    let s = *chain.last()?;
+    let tb = text_block(doc, page, id)?;
+    let runs = text_runs(doc, s, &chain, &tb)?;
+    // per_char counts a tab four times (the layout's spaces): back to
+    // one entry per plain character
+    // (every char counts, "\r" of "\r\n" too: the raw text keeps it)
+    let plain = s.sheet.text.as_deref().unwrap_or("");
+    let mut per = Vec::new();
+    let mut i = 0;
+    for ch in plain.chars() {
+        per.push(runs.style_at(i));
+        i += if ch == '\t' { 4 } else { 1 };
+    }
+    let looks = runs.styles.iter().map(|st| (st.color.clone(), st.bold, st.italic, st.size)).collect();
+    Some((per, looks))
+}
+
 /// `#rrggbb` (or `#rgb`) → (r, g, b) bytes; black on anything else —
 /// the TextBkgnd path emits the fill as explicit channels plus a
 /// fill-opacity (#229), so it never leaks an unescaped attribute.
