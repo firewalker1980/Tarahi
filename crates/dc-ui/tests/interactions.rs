@@ -2093,9 +2093,10 @@ fn page_switch_commits_the_text_edit() {
     h.run();
     h.get_by_label("Page-1").click();
     h.run();
+    // (AutoCorrect capitalises the sentence's first letter)
     assert_eq!(
         h.state().debug_shape_text(sid2).as_deref(),
-        Some("edge!"),
+        Some("Edge!"),
         "the same-frame keystroke survived into the commit"
     );
 }
