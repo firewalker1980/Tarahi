@@ -98,7 +98,7 @@ struct Ctx<'a> {
     conn_rows: HashMap<(u32, String), u32>,
     /// (master id, master shape id) → its named connection points
     /// (name slot, name, row)
-    master_conn: HashMap<(u32, u32), Vec<(u32, String, u32)>>,
+    master_conn: HashMap<(u32, u32), Vec<NamedPoint>>,
     /// (master id, master shape id) → its connection point count
     master_conn_count: HashMap<(u32, u32), u32>,
     pool: Vec<String>,
@@ -465,7 +465,7 @@ fn contents(cx: &mut Ctx, container: &Ptr, part: &str) -> (String, String) {
     // (instances inherit their master shape's named points)
     let mut conn = HashMap::new();
     for (_, id, recs) in &all {
-        let mut named: Vec<(u32, String, u32)> = vec![];
+        let mut named: Vec<NamedPoint> = vec![];
         for r in recs
             .iter()
             .filter(|r| r.typ == 0xc9 && r.list.is_some_and(|l| l.0 == 0x71))
@@ -770,6 +770,9 @@ fn plain_string(f: &str) -> Option<String> {
     // a lone quote left over means it was not one literal
     (!inner.replace("\"\"", "").contains('"')).then_some(s)
 }
+
+/// A named connection point: (name pool slot, name, row).
+type NamedPoint = (u32, String, u32);
 
 /// One emitted cell: name, value (V, U) and formula.
 type CellOut = (
