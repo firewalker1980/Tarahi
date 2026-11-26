@@ -2526,11 +2526,32 @@ impl App {
                 }
             } else if let Some((x, y, w, h)) = self.shape_rect(&ed.doc, page.id, shape) {
                 if hit_in_rect(page_pos, x, y, w, h) {
+                    // Visio picks an unfilled, textless shape (a frame,
+                    // a border) by its outline only; clicks inside fall
+                    // through to what lies under it
+                    if Self::hollow(&ed.doc, page.id, shape) {
+                        let tol = 5.0 / self.view.px_per_in() as f64;
+                        let (px, py) = page_pos;
+                        let edge = (px - x).abs() < tol || (px - x - w).abs() < tol || (py - y).abs() < tol || (py - y - h).abs() < tol;
+                        if !edge {
+                            continue;
+                        }
+                    }
                     return Some(shape.id);
                 }
             }
         }
         None
+    }
+
+    /// No fill and no text: picked by its outline only (Visio).
+    fn hollow(doc: &Document, page: i64, s: &Shape) -> bool {
+        if !s.sub_shapes.is_empty() || s.sheet.text.as_deref().is_some_and(|t| !t.trim().is_empty()) {
+            return false;
+        }
+        let Ok(chain) = shape_chain(doc, page, s.id) else { return false };
+        doc.resolve_cell(s, &chain, "FillPattern").and_then(|c| c.numeric()) == Some(0.0)
+            && doc.effective_sheet(s, &chain).text.as_deref().is_none_or(|t| t.trim().is_empty())
     }
 
     /// Selection frame in canvas rect space (inches, y-down origin).
@@ -12473,6 +12494,7 @@ impl App {
         let drawing = matches!(tool, Tool::Draw(_));
         let ed = ed.as_ref();
         let page = ed.map(|e| &e.doc.pages[(*page_idx).min(e.doc.pages.len().saturating_sub(1))]);
+        let hollow_tol = 5.0 / view.px_per_in() as f64;
         let hit = |pos: (f64, f64)| -> bool {
             // drawing tools draw over shapes: every press starts a box
             if drawing {
@@ -12488,6 +12510,15 @@ impl App {
             for shape in page.shapes.iter().rev() {
                 if let Some((x, y, w, h)) = Self::shape_rect_static(&ed.doc, page.id, shape) {
                     if hit_in_rect(pos, x, y, w, h) {
+                        // a hollow frame's inside is empty page (see
+                        // shape_hit): a drag there marquees
+                        if Self::hollow(&ed.doc, page.id, shape) {
+                            let tol = hollow_tol;
+                            let edge = (pos.0 - x).abs() < tol || (pos.0 - x - w).abs() < tol || (pos.1 - y).abs() < tol || (pos.1 - y - h).abs() < tol;
+                            if !edge {
+                                continue;
+                            }
+                        }
                         return true;
                     }
                 }

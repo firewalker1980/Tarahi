@@ -11480,3 +11480,93 @@ fn relayout_top_to_bottom() {
     let q1 = y(&h, ids[1]);
     assert!((q1.y - p0.y).abs() > 1.0 || (q1.x - p1.x).abs() > 1.0, "undo moved them back");
 }
+
+/// FEATURES_OUT=file.vsdx: one drawing made through the UI with many
+/// of the editor features (drawn shapes, text, bold, callout,
+/// container, layer, shape data field, union, title) saved for a Visio
+/// round trip; a no-op otherwise.
+#[test]
+fn features_sample_for_visio() {
+    let Some(out) = std::env::var_os("FEATURES_OUT") else { return };
+    let mut h = harness_with_blank();
+    h.run();
+    let c = h.state().debug_canvas_rect().center();
+    // two rectangles and an ellipse
+    h.get_by_label("Rectangle Tool").click();
+    h.run();
+    drag_on_canvas(&mut h, c + egui::vec2(-220.0, -40.0), c + egui::vec2(-120.0, 30.0));
+    let (_, r1) = h.state().debug_sel().unwrap();
+    drag_on_canvas(&mut h, c + egui::vec2(-60.0, -40.0), c + egui::vec2(40.0, 30.0));
+    let (_, r2) = h.state().debug_sel().unwrap();
+    h.get_by_label("Ellipse Tool").click();
+    h.run();
+    drag_on_canvas(&mut h, c + egui::vec2(100.0, -40.0), c + egui::vec2(220.0, 40.0));
+    let (_, el) = h.state().debug_sel().unwrap();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    h.state_mut().debug_set_shape_text_for_test(r1, "Core switch");
+    h.state_mut().debug_set_shape_text_for_test(r2, "Firewall");
+    h.state_mut().debug_set_shape_text_for_test(el, "Internet");
+    h.run();
+    // bold the firewall, add a data field, a callout
+    let r2c = h.state().debug_shape_screen_rect(r2).unwrap().center();
+    click_at(&mut h, r2c, egui::PointerButton::Primary);
+    h.run();
+    h.get_by_label("Bold").click();
+    h.run();
+    h.state_mut().debug_add_prop_row_for_test(r2, "IP", "0", "", "10.0.0.254");
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    h.get_by_label("Callout").click();
+    h.run();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    // a container around the core switch
+    let r1c = h.state().debug_shape_screen_rect(r1).unwrap().center();
+    click_at(&mut h, r1c, egui::PointerButton::Primary);
+    h.run();
+    h.get_all_by_label("Container").next().unwrap().click();
+    h.run();
+    h.run();
+    h.get_all_by_label("Plain").last().unwrap().click();
+    h.run();
+    // a title with border
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    h.get_by_label("Border & Title").click();
+    h.run();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    // two overlapping squares united
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Home);
+    h.run();
+    h.get_by_label("Rectangle Tool").click();
+    h.run();
+    drag_on_canvas(&mut h, c + egui::vec2(-60.0, 120.0), c + egui::vec2(0.0, 180.0));
+    let (_, s1) = h.state().debug_sel().unwrap();
+    drag_on_canvas(&mut h, c + egui::vec2(-30.0, 150.0), c + egui::vec2(30.0, 210.0));
+    let (_, s2) = h.state().debug_sel().unwrap();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    let _ = (s1, s2);
+    // marquee both squares, then Operations ▸ Union
+    drag_on_canvas(&mut h, c + egui::vec2(-80.0, 100.0), c + egui::vec2(50.0, 230.0));
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Developer);
+    h.run();
+    h.get_by_label("Operations").click();
+    h.run();
+    h.run();
+    h.get_by_label("Union").click();
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Developer);
+    h.run();
+    h.state_mut().preset_save_as_for_test(Some(std::path::PathBuf::from(out.clone())));
+    h.key_press_modifiers(egui::Modifiers::COMMAND | egui::Modifiers::SHIFT, egui::Key::S);
+    for _ in 0..30 {
+        h.run();
+        if std::path::Path::new(&out).exists() {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(30));
+    }
+}
