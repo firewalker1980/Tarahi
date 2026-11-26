@@ -5299,6 +5299,10 @@ impl Command for Deferred {
         self.label.clone()
     }
     fn touched(&self, _doc: &Document) -> dc_core::TouchList {
+        // built and empty: it changed nothing
+        if self.inner.as_ref().is_some_and(|m| m.cmds.is_empty()) {
+            return dc_core::TouchList::none();
+        }
         self.touch.clone()
     }
     fn apply(&mut self, doc: &mut Document) -> anyhow::Result<()> {

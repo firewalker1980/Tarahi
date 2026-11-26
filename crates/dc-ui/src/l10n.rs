@@ -394,13 +394,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "auto-page-size-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "auto-size",
         attribute: None,
         vars: &[],
@@ -6903,6 +6896,13 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "auto-size-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7002,13 +7002,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48602,
-            Self::En => 48602..95480,
-            Self::Es => 95480..147118,
-            Self::Fa => 147118..207831,
-            Self::Ja => 207831..259935,
-            Self::Ko => 259935..307982,
-            Self::ZhHans => 307982..349656,
+            Self::De => 0..48586,
+            Self::En => 48586..95462,
+            Self::Es => 95462..147092,
+            Self::Fa => 147092..207789,
+            Self::Ja => 207789..259884,
+            Self::Ko => 259884..307923,
+            Self::ZhHans => 307923..349583,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7266,9 +7266,6 @@ impl L10nLanguage {
     }
     pub fn msg_auto_layout_planned(&self) -> String {
         self.0.msg("auto-layout-planned", None).unwrap()
-    }
-    pub fn msg_auto_page_size_planned(&self) -> String {
-        self.0.msg("auto-page-size-planned", None).unwrap()
     }
     pub fn msg_auto_size(&self) -> String {
         self.0.msg("auto-size", None).unwrap()
@@ -10856,5 +10853,8 @@ impl L10nLanguage {
     }
     pub fn msg_reviewing_pane_tip(&self) -> String {
         self.0.msg("reviewing-pane-tip", None).unwrap()
+    }
+    pub fn msg_auto_size_tip(&self) -> String {
+        self.0.msg("auto-size-tip", None).unwrap()
     }
 }

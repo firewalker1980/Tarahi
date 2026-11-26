@@ -56,6 +56,7 @@ pub(crate) struct TabCtx {
     pub show_comments: bool,
     pub show_guides: bool,
     pub stamp: bool,
+    pub autosize: bool,
     pub doc_stencil: bool,
     pub show_conn_points: bool,
     pub autoconnect: bool,
@@ -162,6 +163,8 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Design ▸ Auto Size (page DrawingResizeType).
+    AutoSize,
     /// Home ▸ Selection Pane and Review ▸ Reviewing Pane.
     SelectionPane,
     ReviewingPane,

@@ -11113,3 +11113,25 @@ fn selection_and_reviewing_panes() {
     h.run();
     assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(b), "jumped to the commented shape");
 }
+
+/// Design ▸ Auto Size: dragging a shape past the page's right edge
+/// widens the page by a tile in the same undo step.
+#[test]
+fn auto_size_grows_the_page_with_the_drawing() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Design);
+    h.run();
+    h.get_by_label("Auto Size").click();
+    h.run();
+    let (w0, _) = h.state().debug_page_geom_for_test();
+    let from = h.state().debug_shape_screen_rect(sid).unwrap().center();
+    let canvas = h.state().debug_canvas_rect();
+    drag_on_canvas(&mut h, from, egui::pos2(canvas.right() - 30.0, from.y));
+    let (w1, _) = h.state().debug_page_geom_for_test();
+    assert!(w1 > w0 + 1.0, "page grew: {w0} -> {w1}");
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    assert_eq!(h.state().debug_page_geom_for_test().0, w0, "one undo restores the page");
+}

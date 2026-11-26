@@ -64,7 +64,6 @@ arrange-all = Alle anordnen
 arrange-windows-planned = Fenster anordnen — geplant
 assign-a-background-page-behind = Eine Hintergrundseite hinter diese legen
 auto-layout-planned = Automatisches Layout — geplant
-auto-page-size-planned = Automatische Seitengröße — geplant
 auto-size = Automatische Größe
 autoconnect = AutoConnect
 autoconnect-needs-a-2d-shape = AutoConnect benötigt eine 2D-Form
@@ -1128,6 +1127,7 @@ protection-tip = Auswahl gegen Änderungen sperren
 no-comments-in-drawing = Keine Kommentare in dieser Zeichnung
 selection-pane-tip = Alle Formen der Seite; zum Auswählen klicken
 reviewing-pane-tip = Alle Kommentare der Zeichnung; zum Hinspringen klicken
+auto-size-tip = Seite wächst mit der Zeichnung
 
 
 ## ########## Resource: app ###############
@@ -1202,7 +1202,6 @@ arrange-all = Arrange All
 arrange-windows-planned = Arrange windows — planned
 assign-a-background-page-behind = Assign a background page behind this one
 auto-layout-planned = Auto layout — planned
-auto-page-size-planned = Auto page size — planned
 auto-size = Auto Size
 autoconnect = AutoConnect
 autoconnect-needs-a-2d-shape = AutoConnect needs a 2D shape
@@ -2334,6 +2333,7 @@ protection-tip = Lock the selection against changes
 no-comments-in-drawing = No comments in this drawing
 selection-pane-tip = Every shape on the page; click to select
 reviewing-pane-tip = Every comment in the drawing; click to go to it
+auto-size-tip = Grow the page to hold the drawing
 
 
 ## ########## Resource: app ###############
@@ -2406,7 +2406,6 @@ arrange-all = Organizar todo
 arrange-windows-planned = Organizar ventanas — planeado
 assign-a-background-page-behind = Asignar una página de fondo detrás de esta
 auto-layout-planned = Diseño automático — planeado
-auto-page-size-planned = Tamaño de página automático — planeado
 auto-size = Tamaño automático
 autoconnect = Autoconexión
 autoconnect-needs-a-2d-shape = La autoconexión necesita una forma 2D
@@ -3535,6 +3534,7 @@ protection-tip = Bloquear la selección contra cambios
 no-comments-in-drawing = No hay comentarios en este dibujo
 selection-pane-tip = Todas las formas de la página; haga clic para seleccionar
 reviewing-pane-tip = Todos los comentarios del dibujo; haga clic para ir a ellos
+auto-size-tip = Agrandar la página para que quepa el dibujo
 
 
 ## ########## Resource: app ###############
@@ -3602,7 +3602,6 @@ arrange-all = چیدمان همه
 arrange-windows-planned = چیدمان پنجره‌ها — برنامه‌ریزی شده
 assign-a-background-page-behind = انتساب یک صفحهٔ پس‌زمینه در پسِ این صفحه
 auto-layout-planned = چیدمان خودکار — برنامه‌ریزی شده
-auto-page-size-planned = اندازهٔ خودکار صفحه — برنامه‌ریزی شده
 auto-size = اندازهٔ خودکار
 autoconnect = اتصال خودکار
 autoconnect-needs-a-2d-shape = اتصال خودکار به یک شکل دوبعدی نیاز دارد
@@ -4666,6 +4665,7 @@ protection-tip = قفل‌کردن انتخاب در برابر تغییر
 no-comments-in-drawing = این نقشه هیچ نظری ندارد
 selection-pane-tip = همهٔ شکل‌های صفحه؛ برای انتخاب کلیک کنید
 reviewing-pane-tip = همهٔ نظرهای نقشه؛ برای رفتن به آن کلیک کنید
+auto-size-tip = بزرگ‌کردن صفحه تا نقشه در آن جا شود
 
 
 ## ########## Resource: app ###############
@@ -4731,7 +4731,6 @@ arrange-all = すべて整列
 arrange-windows-planned = ウィンドウの整列 — 予定
 assign-a-background-page-behind = このページの背後に背景ページを割り当てます
 auto-layout-planned = 自動レイアウト — 予定
-auto-page-size-planned = ページ サイズの自動設定 — 予定
 auto-size = 自動サイズ
 autoconnect = 自動接続
 autoconnect-needs-a-2d-shape = 自動接続には 2D 図形が必要です
@@ -5694,6 +5693,7 @@ protection-tip = 選択範囲を変更からロック
 no-comments-in-drawing = この図面にはコメントがありません
 selection-pane-tip = ページ上のすべての図形 (クリックで選択)
 reviewing-pane-tip = 図面内のすべてのコメント (クリックで移動)
+auto-size-tip = 図面が収まるようにページを拡張
 
 
 ## ########## Resource: app ###############
@@ -5760,7 +5760,6 @@ arrange-all = 모두 정렬
 arrange-windows-planned = 창 정렬 — 예정
 assign-a-background-page-behind = 이 페이지 뒤에 배경 페이지를 할당합니다
 auto-layout-planned = 자동 레이아웃 — 예정
-auto-page-size-planned = 페이지 크기 자동 설정 — 예정
 auto-size = 자동 크기
 autoconnect = 자동 연결
 autoconnect-needs-a-2d-shape = 자동 연결에는 2D 셰이프가 필요합니다
@@ -6723,6 +6722,7 @@ protection-tip = 선택 영역을 변경으로부터 잠금
 no-comments-in-drawing = 이 그림에는 메모가 없습니다
 selection-pane-tip = 페이지의 모든 도형; 클릭하여 선택
 reviewing-pane-tip = 그림의 모든 메모; 클릭하여 이동
+auto-size-tip = 그림이 들어가도록 페이지 확장
 
 
 ## ########## Resource: app ###############
@@ -6787,7 +6787,6 @@ arrange-all = 全部重排
 arrange-windows-planned = 重排窗口 — 计划中
 assign-a-background-page-behind = 在此页面后面指定一个背景页
 auto-layout-planned = 自动布局 — 计划中
-auto-page-size-planned = 自动页面大小 — 计划中
 auto-size = 自动调整大小
 autoconnect = 自动连接
 autoconnect-needs-a-2d-shape = 自动连接需要一个二维形状
@@ -7756,4 +7755,5 @@ protection-tip = 锁定所选内容以防更改
 no-comments-in-drawing = 此绘图中没有批注
 selection-pane-tip = 页面上的所有形状;单击以选择
 reviewing-pane-tip = 绘图中的所有批注;单击以转到
+auto-size-tip = 扩展页面以容纳绘图
 

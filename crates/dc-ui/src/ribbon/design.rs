@@ -29,9 +29,10 @@ fn page_setup_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<s
                 .tip(s.msg_page_size_iso_ansi_presets_or_cu()),
         ],
         vec![
-            RibbonButton::new(Icon::Shapes, s.msg_auto_size(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_auto_page_size_planned()),
+            RibbonButton::new(Icon::Shapes, s.msg_auto_size(), Action::AutoSize)
+                .enabled(ctx.has_doc)
+                .selected(ctx.autosize)
+                .tip(s.msg_auto_size_tip()),
             RibbonButton::new(Icon::Fit, s.msg_scale(), Action::Macros)
                 .enabled(false)
                 .tip(s.msg_drawing_scale_planned()),

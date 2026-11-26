@@ -228,3 +228,68 @@ mod tests {
         assert!(close(rect(&ed.doc, page, &ed.doc.pages[0].shapes[0]).unwrap().2, 10.0));
     }
 }
+
+/// Design ▸ Auto Size (page `DrawingResizeType` = 1): the page grows by
+/// whole page-size tiles to the right and upward until every top-level
+/// shape fits. ponytail: grows right/up only and never shrinks; Visio
+/// also extends left/down (shifting the drawing) and trims empty tiles.
+pub fn autosize_cmds(doc: &Document, page: i64) -> Vec<Box<dyn Command>> {
+    let Some(p) = doc.pages.iter().find(|p| p.id == page) else { return vec![] };
+    let n = |c: &str| p.sheet().and_then(|s| s.cell(c)).and_then(|c| c.numeric());
+    if n("DrawingResizeType") != Some(1.0) {
+        return vec![];
+    }
+    let (Some(w), Some(h)) = (n("PageWidth"), n("PageHeight")) else { return vec![] };
+    let (mut x1, mut y1) = (0.0f64, 0.0f64);
+    for s in &p.shapes {
+        if let Some((x, y, sw, sh)) = rect(doc, page, s) {
+            x1 = x1.max(x + sw);
+            y1 = y1.max(y + sh);
+        }
+    }
+    // tile size: the page's own size (Visio grows by printer pages)
+    let tile_w = n("PrintPageWidth").filter(|v| *v > 0.0).unwrap_or(w.clamp(1.0, 8.5));
+    let tile_h = n("PrintPageHeight").filter(|v| *v > 0.0).unwrap_or(h.clamp(1.0, 11.0));
+    let nw = if x1 > w + 1e-6 { w + ((x1 - w) / tile_w).ceil() * tile_w } else { w };
+    let nh = if y1 > h + 1e-6 { h + ((y1 - h) / tile_h).ceil() * tile_h } else { h };
+    let scope = Scope::PageSheet { page };
+    let mut out: Vec<Box<dyn Command>> = Vec::new();
+    if nw != w {
+        out.push(Box::new(SetCell::new(scope.clone(), "PageWidth", Cell::value(format!("{nw}")))));
+    }
+    if nh != h {
+        out.push(Box::new(SetCell::new(scope, "PageHeight", Cell::value(format!("{nh}")))));
+    }
+    out
+}
+
+#[cfg(test)]
+mod autosize_tests {
+    use super::*;
+
+    #[test]
+    fn page_grows_by_tiles_to_hold_the_drawing() {
+        let mut ed = dc_core::Editor::new_blank();
+        let page = ed.doc.pages[0].id;
+        let set = |ed: &mut dc_core::Editor, c: &str, v: &str| {
+            ed.apply(SetCell::new(Scope::PageSheet { page }, c, Cell::value(v))).unwrap();
+        };
+        set(&mut ed, "PageWidth", "8.5");
+        set(&mut ed, "PageHeight", "11");
+        ed.doc.pages[0].shapes = vec![tests_shape(1, 9.0, 1.0, 1.0, 1.0)];
+        assert!(autosize_cmds(&ed.doc, page).is_empty(), "off unless DrawingResizeType = 1");
+        set(&mut ed, "DrawingResizeType", "1");
+        let cmds = autosize_cmds(&ed.doc, page);
+        ed.apply(dc_core::Macro::new("auto", cmds)).unwrap();
+        let w = ed.doc.pages[0].sheet().unwrap().cell("PageWidth").unwrap().numeric().unwrap();
+        assert_eq!(w, 17.0, "one more page-width tile");
+    }
+
+    fn tests_shape(id: i64, x: f64, y: f64, w: f64, h: f64) -> Shape {
+        let mut s = Shape { id, type_: Some("Shape".into()), ..Shape::default() };
+        for (n, v) in [("PinX", x + w / 2.0), ("PinY", y + h / 2.0), ("Width", w), ("Height", h), ("LocPinX", w / 2.0), ("LocPinY", h / 2.0)] {
+            s.sheet.set_cell(n, Cell::value(v.to_string()));
+        }
+        s
+    }
+}

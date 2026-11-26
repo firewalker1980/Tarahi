@@ -1403,6 +1403,23 @@ impl App {
     }
 
     fn apply<C: dc_core::Command + 'static>(&mut self, cmd: C) {
+        // Design ▸ Auto Size on this page: the page grows to the drawing
+        // inside the same undo step
+        let auto = self.ed.as_ref().and_then(|ed| {
+            let p = ed.doc.pages.get(self.page_idx)?;
+            (p.sheet()?.cell("DrawingResizeType")?.numeric()? == 1.0).then_some(p.id)
+        });
+        if let Some(page) = auto {
+            let label = cmd.label();
+            let grow = crate::cmd::Deferred::new("auto size", dc_core::TouchList::page(page), move |doc| {
+                crate::containers::autosize_cmds(doc, page)
+            });
+            return self.apply_inner(Macro::new(label, vec![Box::new(cmd), Box::new(grow)]));
+        }
+        self.apply_inner(cmd)
+    }
+
+    fn apply_inner<C: dc_core::Command + 'static>(&mut self, cmd: C) {
         // Field-disjoint borrows (ed/layers vs status): the #219
         // damage routing needs the editor document alongside the
         // layer store, so this site inlines page_id().
@@ -9330,6 +9347,26 @@ impl App {
             Action::ClearFormatting => self.clear_formatting(),
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
+            Action::AutoSize => {
+                if let Some(page) = self.page_id() {
+                    let on = self
+                        .ed()
+                        .and_then(|ed| ed.doc.pages.get(self.page_idx))
+                        .and_then(|p| p.sheet()?.cell("DrawingResizeType")?.numeric())
+                        == Some(1.0);
+                    // switching it on grows the page right away, in the
+                    // same undo step
+                    let set = SetCell::new(
+                        Scope::PageSheet { page },
+                        "DrawingResizeType",
+                        vsdx::Cell::value(if on { "2" } else { "1" }),
+                    );
+                    let grow = crate::cmd::Deferred::new("auto size", dc_core::TouchList::page(page), move |doc| {
+                        crate::containers::autosize_cmds(doc, page)
+                    });
+                    self.apply_inner(Macro::new(crate::i18n::strs().msg_auto_size(), vec![Box::new(set), Box::new(grow)]));
+                }
+            }
             Action::ReviewingPane => self.reviewpane_open = !self.reviewpane_open,
             Action::ShapeReport => self.report_open = !self.report_open,
             Action::WordCount => self.wordcount_open = !self.wordcount_open,
@@ -10017,6 +10054,11 @@ impl App {
             show_comments: self.show_comments,
             show_guides: self.view.show_guides,
             stamp: self.stamp,
+            autosize: self
+                .ed()
+                .and_then(|ed| ed.doc.pages.get(self.page_idx))
+                .and_then(|p| p.sheet()?.cell("DrawingResizeType")?.numeric())
+                == Some(1.0),
             doc_stencil: self.stencil.doc_stencil_visible,
             show_conn_points: self.view.show_conn_points,
             autoconnect: self.view.autoconnect,
