@@ -207,7 +207,6 @@ dash-dot = Dash-dot
 dash-dot-dot = Dash-dot-dot
 data = Data
 data-graphics = Data Graphics
-data-graphics-m6 = Data graphics (M6)
 date-time = Date & Time
 decrease-indent = Decrease Indent
 # $entry (String) - default stencil entry
@@ -487,7 +486,6 @@ layout = Layout
 layout-options = Layout Options
 layout-size = Layout Size
 legend = Legend
-legends-m6-visio-paints-legend-o = Legends (M6; Visio paints Legend on Insert, not Data)
 line = Line
 line-color-label = Line color
 # $factor (Number) - jump factor
@@ -1252,3 +1250,8 @@ autocorrect-capitalize = Capitalize the first letter of sentences
 autocorrect-replace = Replace
 autocorrect-with = With
 autocorrect-tip = Corrections made as you type text
+dg-text = Text fields
+dg-color-by-value = Color by value
+data-graphics-tip = Show shape data on the shapes: as text, or as fill colours by value
+legend-tip = A key for the page's colour-by-value data graphic
+legend-needs-color-by-value = Apply a colour-by-value data graphic first

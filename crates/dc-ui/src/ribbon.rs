@@ -173,6 +173,9 @@ pub enum Action {
     LayoutSize,
     /// Design ▸ Scale (drawing scale).
     DrawingScale,
+    /// Data ▸ Data Graphics (also Create New / Edit) and Insert ▸ Legend.
+    DataGraphics,
+    InsertLegend,
     /// Review ▸ AutoCorrect Options.
     AutoCorrectOptions,
     /// Review ▸ Language (Options' language page) and Set Proofing

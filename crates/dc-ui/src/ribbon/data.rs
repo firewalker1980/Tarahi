@@ -73,20 +73,20 @@ fn shape_data_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<s
 fn data_graphics_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::DataGraphic, s.msg_data_graphics(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_data_graphics_m6()),
+            RibbonButton::new(Icon::DataGraphic, s.msg_data_graphics(), Action::DataGraphics)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_data_graphics_tip()),
         ),
         grid(vec![
             vec![
-                RibbonButton::new(Icon::Effects, "", Action::Macros)
+                RibbonButton::new(Icon::Effects, "", Action::DataGraphics)
                     .alt(s.msg_create_new_data_graphic())
-                    .enabled(false)
-                    .tip(s.msg_data_graphics_m6()),
-                RibbonButton::new(Icon::Pen, "", Action::Macros)
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_data_graphics_tip()),
+                RibbonButton::new(Icon::Pen, "", Action::DataGraphics)
                     .alt(s.msg_edit_data_graphic())
-                    .enabled(false)
-                    .tip(s.msg_data_graphics_m6()),
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_data_graphics_tip()),
             ],
         ]),
     ]

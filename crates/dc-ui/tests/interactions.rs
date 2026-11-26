@@ -4324,8 +4324,8 @@ fn format_pane_edits_cells_for_whole_selection() {
     h.run();
     assert_eq!(
         h.state().debug_cell_for_test(sid, "Char.Color"),
-        None,
-        "one undo removed the materialized Color cell"
+        Some("0".into()),
+        "one undo restored the Color the Bold-made row took from the text style"
     );
 
     // #72: the Line section's Begin/End Arrow pickers write through,
@@ -11649,4 +11649,64 @@ fn autocorrect_while_typing_and_switch_off() {
     click_at(&mut h, egui::pos2(640.0, 760.0), egui::PointerButton::Primary);
     h.run();
     assert_eq!(h.state().debug_shape_plain_text(b).as_deref(), Some("(c) "));
+}
+
+/// Data ▸ Data Graphics, colour by value: shapes sharing a value share a
+/// fill; Insert ▸ Legend then adds one grouped key (one undo step).
+#[test]
+fn data_graphics_color_by_value_and_legend() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, a) = place_master(&mut h, 2);
+    let (_, b) = place_master(&mut h, 2);
+    let (_, c) = place_master(&mut h, 2);
+    for (id, v) in [(a, "10"), (b, "20"), (c, "10")] {
+        h.state_mut().debug_add_prop_row_for_test(id, "VLAN", "0", "", v);
+    }
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Data);
+    h.run();
+    h.get_all_by_label("Data Graphics").next().unwrap().click();
+    h.run();
+    h.run();
+    h.get_by_label("Color by value").click();
+    h.run();
+    h.get_by_label("VLAN").click();
+    h.run();
+    h.get_by_label("Apply").click();
+    h.run();
+    let fill = |h: &Harness<'_, App>, id| h.state().debug_cell_for_test(id, "FillForegnd");
+    assert_eq!(fill(&h, a), fill(&h, c));
+    assert_ne!(fill(&h, a), fill(&h, b));
+
+    let before = h.state().debug_shape_count();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    h.get_by_label("Legend").click();
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), before + 1, "one legend group");
+    // DG_OUT: also a text data graphic on all shapes, saved for a Visio check
+    if let Some(out) = std::env::var_os("DG_OUT") {
+        h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Data);
+        h.key_press(egui::Key::Escape);
+        h.run();
+        h.get_all_by_label("Data Graphics").next().unwrap().click();
+        h.run();
+        h.run();
+        h.get_by_label("VLAN").click();
+        h.run();
+        h.get_by_label("Apply").click();
+        h.run();
+        h.state_mut().preset_save_as_for_test(Some(std::path::PathBuf::from(out.clone())));
+        h.key_press_modifiers(egui::Modifiers::COMMAND | egui::Modifiers::SHIFT, egui::Key::S);
+        for _ in 0..30 {
+            h.run();
+            if std::path::Path::new(&out).exists() {
+                break;
+            }
+        }
+        return;
+    }
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), before);
 }

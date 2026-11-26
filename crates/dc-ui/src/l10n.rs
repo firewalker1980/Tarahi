@@ -1185,13 +1185,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "data-graphics-m6",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "date-time",
         attribute: None,
         vars: &[],
@@ -2859,13 +2852,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "legend",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "legends-m6-visio-paints-legend-o",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -7211,6 +7197,41 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "dg-text",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "dg-color-by-value",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "data-graphics-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "legend-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "legend-needs-color-by-value",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7310,13 +7331,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50848,
-            Self::En => 50848..99773,
-            Self::Es => 99773..153645,
-            Self::Fa => 153645..216742,
-            Self::Ja => 216742..271237,
-            Self::Ko => 271237..321460,
-            Self::ZhHans => 321460..364929,
+            Self::De => 0..50999,
+            Self::En => 50999..100078,
+            Self::Es => 100078..154153,
+            Self::Fa => 154153..217498,
+            Self::Ja => 217498..272171,
+            Self::Ko => 272171..322544,
+            Self::ZhHans => 322544..366118,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -8063,9 +8084,6 @@ impl L10nLanguage {
     }
     pub fn msg_data_graphics(&self) -> String {
         self.0.msg("data-graphics", None).unwrap()
-    }
-    pub fn msg_data_graphics_m6(&self) -> String {
-        self.0.msg("data-graphics-m6", None).unwrap()
     }
     pub fn msg_date_time(&self) -> String {
         self.0.msg("date-time", None).unwrap()
@@ -8941,11 +8959,6 @@ impl L10nLanguage {
     }
     pub fn msg_legend(&self) -> String {
         self.0.msg("legend", None).unwrap()
-    }
-    pub fn msg_legends_m6_visio_paints_legend_o(&self) -> String {
-        self.0
-            .msg("legends-m6-visio-paints-legend-o", None)
-            .unwrap()
     }
     pub fn msg_line(&self) -> String {
         self.0.msg("line", None).unwrap()
@@ -11304,5 +11317,20 @@ impl L10nLanguage {
     }
     pub fn msg_autocorrect_tip(&self) -> String {
         self.0.msg("autocorrect-tip", None).unwrap()
+    }
+    pub fn msg_dg_text(&self) -> String {
+        self.0.msg("dg-text", None).unwrap()
+    }
+    pub fn msg_dg_color_by_value(&self) -> String {
+        self.0.msg("dg-color-by-value", None).unwrap()
+    }
+    pub fn msg_data_graphics_tip(&self) -> String {
+        self.0.msg("data-graphics-tip", None).unwrap()
+    }
+    pub fn msg_legend_tip(&self) -> String {
+        self.0.msg("legend-tip", None).unwrap()
+    }
+    pub fn msg_legend_needs_color_by_value(&self) -> String {
+        self.0.msg("legend-needs-color-by-value", None).unwrap()
     }
 }

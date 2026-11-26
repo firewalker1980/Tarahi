@@ -775,6 +775,25 @@ impl Document {
         None
     }
 
+    /// The first `section` row (Character, Paragraph) of the shape's text
+    /// style chain. Visio takes a local text row as complete (a missing
+    /// cell is 0, so a row holding only `Style` has size 0), so a row
+    /// created locally is seeded from this.
+    pub fn style_text_row(&self, shape: &Shape, ancestors: &[&Shape], section: &str) -> Option<Row> {
+        let mut cur = self.stylesheet(self.shape_style_for(shape, ancestors, "TextStyle"))?;
+        for _ in 0..8 {
+            if let Some(r) = cur.sheet.section(section, 0).and_then(|s| s.rows.first()) {
+                return Some(r.clone());
+            }
+            let next = cur.attrs.iter().find(|(n, _)| n == "TextStyle").and_then(|(_, v)| v.parse::<i64>().ok())?;
+            if next == cur.id {
+                return None;
+            }
+            cur = self.stylesheet(next)?;
+        }
+        None
+    }
+
     pub fn resolve_cell(&self, shape: &Shape, ancestors: &[&Shape], name: &str) -> Option<Cell> {
         if let Some(c) = shape.sheet.cell(name) {
             // Xform/placement cells keep an instance-local snapshot under

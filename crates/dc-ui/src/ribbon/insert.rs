@@ -94,10 +94,10 @@ fn diagram_parts_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Ve
                     .tip(s.msg_connector_tool_tip()),
             ],
             vec![
-                RibbonButton::new(Icon::Shapes, "", Action::Macros)
+                RibbonButton::new(Icon::Shapes, "", Action::InsertLegend)
                     .alt(s.msg_legend())
-                    .enabled(false)
-                    .tip(s.msg_legends_m6_visio_paints_legend_o()),
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_legend_tip()),
                 RibbonButton::new(Icon::Title, "", Action::InsertTitle(false))
                     .alt(s.msg_title())
                     .enabled(ctx.has_doc)

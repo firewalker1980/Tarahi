@@ -3514,3 +3514,27 @@ fn reorder_one_step_moves_one_place_and_undoes() {
     }
     assert_eq!(order(&ed), ids.to_vec());
 }
+
+/// A Character row created on a shape without one starts from the text
+/// style: Visio reads a local row's missing cells as 0, so a row with
+/// only `Style` (Bold) gave size-0, invisible text there.
+#[test]
+fn new_character_row_is_seeded_from_the_text_style() {
+    let mut ed = Editor::new_blank();
+    let page = ed.doc.pages[0].id;
+    let shape = Shape { id: 50, type_: Some("Shape".into()), ..Shape::default() };
+    ed.apply(dc_core::AddShape { page, parent: None, shape }).unwrap();
+    ed.apply(dc_core::SetRowCell::new(
+        Scope::Shape { page, shape: 50 },
+        "Character",
+        0,
+        dc_core::commands::RowSel::Ix(0),
+        "Style",
+        Cell::value("1"),
+    ))
+    .unwrap();
+    let s = ed.doc.pages[0].shapes.iter().find(|s| s.id == 50).unwrap();
+    let row = &s.sheet.section("Character", 0).unwrap().rows[0];
+    assert_eq!(row.cell("Style").and_then(|c| c.v.as_deref()), Some("1"));
+    assert!(row.cell("Size").and_then(|c| c.numeric()).is_some_and(|v| v > 0.0), "{row:?}");
+}

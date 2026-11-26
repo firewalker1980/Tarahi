@@ -185,7 +185,6 @@ dash-dot = خط‌چین‌نقطه
 dash-dot-dot = خط‌چین‌نقطه‌نقطه
 data = داده
 data-graphics = نمودارهای داده
-data-graphics-m6 = نمودارهای داده (M6)
 date-time = تاریخ و ساعت
 decrease-indent = کاهش تودرتو
 # $entry - ورودی پیش‌فرض شابلون
@@ -452,7 +451,6 @@ layout = چیدمان
 layout-options = گزینه‌های چیدمان
 layout-size = اندازهٔ چیدمان
 legend = راهنمای نمودار
-legends-m6-visio-paints-legend-o = راهنمای نمودارها (M6؛ Visio راهنما را هنگام Insert ترسیم می‌کند، نه Data)
 line = خط
 line-color-label = رنگ خط
 # $factor - ضریب پرش
@@ -1177,3 +1175,8 @@ autocorrect-capitalize = بزرگ‌کردن حرف اول جمله‌ها
 autocorrect-replace = جایگزینی
 autocorrect-with = با
 autocorrect-tip = اصلاحات هنگام تایپ متن
+dg-text = فیلدهای متنی
+dg-color-by-value = رنگ بر پایهٔ مقدار
+data-graphics-tip = نمایش دادهٔ شکل روی شکل‌ها: به‌صورت متن یا رنگ پرکردن بر پایهٔ مقدار
+legend-tip = راهنمای نگارهٔ دادهٔ رنگ بر پایهٔ مقدارِ صفحه
+legend-needs-color-by-value = نخست یک نگارهٔ دادهٔ رنگ بر پایهٔ مقدار اعمال کنید

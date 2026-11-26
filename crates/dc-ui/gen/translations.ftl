@@ -188,7 +188,6 @@ dash-dot = Strich-Punkt
 dash-dot-dot = Strich-Punkt-Punkt
 data = Daten
 data-graphics = Datengrafiken
-data-graphics-m6 = Datengrafiken (M6)
 date-time = Datum & Uhrzeit
 decrease-indent = Einzug verkleinern
 # $entry - Standardeintrag
@@ -455,7 +454,6 @@ layout = Layout
 layout-options = Layoutoptionen
 layout-size = Layoutgröße
 legend = Legende
-legends-m6-visio-paints-legend-o = Legenden (M6; Visio legt Legend unter „Einfügen" ab, nicht unter „Daten")
 line = Linie
 line-color-label = Linienfarbe
 # $factor - Sprungfaktor
@@ -1180,6 +1178,11 @@ autocorrect-capitalize = Jeden Satz mit einem Großbuchstaben beginnen
 autocorrect-replace = Ersetzen
 autocorrect-with = Durch
 autocorrect-tip = Korrekturen während der Texteingabe
+dg-text = Textfelder
+dg-color-by-value = Farbe nach Wert
+data-graphics-tip = Formdaten auf den Formen zeigen: als Text oder als Füllfarbe nach Wert
+legend-tip = Legende zur Datengrafik „Farbe nach Wert“ der Seite
+legend-needs-color-by-value = Zuerst eine Datengrafik „Farbe nach Wert“ anwenden
 
 
 ## ########## Resource: app ###############
@@ -1393,7 +1396,6 @@ dash-dot = Dash-dot
 dash-dot-dot = Dash-dot-dot
 data = Data
 data-graphics = Data Graphics
-data-graphics-m6 = Data graphics (M6)
 date-time = Date & Time
 decrease-indent = Decrease Indent
 # $entry (String) - default stencil entry
@@ -1673,7 +1675,6 @@ layout = Layout
 layout-options = Layout Options
 layout-size = Layout Size
 legend = Legend
-legends-m6-visio-paints-legend-o = Legends (M6; Visio paints Legend on Insert, not Data)
 line = Line
 line-color-label = Line color
 # $factor (Number) - jump factor
@@ -2438,6 +2439,11 @@ autocorrect-capitalize = Capitalize the first letter of sentences
 autocorrect-replace = Replace
 autocorrect-with = With
 autocorrect-tip = Corrections made as you type text
+dg-text = Text fields
+dg-color-by-value = Color by value
+data-graphics-tip = Show shape data on the shapes: as text, or as fill colours by value
+legend-tip = A key for the page's colour-by-value data graphic
+legend-needs-color-by-value = Apply a colour-by-value data graphic first
 
 
 ## ########## Resource: app ###############
@@ -2649,7 +2655,6 @@ dash-dot = Guion y punto
 dash-dot-dot = Guion y dos puntos
 data = Datos
 data-graphics = Gráficos de datos
-data-graphics-m6 = Gráficos de datos (M6)
 date-time = Fecha y hora
 decrease-indent = Disminuir sangría
 # $entry - entrada de galería predeterminada
@@ -2929,7 +2934,6 @@ layout = Diseño
 layout-options = Opciones de diseño
 layout-size = Tamaño del diseño
 legend = Leyenda
-legends-m6-visio-paints-legend-o = Leyendas (M6; Visio pinta Leyenda en Insertar, no en Datos)
 line = Línea
 line-color-label = Color de línea
 # $factor - factor de salto
@@ -3691,6 +3695,11 @@ autocorrect-capitalize = Poner en mayúscula la primera letra de las oraciones
 autocorrect-replace = Reemplazar
 autocorrect-with = Con
 autocorrect-tip = Correcciones al escribir texto
+dg-text = Campos de texto
+dg-color-by-value = Color por valor
+data-graphics-tip = Mostrar los datos de forma en las formas: como texto o como colores de relleno por valor
+legend-tip = Una leyenda para el gráfico de datos de color por valor de la página
+legend-needs-color-by-value = Aplique primero un gráfico de datos de color por valor
 
 
 ## ########## Resource: app ###############
@@ -3882,7 +3891,6 @@ dash-dot = خط‌چین‌نقطه
 dash-dot-dot = خط‌چین‌نقطه‌نقطه
 data = داده
 data-graphics = نمودارهای داده
-data-graphics-m6 = نمودارهای داده (M6)
 date-time = تاریخ و ساعت
 decrease-indent = کاهش تودرتو
 # $entry - ورودی پیش‌فرض شابلون
@@ -4149,7 +4157,6 @@ layout = چیدمان
 layout-options = گزینه‌های چیدمان
 layout-size = اندازهٔ چیدمان
 legend = راهنمای نمودار
-legends-m6-visio-paints-legend-o = راهنمای نمودارها (M6؛ Visio راهنما را هنگام Insert ترسیم می‌کند، نه Data)
 line = خط
 line-color-label = رنگ خط
 # $factor - ضریب پرش
@@ -4874,6 +4881,11 @@ autocorrect-capitalize = بزرگ‌کردن حرف اول جمله‌ها
 autocorrect-replace = جایگزینی
 autocorrect-with = با
 autocorrect-tip = اصلاحات هنگام تایپ متن
+dg-text = فیلدهای متنی
+dg-color-by-value = رنگ بر پایهٔ مقدار
+data-graphics-tip = نمایش دادهٔ شکل روی شکل‌ها: به‌صورت متن یا رنگ پرکردن بر پایهٔ مقدار
+legend-tip = راهنمای نگارهٔ دادهٔ رنگ بر پایهٔ مقدارِ صفحه
+legend-needs-color-by-value = نخست یک نگارهٔ دادهٔ رنگ بر پایهٔ مقدار اعمال کنید
 
 
 ## ########## Resource: app ###############
@@ -5052,7 +5064,6 @@ dash-dot = 一点鎖線
 dash-dot-dot = 二点鎖線
 data = データ
 data-graphics = データ グラフィック
-data-graphics-m6 = データ グラフィック（M6）
 date-time = 日付と時刻
 decrease-indent = インデントを減らす
 default-stencil-failed = 既定のステンシル { $entry } を読み込めませんでした: { $e }
@@ -5301,7 +5312,6 @@ layout = レイアウト
 layout-options = レイアウト オプション
 layout-size = レイアウト サイズ
 legend = 凡例
-legends-m6-visio-paints-legend-o = 凡例（M6; Visio は挿入時に凡例を描画します。データではありません）
 line = 線
 line-color-label = 線の色
 line-jump-factor-set = 線のジャンプ サイズ ×{ $factor }
@@ -5953,6 +5963,11 @@ autocorrect-capitalize = 文の先頭文字を大文字にする
 autocorrect-replace = 修正文字列
 autocorrect-with = 修正後の文字列
 autocorrect-tip = テキスト入力時の自動修正
+dg-text = テキスト フィールド
+dg-color-by-value = 値で色分け
+data-graphics-tip = シェイプ データを図形に表示: テキスト、または値による塗りつぶし色
+legend-tip = ページの値による色分けの凡例
+legend-needs-color-by-value = 先に値による色分けのデータ グラフィックを適用してください
 
 
 ## ########## Resource: app ###############
@@ -6132,7 +6147,6 @@ dash-dot = 일점쇄선
 dash-dot-dot = 이점쇄선
 data = 데이터
 data-graphics = 데이터 그래픽
-data-graphics-m6 = 데이터 그래픽(M6)
 date-time = 날짜 및 시간
 decrease-indent = 내어쓰기
 default-stencil-failed = 기본 스텐실 { $entry }을(를) 로드하지 못했습니다: { $e }
@@ -6381,7 +6395,6 @@ layout = 레이아웃
 layout-options = 레이아웃 옵션
 layout-size = 레이아웃 크기
 legend = 범례
-legends-m6-visio-paints-legend-o = 범례(M6; Visio는 데이터가 아닌 삽입에서 범례를 그립니다)
 line = 선
 line-color-label = 선 색
 line-jump-factor-set = 선 점프 크기 ×{ $factor }
@@ -7033,6 +7046,11 @@ autocorrect-capitalize = 문장의 첫 글자를 대문자로
 autocorrect-replace = 바꿀 내용
 autocorrect-with = 결과
 autocorrect-tip = 텍스트를 입력할 때의 자동 고침
+dg-text = 텍스트 필드
+dg-color-by-value = 값별 색
+data-graphics-tip = 도형 데이터를 도형에 표시: 텍스트 또는 값별 채우기 색
+legend-tip = 페이지의 값별 색 데이터 그래픽 범례
+legend-needs-color-by-value = 먼저 값별 색 데이터 그래픽을 적용하세요
 
 
 ## ########## Resource: app ###############
@@ -7210,7 +7228,6 @@ dash-dot = 点划线
 dash-dot-dot = 双点划线
 data = 数据
 data-graphics = 数据图形
-data-graphics-m6 = 数据图形（M6）
 date-time = 日期和时间
 decrease-indent = 减少缩进
 default-stencil-failed = 默认模具 { $entry } 加载失败：{ $e }
@@ -7460,7 +7477,6 @@ layout = 布局
 layout-options = 布局选项
 layout-size = 布局大小
 legend = 图例
-legends-m6-visio-paints-legend-o = 图例（M6；Visio 将“图例”放在“插入”而非“数据”下）
 line = 线条
 line-color-label = 线条颜色
 line-jump-factor-set = 线条跳跃大小 ×{ $factor }
@@ -8117,4 +8133,9 @@ autocorrect-capitalize = 句首字母大写
 autocorrect-replace = 替换
 autocorrect-with = 替换为
 autocorrect-tip = 键入文本时的自动更正
+dg-text = 文本字段
+dg-color-by-value = 按值着色
+data-graphics-tip = 在形状上显示形状数据:文本或按值填充颜色
+legend-tip = 页面按值着色数据图形的图例
+legend-needs-color-by-value = 请先应用按值着色的数据图形
 

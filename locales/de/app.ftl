@@ -185,7 +185,6 @@ dash-dot = Strich-Punkt
 dash-dot-dot = Strich-Punkt-Punkt
 data = Daten
 data-graphics = Datengrafiken
-data-graphics-m6 = Datengrafiken (M6)
 date-time = Datum & Uhrzeit
 decrease-indent = Einzug verkleinern
 # $entry - Standardeintrag
@@ -452,7 +451,6 @@ layout = Layout
 layout-options = Layoutoptionen
 layout-size = Layoutgröße
 legend = Legende
-legends-m6-visio-paints-legend-o = Legenden (M6; Visio legt Legend unter „Einfügen" ab, nicht unter „Daten")
 line = Linie
 line-color-label = Linienfarbe
 # $factor - Sprungfaktor
@@ -1177,3 +1175,8 @@ autocorrect-capitalize = Jeden Satz mit einem Großbuchstaben beginnen
 autocorrect-replace = Ersetzen
 autocorrect-with = Durch
 autocorrect-tip = Korrekturen während der Texteingabe
+dg-text = Textfelder
+dg-color-by-value = Farbe nach Wert
+data-graphics-tip = Formdaten auf den Formen zeigen: als Text oder als Füllfarbe nach Wert
+legend-tip = Legende zur Datengrafik „Farbe nach Wert“ der Seite
+legend-needs-color-by-value = Zuerst eine Datengrafik „Farbe nach Wert“ anwenden

@@ -286,6 +286,8 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Data ▸ Data Graphics dialog: color-by-value mode, chosen labels.
+    dg_dialog: Option<(bool, Vec<String>)>,
     /// Review ▸ AutoCorrect Options: the dialog's working copy and the
     /// new-entry fields.
     autocorrect_draft: Option<(crate::autocorrect::AutoCorrect, String, String)>,
@@ -895,6 +897,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            dg_dialog: None,
             autocorrect_draft: None,
             layout_menu: None,
             layout_gap: 0.5,
@@ -6414,6 +6417,132 @@ impl App {
         self.view.fit_pending = true;
     }
 
+    /// Data ▸ Data Graphics: show chosen Shape Data fields in the
+    /// selected shapes' text (all on the page without a selection), or
+    /// colour the page's shapes by one field's value.
+    fn data_graphics_window(&mut self, ctx: &egui::Context) {
+        let Some((mut by_color, mut chosen)) = self.dg_dialog.take() else { return };
+        let Some(page_id) = self.page_id() else { return };
+        let Some(ed) = self.ed() else { return };
+        let Some(page) = ed.doc.pages.iter().find(|p| p.id == page_id) else { return };
+        let targets: Vec<&Shape> = if self.sel_set.is_empty() {
+            page.shapes.iter().collect()
+        } else {
+            page.shapes.iter().filter(|s| self.sel_set.contains(&(page_id, s.id))).collect()
+        };
+        let mut labels: Vec<String> = Vec::new();
+        for s in &targets {
+            for (_, l, _) in crate::datagraphics::fields(&ed.doc, page_id, s) {
+                if !labels.contains(&l) {
+                    labels.push(l);
+                }
+            }
+        }
+        let s = crate::i18n::strs();
+        let mut open = true;
+        let mut apply = false;
+        egui::Window::new(s.msg_data_graphics()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                ui.radio_value(&mut by_color, false, s.msg_dg_text());
+                ui.radio_value(&mut by_color, true, s.msg_dg_color_by_value());
+            });
+            ui.separator();
+            if labels.is_empty() {
+                ui.weak(s.msg_report_empty());
+            }
+            for l in &labels {
+                let mut on = chosen.contains(l);
+                let changed = if by_color {
+                    ui.radio(on, l).clicked().then(|| on = true).is_some()
+                } else {
+                    ui.checkbox(&mut on, l.as_str()).changed()
+                };
+                if changed {
+                    if by_color {
+                        chosen = vec![l.clone()];
+                    } else if on {
+                        chosen.push(l.clone());
+                    } else {
+                        chosen.retain(|x| x != l);
+                    }
+                }
+            }
+            ui.separator();
+            apply = ui.add_enabled(!chosen.is_empty(), egui::Button::new(s.msg_apply())).clicked();
+        });
+        if apply {
+            let cmds: Vec<Box<dyn dc_core::Command>> = if by_color {
+                crate::datagraphics::color_cmds(&ed.doc, page_id, &chosen[0]).0
+            } else {
+                targets.iter().flat_map(|sh| crate::datagraphics::text_cmds(&ed.doc, page_id, sh, &chosen)).collect()
+            };
+            if !cmds.is_empty() {
+                self.apply(Macro::new(s.msg_data_graphics(), cmds));
+            }
+        } else if open {
+            self.dg_dialog = Some((by_color, chosen));
+        }
+    }
+
+    /// Insert ▸ Legend: the key for the page's colour-by-value data
+    /// graphic (a title and a swatch + value per colour), grouped, at
+    /// the page's top right.
+    fn insert_legend(&mut self) {
+        let s = crate::i18n::strs();
+        let Some(page_id) = self.page_id() else { return };
+        let Some(ed) = self.ed() else { return };
+        let Some(field) = crate::datagraphics::color_by(&ed.doc, page_id) else {
+            self.status = s.msg_legend_needs_color_by_value();
+            return;
+        };
+        let (_, map) = crate::datagraphics::color_cmds(&ed.doc, page_id, &field);
+        let g = self.page_geom();
+        let (row_h, w) = (0.3, 1.8);
+        let x0 = g.w_in - 0.4 - w;
+        let mut y = g.h_in - 0.5;
+        let mut id = dc_core::commands::next_shape_id(&ed.doc, page_id);
+        let mut ids = Vec::new();
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
+        let mut add = |shape: Shape, cmds: &mut Vec<Box<dyn dc_core::Command>>, ids: &mut Vec<i64>| {
+            ids.push(shape.id);
+            cmds.push(Box::new(dc_core::AddShape { page: page_id, parent: None, shape }));
+        };
+        let text = |mut sh: Shape, t: &str| {
+            sh.sheet.text = Some(t.to_string());
+            sh.sheet.text_raw = Some(t.replace('&', "&amp;").replace('<', "&lt;"));
+            sh
+        };
+        // local text rows start from the style: Visio reads a partial row's
+        // missing cells as 0
+        let text_row = |sh: &mut Shape, section: &str, cell: &str, v: &str| {
+            let mut row = ed.doc.style_text_row(sh, &[], section).unwrap_or_default();
+            row.ix = 0;
+            match row.cells.iter_mut().find(|(n, _)| n == cell) {
+                Some((_, c)) => *c = vsdx::Cell::value(v),
+                None => row.cells.push((cell.into(), vsdx::Cell::value(v))),
+            }
+            sh.sheet.children.push(vsdx::model::SheetChild::Section(vsdx::model::Section { name: section.into(), rows: vec![row], ..Default::default() }));
+        };
+        let mut title = text(crate::drawtools::build(crate::drawtools::Kind::Text, id, (x0, y - row_h), (x0 + w, y)), &field);
+        text_row(&mut title, "Character", "Style", "1");
+        add(title, &mut cmds, &mut ids);
+        id += 1;
+        for (v, c) in &map {
+            y -= row_h;
+            let mut sw = crate::drawtools::build(crate::drawtools::Kind::Rect, id, (x0 + 0.05, y - row_h + 0.06), (x0 + 0.35, y - 0.06));
+            sw.sheet.set_cell("FillForegnd", vsdx::Cell::value(*c));
+            sw.sheet.set_cell("FillPattern", vsdx::Cell::value("1"));
+            add(sw, &mut cmds, &mut ids);
+            id += 1;
+            let mut lab = text(crate::drawtools::build(crate::drawtools::Kind::Text, id, (x0 + 0.45, y - row_h), (x0 + w, y)), v);
+            text_row(&mut lab, "Paragraph", "HorzAlign", "0");
+            add(lab, &mut cmds, &mut ids);
+            id += 1;
+        }
+        cmds.push(Box::new(dc_core::commands::GroupShapes::new(page_id, ids)));
+        self.apply(Macro::new(s.msg_legend(), cmds));
+    }
+
     /// Review ▸ AutoCorrect Options: on/off, sentence capitals, and the
     /// replacement list (add, remove); OK stores it in the options file.
     fn autocorrect_window(&mut self, ctx: &egui::Context) {
@@ -10357,6 +10486,8 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::DataGraphics => self.dg_dialog = Some((false, Vec::new())),
+            Action::InsertLegend => self.insert_legend(),
             Action::AutoCorrectOptions => {
                 self.autocorrect_draft = Some((self.options_store.autocorrect.clone(), String::new(), String::new()));
             }
@@ -19355,6 +19486,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.data_graphics_window(&ctx);
         self.autocorrect_window(&ctx);
         self.layout_window(&ctx);
         self.scale_window(&ctx);

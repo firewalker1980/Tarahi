@@ -11,6 +11,7 @@ pub mod canvas;
 pub mod cmd;
 pub mod connectors;
 pub mod containers;
+pub mod datagraphics;
 pub mod datalink;
 pub mod drawtools;
 pub mod export;

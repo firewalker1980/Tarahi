@@ -205,7 +205,6 @@ dash-dot = Guion y punto
 dash-dot-dot = Guion y dos puntos
 data = Datos
 data-graphics = Gráficos de datos
-data-graphics-m6 = Gráficos de datos (M6)
 date-time = Fecha y hora
 decrease-indent = Disminuir sangría
 # $entry - entrada de galería predeterminada
@@ -485,7 +484,6 @@ layout = Diseño
 layout-options = Opciones de diseño
 layout-size = Tamaño del diseño
 legend = Leyenda
-legends-m6-visio-paints-legend-o = Leyendas (M6; Visio pinta Leyenda en Insertar, no en Datos)
 line = Línea
 line-color-label = Color de línea
 # $factor - factor de salto
@@ -1247,3 +1245,8 @@ autocorrect-capitalize = Poner en mayúscula la primera letra de las oraciones
 autocorrect-replace = Reemplazar
 autocorrect-with = Con
 autocorrect-tip = Correcciones al escribir texto
+dg-text = Campos de texto
+dg-color-by-value = Color por valor
+data-graphics-tip = Mostrar los datos de forma en las formas: como texto o como colores de relleno por valor
+legend-tip = Una leyenda para el gráfico de datos de color por valor de la página
+legend-needs-color-by-value = Aplique primero un gráfico de datos de color por valor

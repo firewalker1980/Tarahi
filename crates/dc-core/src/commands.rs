@@ -936,7 +936,19 @@ impl crate::Command for SetRowCell {
                     let src = doc.instance_source(sh, &chain)?;
                     section_row(&src.sheet, &self.section, self.section_ix, &self.row)
                 })
-                .cloned();
+                .cloned()
+                // a new text row starts from the text style (Visio reads
+                // missing cells of a local row as 0: size-0 text)
+                .or_else(|| {
+                    matches!(self.section.as_str(), "Character" | "Paragraph")
+                        .then(|| doc.style_text_row(sh, &chain, &self.section))
+                        .flatten()
+                        .map(|mut r| {
+                            r.ix = 0;
+                            r.n = None;
+                            r
+                        })
+                });
             Some((sec, row))
         })()
         .unwrap_or((None, None));
@@ -1605,7 +1617,9 @@ impl crate::Command for InsertField {
                 ..Cell::default()
             }
         } else {
-            str_cell("", &value_f)
+            // the display value cached: Visio shows a field's cached V on
+            // open (an empty one showed no text there)
+            str_cell(self_display.as_deref().unwrap_or(""), &value_f)
         };
         sec.rows.push(Row {
             ix,
