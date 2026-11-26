@@ -407,6 +407,7 @@ fn shape_type(t: u32) -> &'static str {
     }
 }
 
+#[allow(clippy::too_many_arguments)] // recursive walk state; a struct buys nothing here
 fn shape_xml(
     cx: &mut Ctx,
     shapes: &HashMap<u32, (u32, Vec<Rec>)>,
