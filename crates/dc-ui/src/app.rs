@@ -286,6 +286,8 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Developer ▸ Behavior dialog.
+    behavior_open: bool,
     /// Developer ▸ Drawing Explorer window.
     explorer_open: bool,
     /// Data tab: the imported table and its file, the External Data
@@ -880,6 +882,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            behavior_open: false,
             explorer_open: false,
             data_table: None,
             data_window: false,
@@ -4014,6 +4017,10 @@ impl App {
             self.protection_open = false;
             return true;
         }
+        if self.behavior_open {
+            self.behavior_open = false;
+            return true;
+        }
         // #121: the Check Spelling dialog.
         if self.spell.session.is_some() {
             self.spell.session = None;
@@ -6156,6 +6163,87 @@ impl App {
                 self.status = s.msg_saved_path(path.display().to_string());
             }
             Err(e) => self.status = format!("{e:#}"),
+        }
+    }
+
+    /// Developer ▸ Behavior: the primary selection's double-click action
+    /// (EventDblClick), and for groups the selection order (SelectMode),
+    /// whether dropped shapes join it (IsDropTarget), text edits go to
+    /// the group (IsTextEditTarget) and member resize (ResizeMode); the
+    /// choice applies to the whole selection, one undo step each.
+    fn behavior_window(&mut self, ctx: &egui::Context) {
+        if !self.behavior_open {
+            return;
+        }
+        let Some((_, sid)) = self.sel else { return };
+        let s = crate::i18n::strs();
+        let formula = self.ed().and_then(|ed| {
+            let (page_id, _) = self.sel?;
+            let page = ed.doc.pages.iter().find(|p| p.id == page_id)?;
+            let sh = vsdx::model::find_shape_by_id(&page.shapes, sid)?;
+            let chain = shape_chain(&ed.doc, page_id, sid).ok()?;
+            ed.doc.resolve_cell(sh, &chain, "EventDblClick").and_then(|c| c.f)
+        });
+        let dbl = match classify_dbl_click(formula.as_deref()) {
+            DblClick::OpenText => 0,
+            DblClick::OpenGroup => 1,
+            DblClick::OpenSheet => 2,
+            DblClick::Nothing => 3,
+            DblClick::Deferred(_) => 4,
+        };
+        let cell = |c: &str| self.selected_cell(sid, c).unwrap_or(0.0);
+        let is_group = self.ed().and_then(|ed| ed.doc.pages.get(self.page_idx)).and_then(|p| vsdx::model::find_shape_by_id(&p.shapes, sid)).is_some_and(|sh| !sh.sub_shapes.is_empty());
+        let (sel_mode, drop, text, resize) = (cell("SelectMode"), cell("IsDropTarget"), cell("IsTextEditTarget"), cell("ResizeMode"));
+        let mut set: Option<(&'static str, vsdx::Cell)> = None;
+        let mut open = true;
+        egui::Window::new(s.msg_behavior()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            ui.strong(s.msg_double_click());
+            for (i, (label, f)) in [
+                (s.msg_dbl_edit_text(), "OPENTEXTWIN()"),
+                (s.msg_dbl_open_group(), "OPENGROUPWIN()"),
+                (s.msg_dbl_open_shapesheet(), "OPENSHEETWIN()"),
+                (s.msg_dbl_no_action(), "0"),
+            ]
+            .into_iter()
+            .enumerate()
+            {
+                if ui.radio(dbl == i, label).clicked() {
+                    set = Some(("EventDblClick", vsdx::Cell { v: Some("0".into()), f: Some(f.into()), ..Default::default() }));
+                }
+            }
+            if is_group {
+                ui.separator();
+                ui.strong(s.msg_group_behavior());
+                for (i, label) in [s.msg_select_group_only(), s.msg_select_group_first(), s.msg_select_members_first()].into_iter().enumerate() {
+                    if ui.radio(sel_mode as usize == i, label).clicked() {
+                        set = Some(("SelectMode", vsdx::Cell::value(i.to_string())));
+                    }
+                }
+                let mut d = drop != 0.0;
+                if ui.checkbox(&mut d, s.msg_accept_dropped_shapes()).changed() {
+                    set = Some(("IsDropTarget", vsdx::Cell::value(if d { "1" } else { "0" })));
+                }
+                let mut tx = text != 0.0;
+                if ui.checkbox(&mut tx, s.msg_edit_text_of_group()).changed() {
+                    set = Some(("IsTextEditTarget", vsdx::Cell::value(if tx { "1" } else { "0" })));
+                }
+            }
+            ui.separator();
+            ui.strong(s.msg_resize_behavior());
+            for (i, label) in [s.msg_resize_use_group_setting(), s.msg_resize_reposition_only(), s.msg_resize_scale_with_group()].into_iter().enumerate() {
+                if ui.radio(resize as usize == i, label).clicked() {
+                    set = Some(("ResizeMode", vsdx::Cell::value(i.to_string())));
+                }
+            }
+        });
+        self.behavior_open &= open;
+        if let Some((name, c)) = set {
+            let cmds: Vec<Box<dyn dc_core::Command>> = self
+                .sel_set
+                .iter()
+                .map(|&(page, shape)| Box::new(SetCell::new(Scope::Shape { page, shape }, name, c.clone())) as Box<dyn dc_core::Command>)
+                .collect();
+            self.apply(Macro::new(s.msg_behavior(), cmds));
         }
     }
 
@@ -9783,6 +9871,13 @@ impl App {
                 self.begin_text_edit(shape_id, draft);
                 self.status = crate::i18n::strs().msg_editing_text_of_shape_shape_id(shape_id);
             }
+            DblClick::OpenGroup => {
+                if !self.group_edit.contains(&shape_id) {
+                    self.group_edit.push(shape_id);
+                }
+            }
+            DblClick::OpenSheet => self.toggle_shapesheet(shape_id),
+            DblClick::Nothing => {}
             DblClick::Deferred(msg) => self.status = msg,
         }
     }
@@ -9865,6 +9960,7 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::Behavior => self.behavior_open = !self.behavior_open,
             Action::DrawingExplorer => self.explorer_open = !self.explorer_open,
             Action::DataImport => self.begin_dialog(PendingKind::DataOpen),
             Action::DataWindow => self.data_window = !self.data_window,
@@ -18829,6 +18925,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.behavior_window(&ctx);
         self.explorer_window(&ctx);
         self.data_windows(&ctx);
         self.symbol_window(&ctx);
@@ -21311,6 +21408,12 @@ mod tests {
 /// formula (`F` attribute, resolved instance → master).
 #[derive(Debug, PartialEq)]
 enum DblClick {
+    /// `OPENGROUPWIN()`: open the group for editing.
+    OpenGroup,
+    /// `OPENSHEETWIN()`: the ShapeSheet.
+    OpenSheet,
+    /// `0` / `DONOTHING()`: nothing (Developer ▸ Behavior's "No action").
+    Nothing,
     /// Open the shape's text window: `OPENTEXTWIN()`, `DEFAULTEVENT()`
     /// (Visio's default action for a shape with text is editing it), or
     /// no formula / `No Formula`.
@@ -21336,6 +21439,12 @@ fn classify_dbl_click(formula: Option<&str>) -> DblClick {
         || head == "DEFAULTEVENT"
     {
         DblClick::OpenText
+    } else if head == "OPENGROUPWIN" {
+        DblClick::OpenGroup
+    } else if head == "OPENSHEETWIN" {
+        DblClick::OpenSheet
+    } else if f == "0" || head == "DONOTHING" {
+        DblClick::Nothing
     } else {
         DblClick::Deferred(crate::i18n::strs().msg_eventdblclick_f_macro_and_naviga(f))
     }

@@ -4776,13 +4776,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "shape-behavior-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "shape-data",
         attribute: None,
         vars: &[],
@@ -6994,6 +6987,118 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "double-click",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "dbl-edit-text",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "dbl-open-group",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "dbl-open-shapesheet",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "dbl-no-action",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "group-behavior",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "select-group-only",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "select-group-first",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "select-members-first",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "accept-dropped-shapes",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "edit-text-of-group",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "resize-behavior",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "resize-use-group-setting",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "resize-reposition-only",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "resize-scale-with-group",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "behavior-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7093,13 +7198,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..49465,
-            Self::En => 49465..97161,
-            Self::Es => 97161..149724,
-            Self::Fa => 149724..211496,
-            Self::Ja => 211496..264533,
-            Self::Ko => 264533..313432,
-            Self::ZhHans => 313432..355810,
+            Self::De => 0..50084,
+            Self::En => 50084..98333,
+            Self::Es => 98333..151515,
+            Self::Fa => 151515..213993,
+            Self::Ja => 213993..267760,
+            Self::Ko => 267760..317262,
+            Self::ZhHans => 317262..360175,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -9798,9 +9903,6 @@ impl L10nLanguage {
     pub fn msg_set_proofing_language_planned(&self) -> String {
         self.0.msg("set-proofing-language-planned", None).unwrap()
     }
-    pub fn msg_shape_behavior_planned(&self) -> String {
-        self.0.msg("shape-behavior-planned", None).unwrap()
-    }
     pub fn msg_shape_data(&self) -> String {
         self.0.msg("shape-data", None).unwrap()
     }
@@ -10990,5 +11092,53 @@ impl L10nLanguage {
     }
     pub fn msg_drawing_explorer_tip(&self) -> String {
         self.0.msg("drawing-explorer-tip", None).unwrap()
+    }
+    pub fn msg_double_click(&self) -> String {
+        self.0.msg("double-click", None).unwrap()
+    }
+    pub fn msg_dbl_edit_text(&self) -> String {
+        self.0.msg("dbl-edit-text", None).unwrap()
+    }
+    pub fn msg_dbl_open_group(&self) -> String {
+        self.0.msg("dbl-open-group", None).unwrap()
+    }
+    pub fn msg_dbl_open_shapesheet(&self) -> String {
+        self.0.msg("dbl-open-shapesheet", None).unwrap()
+    }
+    pub fn msg_dbl_no_action(&self) -> String {
+        self.0.msg("dbl-no-action", None).unwrap()
+    }
+    pub fn msg_group_behavior(&self) -> String {
+        self.0.msg("group-behavior", None).unwrap()
+    }
+    pub fn msg_select_group_only(&self) -> String {
+        self.0.msg("select-group-only", None).unwrap()
+    }
+    pub fn msg_select_group_first(&self) -> String {
+        self.0.msg("select-group-first", None).unwrap()
+    }
+    pub fn msg_select_members_first(&self) -> String {
+        self.0.msg("select-members-first", None).unwrap()
+    }
+    pub fn msg_accept_dropped_shapes(&self) -> String {
+        self.0.msg("accept-dropped-shapes", None).unwrap()
+    }
+    pub fn msg_edit_text_of_group(&self) -> String {
+        self.0.msg("edit-text-of-group", None).unwrap()
+    }
+    pub fn msg_resize_behavior(&self) -> String {
+        self.0.msg("resize-behavior", None).unwrap()
+    }
+    pub fn msg_resize_use_group_setting(&self) -> String {
+        self.0.msg("resize-use-group-setting", None).unwrap()
+    }
+    pub fn msg_resize_reposition_only(&self) -> String {
+        self.0.msg("resize-reposition-only", None).unwrap()
+    }
+    pub fn msg_resize_scale_with_group(&self) -> String {
+        self.0.msg("resize-scale-with-group", None).unwrap()
+    }
+    pub fn msg_behavior_tip(&self) -> String {
+        self.0.msg("behavior-tip", None).unwrap()
     }
 }

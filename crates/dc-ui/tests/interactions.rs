@@ -11339,3 +11339,39 @@ fn drawing_explorer_goes_to_a_shape() {
     assert_eq!(h.state().debug_active_page_name(), second);
     assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(sid));
 }
+
+/// Developer ▸ Behavior: "No action" stops a double-click opening the
+/// text editor; "Open ShapeSheet" makes it open the ShapeSheet.
+#[test]
+fn behavior_sets_the_double_click_action() {
+    let mut h = dblclick_harness_with_blank();
+    h.run();
+    let from = h.state().debug_master_cells()[0].1.center();
+    let to = h.state().debug_canvas_rect().center();
+    click_at(&mut h, from, egui::PointerButton::Primary);
+    click_at(&mut h, to, egui::PointerButton::Primary);
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Developer);
+    h.run();
+    h.get_by_label("Behavior").click();
+    h.run();
+    h.run();
+    h.get_by_label("No action").click();
+    h.run();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    dbl_click_at(&mut h, to);
+    h.run();
+    assert!(h.state().debug_text_edit().is_none(), "no action");
+
+    h.get_by_label("Behavior").click();
+    h.run();
+    h.run();
+    h.get_by_label("Open ShapeSheet").click();
+    h.run();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    dbl_click_at(&mut h, to);
+    h.run();
+    assert!(h.state().debug_shapesheet_open(), "ShapeSheet opened");
+}
