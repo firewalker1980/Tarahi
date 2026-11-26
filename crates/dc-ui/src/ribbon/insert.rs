@@ -12,7 +12,7 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
     let has_sel = ctx.has_sel;
     vec![
         Group::new(s.msg_insert_pages(), pages_cols(s, has_doc)),
-        Group::new(s.msg_illustrations(), illustrations_cols(s)),
+        Group::new(s.msg_illustrations(), illustrations_cols(s, ctx)),
         Group::new(s.msg_diagram_parts(), diagram_parts_cols(s, ctx)),
         Group::new(
             s.msg_links(),
@@ -44,7 +44,7 @@ fn pages_cols(s: &'static crate::l10n::L10nLanguage, has_doc: bool) -> Vec<super
     ]
 }
 
-fn illustrations_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn illustrations_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
             RibbonButton::new(Icon::Picture, s.msg_pictures(), Action::InsertPicture)
@@ -72,9 +72,9 @@ fn illustrations_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> 
 fn diagram_parts_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::Container, s.msg_container(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_containers_planned()),
+            RibbonButton::new(Icon::Container, s.msg_container(), Action::ContainerGallery)
+                .enabled(ctx.has_sel)
+                .tip(s.msg_wrap_the_selection_in_this_conta()),
         ),
         big(
             RibbonButton::new(Icon::Callout, s.msg_callout(), Action::Macros)

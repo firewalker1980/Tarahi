@@ -9,11 +9,11 @@ use super::{Action, Group, Icon, RibbonButton, TabCtx, big, grid, stack};
 
 pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<Group> {
     vec![
-        Group::new(s.msg_views(), views_cols(s, )),
+        Group::new(s.msg_views(), views_cols(s, ctx)),
         Group::new(s.msg_show(), show_grid(s, ctx)),
         Group::new(s.msg_visual_aids(), visual_aids_cols(s, ctx)),
-        Group::new(s.msg_zoom(), zoom_cols(s, )),
-        Group::new(s.msg_window(), window_cols(s, )),
+        Group::new(s.msg_zoom(), zoom_cols(s, ctx)),
+        Group::new(s.msg_window(), window_cols(s, ctx)),
         Group::new(
             s.msg_macros(),
             vec![big(RibbonButton::new(Icon::Macro, s.msg_macros(), Action::Macros))],
@@ -21,7 +21,7 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
     ]
 }
 
-fn views_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn views_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![big(
         RibbonButton::new(Icon::Fit, s.msg_presentation_mode(), Action::Macros)
             .enabled(false)
@@ -78,7 +78,7 @@ fn visual_aids_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<
     ]
 }
 
-fn zoom_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn zoom_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         stack(vec![
             RibbonButton::new(Icon::ZoomIn, "", Action::ZoomIn)
@@ -112,7 +112,7 @@ fn zoom_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
     ]
 }
 
-fn window_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn window_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![grid(vec![
         vec![
             // #304: the Language command is RETIRED — the UI language

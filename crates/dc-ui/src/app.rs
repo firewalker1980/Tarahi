@@ -270,6 +270,8 @@ pub struct App {
     print_copies: u32,
     print_all: bool,
     print_preview: usize,
+    /// Container Tools popup: 0 Margins, 1 Automatic Resize.
+    container_menu: Option<u8>,
     find_open: bool,
     find_replace: bool,
     find_text: String,
@@ -817,6 +819,7 @@ impl App {
             print_copies: 1,
             print_all: true,
             print_preview: 0,
+            container_menu: None,
             find_open: false,
             find_replace: false,
             find_text: String::new(),
@@ -4511,6 +4514,96 @@ impl App {
     /// #75: Add to Underlying Container — write the membership row on
     /// each selected shape (the #27 convention, materialized on first
     /// edit), one Macro, one undo.
+    fn container_is_locked(&self, page_id: i64, container: i64) -> bool {
+        self.ed()
+            .and_then(|ed| {
+                let p = ed.doc.pages.iter().find(|p| p.id == page_id)?;
+                let c = p.shapes.iter().find(|s| s.id == container)?;
+                Some(crate::containers::locked(&ed.doc, page_id, c))
+            })
+            .unwrap_or(false)
+    }
+
+    /// Container Tools: write one of the selected container's
+    /// `User.msvSDContainer*` settings (one undo step, with a refit for
+    /// margins and "always fit").
+    fn set_container_setting(&mut self, row: &str, value: f64) {
+        let (Some((page_id, cid)), Some(ed)) = (self.sel, self.ed.as_ref()) else { return };
+        let set = dc_core::SetRowCell::new(
+            Scope::Shape { page: page_id, shape: cid },
+            "User",
+            0,
+            dc_core::commands::RowSel::Named(row.to_string()),
+            "Value",
+            vsdx::Cell::value(format!("{value}")),
+        );
+        let mut probe = ed.doc.clone();
+        let mut probe_set = set.clone();
+        let _ = dc_core::Command::apply(&mut probe_set, &mut probe);
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = vec![Box::new(set)];
+        let refit = match row {
+            "msvSDContainerMargin" => true,
+            "msvSDContainerResize" => value == 2.0,
+            _ => false,
+        };
+        if refit {
+            cmds.extend(crate::containers::fit_cmds(&probe, page_id, cid, false));
+        }
+        self.apply(Macro::new(format!("container {row}"), cmds));
+    }
+
+    /// Container Tools ▸ Margins / Automatic Resize: the choices popup.
+    fn container_menu_window(&mut self, ctx: &egui::Context) {
+        let Some(which) = self.container_menu else { return };
+        let (Some((page_id, cid)), Some(ed)) = (self.sel, self.ed.as_ref()) else {
+            self.container_menu = None;
+            return;
+        };
+        let Some(c) = ed.doc.pages.iter().find(|p| p.id == page_id).and_then(|p| p.shapes.iter().find(|s| s.id == cid)) else {
+            self.container_menu = None;
+            return;
+        };
+        let s = crate::i18n::strs();
+        let unit = self.view.unit;
+        let (title, cur, opts): (String, f64, Vec<(String, f64)>) = if which == 0 {
+            let m = crate::containers::margin(&ed.doc, page_id, c);
+            (
+                s.msg_margins(),
+                m,
+                [0.0, 0.0625, 0.125, 0.25, 0.375, 0.5]
+                    .iter()
+                    .map(|&v| (if v == 0.0 { s.msg_none() } else { unit.fmt(v) }, v))
+                    .collect(),
+            )
+        } else {
+            (
+                s.msg_automatic_resize(),
+                crate::containers::resize_mode(&ed.doc, page_id, c) as f64,
+                vec![(s.msg_no_automatic_resize(), 0.0), (s.msg_expand_as_needed(), 1.0), (s.msg_always_fit_to_contents(), 2.0)],
+            )
+        };
+        let mut pick = None;
+        let mut open = true;
+        egui::Window::new(title)
+            .open(&mut open)
+            .resizable(false)
+            .collapsible(false)
+            .show(ctx, |ui| {
+                for (label, v) in &opts {
+                    if ui.selectable_label((cur - v).abs() < 1e-9, label).clicked() {
+                        pick = Some(*v);
+                    }
+                }
+            });
+        if let Some(v) = pick {
+            let row = if which == 0 { "msvSDContainerMargin" } else { "msvSDContainerResize" };
+            self.set_container_setting(row, v);
+            self.container_menu = None;
+        } else if !open {
+            self.container_menu = None;
+        }
+    }
+
     fn add_selection_to_underlying_container(&mut self) {
         let Some(page_id) = self.page_id() else {
             return;
@@ -4524,6 +4617,10 @@ impl App {
         let Some(container) = self.underlying_container(&members) else {
             return;
         };
+        if self.container_is_locked(page_id, container) {
+            self.status = crate::i18n::strs().msg_container_locked_status();
+            return;
+        }
         let mut cmds: Vec<Box<dyn dc_core::Command>> = members
             .iter()
             .map(|&m| {
@@ -6158,18 +6255,29 @@ impl App {
     /// against the post-move document (an eager build would read
     /// stale, pre-move geometry). `None` when nothing glues to the
     /// moved shapes, so Macros stay clean of no-ops.
+    /// The tail of every move/resize undo step: containers with
+    /// Automatic Resize follow their moved members, then connectors
+    /// glued to anything that moved (members or those containers)
+    /// reroute.
     fn reroute_cmd(&self, page_id: i64, moved: &[i64]) -> Option<Box<dyn dc_core::Command>> {
         let ed = self.ed()?;
         let page = ed.doc.pages.iter().find(|p| p.id == page_id)?;
-        let touches = page
-            .connects()
-            .list
-            .iter()
-            .any(|c| moved.contains(&c.to_sheet));
-        touches.then(|| {
-            Box::new(crate::cmd::RerouteConnectors::new(page_id, moved.to_vec()))
-                as Box<dyn dc_core::Command>
-        })
+        let conts = crate::containers::auto_resizing(&ed.doc, page_id, moved);
+        let mut all = moved.to_vec();
+        all.extend(&conts);
+        let touches = page.connects().list.iter().any(|c| all.contains(&c.to_sheet));
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
+        if !conts.is_empty() {
+            cmds.push(Box::new(crate::containers::FitContainers::new(page_id, conts)));
+        }
+        if touches {
+            cmds.push(Box::new(crate::cmd::RerouteConnectors::new(page_id, all)));
+        }
+        match cmds.len() {
+            0 => None,
+            1 => cmds.pop(),
+            _ => Some(Box::new(Macro::new("after move", cmds))),
+        }
     }
 
     /// #113: a ruler drag released over the page becomes a guide
@@ -6579,6 +6687,10 @@ impl App {
         if cmds.is_empty() {
             self.status = crate::i18n::strs().msg_already_aligned();
             return;
+        }
+        let moved: Vec<i64> = moves.iter().map(|(id, _)| *id).collect();
+        if let Some(r) = self.reroute_cmd(page_id, &moved) {
+            cmds.push(r);
         }
         self.apply(Macro::new(label.to_string(), cmds));
     }
@@ -8539,6 +8651,41 @@ impl App {
             Action::ToggleGrid => self.view.show_grid = !self.view.show_grid,
             Action::ToggleRulers => self.view.show_rulers = !self.view.show_rulers,
             Action::ToggleComments => self.show_comments = !self.show_comments,
+            Action::NewComment => {
+                if let Some((_, s)) = self.sel {
+                    self.show_comments = true;
+                    self.comment_target = Some(s);
+                    self.comment_body.clear();
+                    self.comment_edit = None;
+                }
+            }
+            Action::PrevComment => self.step_comment(false),
+            Action::ContainerFit => {
+                if let (Some((p, c)), Some(ed)) = (self.sel, self.ed.as_ref()) {
+                    let cmds = crate::containers::fit_cmds(&ed.doc, p, c, false);
+                    if !cmds.is_empty() {
+                        self.apply(Macro::new(crate::i18n::strs().msg_fit_to_contents(), cmds));
+                    }
+                }
+            }
+            Action::ContainerMenu(n) => self.container_menu = Some(n),
+            Action::ContainerLock => {
+                if let Some((p, c)) = self.sel {
+                    let on = self.container_is_locked(p, c);
+                    self.set_container_setting("msvSDContainerLocked", if on { 0.0 } else { 1.0 });
+                }
+            }
+            Action::ContainerSelect => {
+                if let Some((p, c)) = self.sel {
+                    let ids = self.container_member_ids(p, c);
+                    if !ids.is_empty() {
+                        self.sel_set = ids.iter().map(|&m| (p, m)).collect();
+                        self.sel = self.sel_set.first().copied();
+                    }
+                }
+            }
+            Action::NextComment => self.step_comment(true),
+            Action::DeleteComment => self.delete_comments_of_selection(),
             Action::ToggleDynamicGrid => {
                 self.snap.dynamic_grid = !self.snap.dynamic_grid;
                 self.apply_snap_settings();
@@ -9159,6 +9306,7 @@ impl App {
                 .is_some_and(|(_, sid)| self.shapesheets.contains(&sid)),
             sel_group: self.selection_has_group(),
             sel_container: self.sel_is_container(),
+            container_locked: self.sel.is_some_and(|(p, c)| self.sel_is_container() && self.container_is_locked(p, c)),
             container_highlight: self.container_highlight_on(),
         }
     }
@@ -10768,34 +10916,7 @@ impl App {
         // non-intrusive (an overlay, never part of the drawing), shown
         // while comments are visible; clicking opens the thread popup.
         if self.show_comments {
-            let targets: Vec<i64> = self
-                .ed()
-                .map(|ed| {
-                    let page =
-                        &ed.doc.pages[self.page_idx.min(ed.doc.pages.len().saturating_sub(1))];
-                    page.shapes
-                        .iter()
-                        .filter(|s| {
-                            s.sheet
-                                .sections_named("User")
-                                .iter()
-                                .find_map(|sec| sec.named_row("AnnotationRef"))
-                                .and_then(|r| r.cell("Value"))
-                                .and_then(|c| c.numeric())
-                                .is_some_and(|v| page.shapes.iter().any(|t| t.id as f64 == v))
-                        })
-                        .filter_map(|s| {
-                            s.sheet
-                                .sections_named("User")
-                                .iter()
-                                .find_map(|sec| sec.named_row("AnnotationRef"))
-                                .and_then(|r| r.cell("Value"))
-                                .and_then(|c| c.numeric())
-                                .map(|v| v as i64)
-                        })
-                        .collect::<Vec<i64>>()
-                })
-                .unwrap_or_default();
+            let targets: Vec<i64> = self.commented_targets();
             // Distinct targets, badge per target.
             let mut seen = std::collections::HashSet::new();
             for target in targets {
@@ -11574,6 +11695,69 @@ impl App {
     /// The shape's comment thread (#29): annotation shapes whose
     /// `User.AnnotationRef` names it, oldest first — (annotation id,
     /// author, date, body).
+    /// Shapes on the current page that have comments (annotation
+    /// shapes whose `User.AnnotationRef` names them), in page order,
+    /// one entry per annotation.
+    fn commented_targets(&self) -> Vec<i64> {
+        let Some(page) = self.ed().and_then(|ed| ed.doc.pages.get(self.page_idx)) else { return vec![] };
+        let anno_ref = |s: &Shape| {
+            s.sheet
+                .sections_named("User")
+                .iter()
+                .find_map(|sec| sec.named_row("AnnotationRef"))
+                .and_then(|r| r.cell("Value"))
+                .and_then(|c| c.numeric())
+                .map(|v| v as i64)
+        };
+        page.shapes
+            .iter()
+            .filter_map(anno_ref)
+            .filter(|v| page.shapes.iter().any(|t| t.id == *v))
+            .collect()
+    }
+
+    /// Review ▸ Previous / Next comment: select the next commented shape
+    /// (page order, wrapping) and open its comments.
+    fn step_comment(&mut self, forward: bool) {
+        let mut targets: Vec<i64> = Vec::new();
+        for t in self.commented_targets() {
+            if !targets.contains(&t) {
+                targets.push(t);
+            }
+        }
+        let Some(page_id) = self.page_id() else { return };
+        if targets.is_empty() {
+            return;
+        }
+        let cur = self.comment_target.or(self.sel.map(|(_, s)| s)).and_then(|c| targets.iter().position(|t| *t == c));
+        let n = targets.len();
+        let i = match (cur, forward) {
+            (Some(i), true) => (i + 1) % n,
+            (Some(i), false) => (i + n - 1) % n,
+            (None, true) => 0,
+            (None, false) => n - 1,
+        };
+        self.show_comments = true;
+        self.set_selection(Some((page_id, targets[i])));
+        self.comment_target = Some(targets[i]);
+        self.comment_body.clear();
+        self.comment_edit = None;
+    }
+
+    /// Review ▸ Delete: the selected shape's comments, one undo step.
+    fn delete_comments_of_selection(&mut self) {
+        let (Some((page_id, sid)), Some(_)) = (self.sel, self.ed()) else { return };
+        let cmds: Vec<Box<dyn dc_core::Command>> = self
+            .comments_for(sid)
+            .into_iter()
+            .map(|(ann, ..)| Box::new(RemoveShape::new(page_id, ann)) as Box<dyn dc_core::Command>)
+            .collect();
+        if !cmds.is_empty() {
+            self.apply(Macro::new(crate::i18n::strs().msg_delete_comment(), cmds));
+            self.comment_target = None;
+        }
+    }
+
     fn comments_for(&self, shape_id: i64) -> Vec<(i64, String, String, String)> {
         let Some(ed) = self.ed() else {
             return Vec::new();
@@ -17226,6 +17410,7 @@ impl App {
         self.select_by_type_window(&ctx);
         self.layers_window(&ctx);
         self.find_window(&ctx);
+        self.container_menu_window(&ctx);
         self.snap_glue_window(&ctx);
         self.hyperlink_window(&ctx);
         self.fields_insert_window(&ctx);

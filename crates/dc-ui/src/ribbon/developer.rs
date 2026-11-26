@@ -8,10 +8,10 @@ use super::{Action, Group, Icon, RibbonButton, TabCtx, big, grid, stack};
 pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<Group> {
     vec![
         Group::new(s.msg_code(), code_cols(s, ctx)),
-        Group::new(s.msg_add_ins(), addins_cols(s, )),
-        Group::new(s.msg_controls(), controls_cols(s, )),
-        Group::new(s.msg_shape_design(), shape_design_grid(s, )),
-        Group::new(s.msg_stencil(), stencil_cols(s, )),
+        Group::new(s.msg_add_ins(), addins_cols(s, ctx)),
+        Group::new(s.msg_controls(), controls_cols(s, ctx)),
+        Group::new(s.msg_shape_design(), shape_design_grid(s, ctx)),
+        Group::new(s.msg_stencil(), stencil_cols(s, ctx)),
         Group::new(s.msg_show_hide(), show_hide_grid(s, ctx)),
     ]
 }
@@ -38,7 +38,7 @@ fn code_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::
     ]
 }
 
-fn addins_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn addins_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![stack(vec![
         RibbonButton::new(Icon::Link, s.msg_com_add_ins(), Action::Macros)
             .enabled(false)
@@ -49,7 +49,7 @@ fn addins_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
     ])]
 }
 
-fn controls_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn controls_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![stack(vec![
         RibbonButton::new(Icon::Shapes, s.msg_insert_control(), Action::Macros)
             .enabled(false)
@@ -60,7 +60,7 @@ fn controls_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
     ])]
 }
 
-fn shape_design_grid(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn shape_design_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![grid(vec![
         vec![
             RibbonButton::new(Icon::Shapes, s.msg_operations(), Action::Macros)
@@ -78,7 +78,7 @@ fn shape_design_grid(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
     ])]
 }
 
-fn stencil_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn stencil_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![grid(vec![
         vec![
             RibbonButton::new(Icon::Shapes, s.msg_edit_stencil(), Action::Macros)

@@ -10725,3 +10725,58 @@ fn drawing_tools_create_shapes() {
     h.run();
     assert_eq!(h.state().debug_tool(), dc_ui::app::Tool::Pointer);
 }
+
+/// Container Tools: Fit to Contents, Margins, Automatic Resize ("always
+/// fit" follows a member's move in the same undo step), Select
+/// Contents.
+#[test]
+fn container_tools_fit_margins_autoresize_select() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, m) = place_master(&mut h, 2);
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    h.get_all_by_label("Container").next().expect("Insert ▸ Container").click();
+    h.run();
+    h.run();
+    h.get_all_by_label("Plain").last().expect("Plain style").click();
+    h.run();
+    h.run();
+    let (_, cont) = h.state().debug_sel().expect("container selected");
+    assert_eq!(h.state().debug_container_members_for_test(cont), vec![m]);
+    let rect = |h: &Harness<'_, App>, id| h.state().debug_shape_page_rect(id).unwrap();
+    let (mx, my, mw, mh) = rect(&h, m);
+
+    // Margins ▸ 0.5 in refits around the member
+    h.get_by_label("Margins").click();
+    h.run();
+    match h.query_by_label("12.7 mm") {
+        Some(n) => n.click(),
+        None => h.get_by_label("0.500 in").click(),
+    }
+    h.run();
+    let (cx, cy, cw, ch) = rect(&h, cont);
+    let close = |a: f64, b: f64| (a - b).abs() < 1e-3;
+    assert!(close(cx, mx - 0.5) && close(cy, my - 0.5) && close(cw, mw + 1.0) && close(ch, mh + 1.0), "{:?}", (cx, cy, cw, ch, mx, my, mw, mh));
+
+    // Automatic Resize ▸ Always Fit: moving the member drags the box
+    h.get_by_label("Automatic Resize").click();
+    h.run();
+    h.get_by_label("Always Fit to Contents").click();
+    h.run();
+    h.get_by_label("Select Contents").click();
+    h.run();
+    assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(m), "members selected");
+    for _ in 0..5 {
+        h.key_press(egui::Key::ArrowRight);
+        h.run();
+    }
+    let (nmx, ..) = rect(&h, m);
+    assert!(nmx > mx, "member moved");
+    let (ncx, ..) = rect(&h, cont);
+    assert!(close(ncx, nmx - 0.5), "container followed: {ncx} vs {nmx}");
+    // one undo puts both back
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    assert!(close(rect(&h, cont).0, rect(&h, m).0 - 0.5));
+}

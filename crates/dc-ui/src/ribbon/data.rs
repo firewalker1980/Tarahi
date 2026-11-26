@@ -5,16 +5,16 @@
 
 use super::{Action, Group, Icon, RibbonButton, TabCtx, big, grid, stack};
 
-pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, _ctx: &TabCtx) -> Vec<Group> {
+pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<Group> {
     vec![
-        Group::new(s.msg_external_data(), external_data_cols(s, )),
-        Group::new(s.msg_shape_data(), shape_data_cols(s, )),
-        Group::new(s.msg_data_graphics(), data_graphics_cols(s, )),
-        Group::new(s.msg_display_options(), display_options_cols(s, )),
+        Group::new(s.msg_external_data(), external_data_cols(s, ctx)),
+        Group::new(s.msg_shape_data(), shape_data_cols(s, ctx)),
+        Group::new(s.msg_data_graphics(), data_graphics_cols(s, ctx)),
+        Group::new(s.msg_display_options(), display_options_cols(s, ctx)),
     ]
 }
 
-fn external_data_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn external_data_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
             RibbonButton::new(Icon::Open, s.msg_quick_import(), Action::Macros)
@@ -53,7 +53,7 @@ fn external_data_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> 
     ]
 }
 
-fn shape_data_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn shape_data_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
             RibbonButton::new(Icon::ShapeSheet, s.msg_shape_data_window(), Action::Macros)
@@ -70,7 +70,7 @@ fn shape_data_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
     ]
 }
 
-fn data_graphics_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn data_graphics_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
             RibbonButton::new(Icon::DataGraphic, s.msg_data_graphics(), Action::Macros)
@@ -92,7 +92,7 @@ fn data_graphics_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> 
     ]
 }
 
-fn display_options_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn display_options_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![stack(vec![RibbonButton::new(
         Icon::Check,
         s.msg_display_data_graphics(),

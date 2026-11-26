@@ -30,34 +30,34 @@ pub(crate) const CONTAINER_STYLES: [&str; 14] = [
 
 pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<Group> {
     vec![
-        Group::new(s.msg_size(), size_cols(s, )),
-        Group::new(s.msg_container_styles(), styles_grid(s, )),
-        Group::new(s.msg_heading_style(), heading_cols(s, )),
+        Group::new(s.msg_size(), size_cols(s, ctx)),
+        Group::new(s.msg_container_styles(), styles_grid(s, ctx)),
+        Group::new(s.msg_heading_style(), heading_cols(s, ctx)),
         Group::new(s.msg_membership(), membership_cols(s, ctx)),
     ]
 }
 
-fn size_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn size_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::Grid, s.msg_margins(), Action::Macros)
-                .enabled(false)
+            RibbonButton::new(Icon::Grid, s.msg_margins(), Action::ContainerMenu(0))
+                .enabled(ctx.sel_container)
                 .split()
-                .tip(s.msg_container_margins_planned()),
+                .tip(s.msg_container_margins_tip()),
         ),
         stack(vec![
-            RibbonButton::new(Icon::Fit, s.msg_fit_to_contents(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_size_the_container_to_its_member()),
-            RibbonButton::new(Icon::Fit, s.msg_automatic_resize(), Action::Macros)
-                .enabled(false)
+            RibbonButton::new(Icon::Fit, s.msg_fit_to_contents(), Action::ContainerFit)
+                .enabled(ctx.sel_container)
+                .tip(s.msg_fit_to_contents_tip()),
+            RibbonButton::new(Icon::Fit, s.msg_automatic_resize(), Action::ContainerMenu(1))
+                .enabled(ctx.sel_container)
                 .split()
-                .tip(s.msg_grow_with_the_members_planned()),
+                .tip(s.msg_auto_resize_tip()),
         ]),
     ]
 }
 
-fn styles_grid(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn styles_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![grid(vec![
         CONTAINER_STYLES[..7]
             .iter()
@@ -76,7 +76,7 @@ fn styles_grid(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
     ])]
 }
 
-fn heading_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn heading_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![big(
         RibbonButton::new(Icon::FontA, s.msg_heading_style(), Action::Macros)
             .enabled(false)
@@ -92,16 +92,17 @@ fn membership_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<s
                 RibbonButton::new(Icon::Container, s.msg_highlight_members(), Action::ContainerHighlight)
                     .selected(ctx.container_highlight)
                     .tip(s.msg_tint_the_container_s_members_whi()),
-                RibbonButton::new(Icon::Lock, "", Action::Macros)
+                RibbonButton::new(Icon::Lock, "", Action::ContainerLock)
                     .alt(s.msg_lock_container())
-                    .enabled(false)
-                    .tip(s.msg_lock_the_container_against_membe()),
+                    .enabled(ctx.sel_container)
+                    .selected(ctx.container_locked)
+                    .tip(s.msg_lock_container_tip()),
             ],
             vec![
-                RibbonButton::new(Icon::Shapes, "", Action::Macros)
+                RibbonButton::new(Icon::Shapes, "", Action::ContainerSelect)
                     .alt(s.msg_select_contents())
-                    .enabled(false)
-                    .tip(s.msg_select_the_container_s_members_p()),
+                    .enabled(ctx.sel_container)
+                    .tip(s.msg_select_contents_tip()),
                 RibbonButton::new(Icon::Delete, "", Action::ContainerDisband)
                     .alt(s.msg_disband_container())
                     .enabled(ctx.sel_container)

@@ -33,6 +33,8 @@ pub(crate) struct TabCtx {
     pub tri_sel: bool,
     pub tool: crate::app::Tool,
     pub painter_armed: bool,
+    /// The selected container's Lock Container state.
+    pub container_locked: bool,
     /// The selection's Character Style bits (1 bold, 2 italic, 4
     /// underline), Strikethru and Paragraph HorzAlign, for the Font and
     /// Paragraph buttons' pressed state.
@@ -145,6 +147,18 @@ pub(crate) fn anchor_labels(tab: Tab, ctx: &TabCtx) -> Vec<String> {
 /// Everything the ribbon can ask the app to do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
+    /// Container Tools: Fit to Contents, the Margins (0) / Automatic
+    /// Resize (1) menus, Lock Container, Select Contents.
+    ContainerFit,
+    ContainerMenu(u8),
+    ContainerLock,
+    ContainerSelect,
+    /// Review ▸ Comments: new on the selection, previous / next
+    /// commented shape, delete the selection's comments.
+    NewComment,
+    PrevComment,
+    NextComment,
+    DeleteComment,
     /// Home ▸ Tools drawing tools (Rectangle, Ellipse, Line, Text).
     DrawTool(crate::drawtools::Kind),
     /// Home ▸ Editing ▸ Layers: the Layer Properties dialog.

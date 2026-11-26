@@ -849,13 +849,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "comments-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "configure-snap-and-glue-targets",
         attribute: None,
         vars: &[],
@@ -1038,13 +1031,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "container-margins-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "container-style-style-applied",
         attribute: None,
         vars: &["style"],
@@ -1074,13 +1060,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "containers",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "containers-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -1354,13 +1333,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "delete-comment",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "delete-comment-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -2606,13 +2578,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "grow-with-the-members-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "guide-added-horizontal",
         attribute: None,
         vars: &["v"],
@@ -3208,13 +3173,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "lock-the-container-against-membe",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "long-arrow",
         attribute: None,
         vars: &[],
@@ -3489,13 +3447,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "next-comment",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "next-comment-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -4300,13 +4251,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "previous-comment-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "previous-page",
         attribute: None,
         vars: &[],
@@ -4895,13 +4839,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "select-the-container-s-members-p",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "select-the-shapes-to-contain-fir",
         attribute: None,
         vars: &[],
@@ -5294,13 +5231,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "show-hide-comments-planned-view",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "show-hide-data-graphics-on-the-p",
         attribute: None,
         vars: &[],
@@ -5351,13 +5281,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "size-pt",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "size-the-container-to-its-member",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6903,6 +6826,69 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "container-margins-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "auto-resize-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "no-automatic-resize",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "expand-as-needed",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "always-fit-to-contents",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "fit-to-contents-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "lock-container-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "select-contents-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "container-locked-status",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7002,13 +6988,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..49120,
-            Self::En => 49120..96514,
-            Self::Es => 96514..148688,
-            Self::Fa => 148688..210582,
-            Self::Ja => 210582..263257,
-            Self::Ko => 263257..311727,
-            Self::ZhHans => 311727..354066,
+            Self::De => 0..48910,
+            Self::En => 48910..96091,
+            Self::Es => 96091..148043,
+            Self::Fa => 148043..209505,
+            Self::Ja => 209505..261949,
+            Self::Ko => 261949..310272,
+            Self::ZhHans => 310272..352336,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7521,9 +7507,6 @@ impl L10nLanguage {
             .msg("comments-on-shape-target-count", Some(_args))
             .unwrap()
     }
-    pub fn msg_comments_planned(&self) -> String {
-        self.0.msg("comments-planned", None).unwrap()
-    }
     pub fn msg_configure_snap_and_glue_targets(&self) -> String {
         self.0.msg("configure-snap-and-glue-targets", None).unwrap()
     }
@@ -7656,9 +7639,6 @@ impl L10nLanguage {
     pub fn msg_container_flyout(&self) -> String {
         self.0.msg("container-flyout", None).unwrap()
     }
-    pub fn msg_container_margins_planned(&self) -> String {
-        self.0.msg("container-margins-planned", None).unwrap()
-    }
     /// $style (String) - argument
     pub fn msg_container_style_style_applied<F0: AsRef<str>>(&self, style: F0) -> String {
         let mut _args = FluentArgs::new();
@@ -7683,9 +7663,6 @@ impl L10nLanguage {
     }
     pub fn msg_containers(&self) -> String {
         self.0.msg("containers", None).unwrap()
-    }
-    pub fn msg_containers_planned(&self) -> String {
-        self.0.msg("containers-planned", None).unwrap()
     }
     pub fn msg_containers_wrap_tip(&self) -> String {
         self.0.msg("containers-wrap-tip", None).unwrap()
@@ -7843,9 +7820,6 @@ impl L10nLanguage {
     }
     pub fn msg_delete_comment(&self) -> String {
         self.0.msg("delete-comment", None).unwrap()
-    }
-    pub fn msg_delete_comment_planned(&self) -> String {
-        self.0.msg("delete-comment-planned", None).unwrap()
     }
     pub fn msg_delete_page(&self) -> String {
         self.0.msg("delete-page", None).unwrap()
@@ -8472,9 +8446,6 @@ impl L10nLanguage {
             .msg("group-the-selection-one-undo-ste", None)
             .unwrap()
     }
-    pub fn msg_grow_with_the_members_planned(&self) -> String {
-        self.0.msg("grow-with-the-members-planned", None).unwrap()
-    }
     /// $v (String) - guide coordinate
     pub fn msg_guide_added_horizontal<F0: AsRef<str>>(&self, v: F0) -> String {
         let mut _args = FluentArgs::new();
@@ -8805,11 +8776,6 @@ impl L10nLanguage {
             .msg("lock-is-set-protection-section", Some(_args))
             .unwrap()
     }
-    pub fn msg_lock_the_container_against_membe(&self) -> String {
-        self.0
-            .msg("lock-the-container-against-membe", None)
-            .unwrap()
-    }
     pub fn msg_long_arrow(&self) -> String {
         self.0.msg("long-arrow", None).unwrap()
     }
@@ -8963,9 +8929,6 @@ impl L10nLanguage {
     }
     pub fn msg_next_comment(&self) -> String {
         self.0.msg("next-comment", None).unwrap()
-    }
-    pub fn msg_next_comment_planned(&self) -> String {
-        self.0.msg("next-comment-planned", None).unwrap()
     }
     pub fn msg_next_page(&self) -> String {
         self.0.msg("next-page", None).unwrap()
@@ -9453,9 +9416,6 @@ impl L10nLanguage {
     pub fn msg_previous_comment(&self) -> String {
         self.0.msg("previous-comment", None).unwrap()
     }
-    pub fn msg_previous_comment_planned(&self) -> String {
-        self.0.msg("previous-comment-planned", None).unwrap()
-    }
     pub fn msg_previous_page(&self) -> String {
         self.0.msg("previous-page", None).unwrap()
     }
@@ -9737,11 +9697,6 @@ impl L10nLanguage {
     pub fn msg_select_shapes_by_type_master_or(&self) -> String {
         self.0.msg("select-shapes-by-type-master-or", None).unwrap()
     }
-    pub fn msg_select_the_container_s_members_p(&self) -> String {
-        self.0
-            .msg("select-the-container-s-members-p", None)
-            .unwrap()
-    }
     pub fn msg_select_the_shapes_to_contain_fir(&self) -> String {
         self.0
             .msg("select-the-shapes-to-contain-fir", None)
@@ -9977,9 +9932,6 @@ impl L10nLanguage {
     pub fn msg_show_hide_comments(&self) -> String {
         self.0.msg("show-hide-comments", None).unwrap()
     }
-    pub fn msg_show_hide_comments_planned_view(&self) -> String {
-        self.0.msg("show-hide-comments-planned-view", None).unwrap()
-    }
     pub fn msg_show_hide_data_graphics_on_the_p(&self) -> String {
         self.0
             .msg("show-hide-data-graphics-on-the-p", None)
@@ -10018,11 +9970,6 @@ impl L10nLanguage {
     }
     pub fn msg_size_pt(&self) -> String {
         self.0.msg("size-pt", None).unwrap()
-    }
-    pub fn msg_size_the_container_to_its_member(&self) -> String {
-        self.0
-            .msg("size-the-container-to-its-member", None)
-            .unwrap()
     }
     pub fn msg_slanted_tick(&self) -> String {
         self.0.msg("slanted-tick", None).unwrap()
@@ -10874,5 +10821,32 @@ impl L10nLanguage {
     }
     pub fn msg_text_tool_tip(&self) -> String {
         self.0.msg("text-tool-tip", None).unwrap()
+    }
+    pub fn msg_container_margins_tip(&self) -> String {
+        self.0.msg("container-margins-tip", None).unwrap()
+    }
+    pub fn msg_auto_resize_tip(&self) -> String {
+        self.0.msg("auto-resize-tip", None).unwrap()
+    }
+    pub fn msg_no_automatic_resize(&self) -> String {
+        self.0.msg("no-automatic-resize", None).unwrap()
+    }
+    pub fn msg_expand_as_needed(&self) -> String {
+        self.0.msg("expand-as-needed", None).unwrap()
+    }
+    pub fn msg_always_fit_to_contents(&self) -> String {
+        self.0.msg("always-fit-to-contents", None).unwrap()
+    }
+    pub fn msg_fit_to_contents_tip(&self) -> String {
+        self.0.msg("fit-to-contents-tip", None).unwrap()
+    }
+    pub fn msg_lock_container_tip(&self) -> String {
+        self.0.msg("lock-container-tip", None).unwrap()
+    }
+    pub fn msg_select_contents_tip(&self) -> String {
+        self.0.msg("select-contents-tip", None).unwrap()
+    }
+    pub fn msg_container_locked_status(&self) -> String {
+        self.0.msg("container-locked-status", None).unwrap()
     }
 }

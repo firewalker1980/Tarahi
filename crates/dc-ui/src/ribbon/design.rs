@@ -10,9 +10,9 @@ use super::{Action, Group, Icon, RibbonButton, TabCtx, big, grid, stack};
 pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<Group> {
     vec![
         Group::new(s.msg_page_setup(), page_setup_grid(s, ctx)),
-        Group::new(s.msg_themes(), themes_cols(s, )),
-        Group::new(s.msg_variants(), variants_cols(s, )),
-        Group::new(s.msg_layout(), layout_cols(s, )),
+        Group::new(s.msg_themes(), themes_cols(s, ctx)),
+        Group::new(s.msg_variants(), variants_cols(s, ctx)),
+        Group::new(s.msg_layout(), layout_cols(s, ctx)),
         // Real Visio 2016 Design carries a Backgrounds gallery; ours
         // stays the #113 dialog (placeholder per the disposition).
         Group::new(s.msg_backgrounds(), vec![backgrounds_col(s, ctx)]),
@@ -39,7 +39,7 @@ fn page_setup_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<s
     ])]
 }
 
-fn themes_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn themes_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
             RibbonButton::new(Icon::Theme, s.msg_themes(), Action::Macros)
@@ -49,7 +49,7 @@ fn themes_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
     ]
 }
 
-fn variants_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn variants_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![grid(vec![
         vec![
             RibbonButton::new(Icon::Theme, s.msg_variants(), Action::Macros)
@@ -70,7 +70,7 @@ fn variants_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
     ])]
 }
 
-fn layout_cols(s: &'static crate::l10n::L10nLanguage) -> Vec<super::Col> {
+fn layout_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     // Fed from the removed Process tab (owner 2026-11-09): Visio
     // paints Re-Layout/Layout Options/Spacing on Design ▸ Layout.
     vec![grid(vec![
