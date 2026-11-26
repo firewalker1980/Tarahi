@@ -138,6 +138,11 @@ pub const CELLS: &[CellDef] = &[
     c(0xa4, 0, Bit(3), "NoAlignBox"),
     c(0xa4, 0, Bit(4), "UpdateAlignBox"),
     c(0xa4, 0, Bit(5), "HideText"),
+    c(0xa4, 1, U8, "DynFeedback"),
+    c(0xa4, 2, U8, "GlueType"),
+    c(0xa4, 3, U8, "WalkPreference"),
+    c(0xa4, 4, U8, "BegTrigger"),
+    c(0xa4, 5, U8, "EndTrigger"),
     c(0xa4, 6, U8, "ObjType"),
     c(0xa4, 24, F64, "DropOnPageScale"),
     // Page properties (page/master sheet)
@@ -162,6 +167,7 @@ pub const SECTIONS: &[(u32, &str)] = &[
     (0x6e, "Actions"),
     (0x73, "Hyperlink"),
     (0x66, "Field"),
+    (0x6f, "Layer"),
 ];
 
 pub struct RowDef {
@@ -299,6 +305,22 @@ pub const ROWS: &[RowDef] = &[
         header: false,
         row_t: None,
         cells: XYABCD,
+    },
+    // Layer (page sheet): Name comes from formula slot 0
+    RowDef {
+        t: 0xa8,
+        header: false,
+        row_t: None,
+        cells: &[
+            ("Color", 8, U8),
+            ("Status", 13, U8),
+            ("Visible", 14, U8),
+            ("Print", 15, U8),
+            ("Active", 16, U8),
+            ("Lock", 17, U8),
+            ("Snap", 18, U8),
+            ("Glue", 19, U8),
+        ],
     },
     // Text field: Value/Format come from formula slots 0/2
     RowDef {

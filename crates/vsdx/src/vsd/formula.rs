@@ -8,7 +8,8 @@
 //! - `0x62` u16 integer; `0x60` u8 n + n UTF-16 units + NUL: string
 //! - `0x75` u16 cell, u8, u8: object cell of this sheet; `0x74` the same
 //!   plus u32 sheet id (0 = the page)
-//! - `0x72` u32 row, u8 section, u8 cell, u8 flags: section cell; `0x70`
+//! - `0x72` u32 row, u8 section, u8 cell, u8 flags (0xC0: row by name,
+//!   for Connections a pool slot such as `Row_3`): section cell; `0x70`
 //!   the same preceded by u32 sheet id. Named sections (User, Prop,
 //!   Controls, Actions, Hyperlink) store the row name's string-pool slot.
 //! - operators as in spreadsheets: 0x03 + 0x04 - 0x05 * 0x06 / 0x07 ^
@@ -183,6 +184,50 @@ pub fn section_cell_name(sec: u16, row: u32, cell: u8, pool: &[String]) -> Optio
     }
 }
 
+thread_local! {
+    /// Named connection points of the page/master being converted:
+    /// (sheet id, name pool slot) → row name. A connection reference
+    /// stores the slot when the target row is named, its index if not.
+    /// ponytail: per-thread context set by the emitter; pass it in if
+    /// decode grows more callers.
+    static CONN_NAMES: std::cell::RefCell<std::collections::HashMap<(u32, u32), String>> = Default::default();
+    /// Connection point count per sheet: a row value past it is a name.
+    static CONN_COUNT: std::cell::RefCell<std::collections::HashMap<u32, u32>> = Default::default();
+}
+
+/// Set the connection point counts of the sheets being converted.
+pub fn set_conn_counts(m: std::collections::HashMap<u32, u32>) {
+    CONN_COUNT.with(|c| *c.borrow_mut() = m);
+}
+
+/// Is a Connections row reference by name? The 0xC0 flag says so in
+/// most files; some writers leave it 0, but an index can never reach
+/// past the target's connection points.
+fn conn_by_name(sheet: u32, row: u32, flag: u8) -> bool {
+    flag & 0xC0 != 0 || CONN_COUNT.with(|c| c.borrow().get(&sheet).is_some_and(|&n| row >= n))
+}
+
+/// Set the named connection rows of the sheets being converted.
+pub fn set_conn_names(m: std::collections::HashMap<(u32, u32), String>) {
+    CONN_NAMES.with(|c| *c.borrow_mut() = m);
+}
+
+/// `Connections.<name>.<cell>` when row `row` of `sheet` is a named
+/// connection point.
+fn named_conn(sheet: u32, row: u32, cell: u8, pool: &[String]) -> Option<String> {
+    // a named point of that sheet, or a pool name `Row_N`: Visio's name
+    // for the N-th connection point when the formula holds a name
+    let name = CONN_NAMES
+        .with(|c| c.borrow().get(&(sheet, row)).cloned())
+        .or_else(|| {
+            let n = pool.get(row as usize)?;
+            n.strip_prefix("Row_")?.parse::<u32>().ok()?;
+            Some(n.clone())
+        })?;
+    let cn = section_cells(7)?.get(cell as usize)?;
+    Some(format!("Connections.{name}.{cn}"))
+}
+
 fn sheet_prefix(id: u32, own: u32) -> String {
     if id == own {
         String::new()
@@ -240,21 +285,29 @@ pub fn decode(t: &[u8], pool: &[String], own: u32) -> Option<String> {
                 p += 9;
             }
             0x72 => {
-                st.push(section_cell_name(
-                    *t.get(p + 5)? as u16,
-                    u32_at(t, p + 1),
-                    *t.get(p + 6)?,
-                    pool,
-                )?);
+                let (sec, row, cell) = (*t.get(p + 5)? as u16, u32_at(t, p + 1), *t.get(p + 6)?);
+                // flag 0xC0: the row is given by name (a pool slot)
+                let by_name = conn_by_name(own, row, t.get(p + 7).copied().unwrap_or(0));
+                let named = (sec == 7 && by_name)
+                    .then(|| named_conn(own, row, cell, pool))
+                    .flatten();
+                st.push(match named {
+                    Some(n) => n,
+                    None => section_cell_name(sec, row, cell, pool)?,
+                });
                 p += 8;
             }
             0x70 => {
-                let n = section_cell_name(
-                    *t.get(p + 9)? as u16,
-                    u32_at(t, p + 5),
-                    *t.get(p + 10)?,
-                    pool,
-                )?;
+                let (sec, row, cell) = (*t.get(p + 9)? as u16, u32_at(t, p + 5), *t.get(p + 10)?);
+                let by_name =
+                    conn_by_name(u32_at(t, p + 1), row, t.get(p + 11).copied().unwrap_or(0));
+                let named = (sec == 7 && by_name)
+                    .then(|| named_conn(u32_at(t, p + 1), row, cell, pool))
+                    .flatten();
+                let n = match named {
+                    Some(n) => n,
+                    None => section_cell_name(sec, row, cell, pool)?,
+                };
                 st.push(format!("{}{n}", sheet_prefix(u32_at(t, p + 1), own)));
                 p += 12;
             }
@@ -332,10 +385,17 @@ pub fn decode(t: &[u8], pool: &[String], own: u32) -> Option<String> {
                 } else {
                     let fid = u16_at(t, p + 1);
                     let (_, a) = FUNCS.get(fid as usize)?;
-                    if *a < 0 {
+                    let argc = if *a >= 0 {
+                        *a as usize
+                    } else if t.get(p + 5).is_none_or(|&n| n == 0xFE) {
+                        // arity unknown (internal _ functions the oracle
+                        // can't call): as the outermost call it takes
+                        // every operand on the stack
+                        st.len()
+                    } else {
                         return None;
-                    }
-                    (*a as usize, fid, 5)
+                    };
+                    (argc, fid, 5)
                 };
                 let (name, _) = FUNCS.get(fid as usize)?;
                 if name.is_empty() || st.len() < argc {
@@ -400,6 +460,8 @@ mod tests {
                 "IF(BITXOR(FlipX,FlipY),1,-1)*Angle",
             ),
             ("72 06 00 00 00 09 01 c0", "Controls.Row_6.Y"),
+            // _XFTRIGGER: internal, arity inferred as the outermost call
+            ("74 4e 00 00 60 a6 00 00 00 80 73 00 00 40", "_XFTRIGGER(Sheet.166!EventXFMod)"),
             (
                 "8b 00 00 02 00 00 00 00 00 00 00 00 00 f0 3f 00 00 00 00 00 00 e0 3f 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f0 3f",
                 "POLYLINE(0, 0, 1,0.5, 0,1)",

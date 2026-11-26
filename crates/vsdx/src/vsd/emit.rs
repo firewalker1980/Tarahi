@@ -44,7 +44,11 @@ fn num(v: f64) -> String {
     } else if v.abs() < 1e-9 || v.abs() >= 1e15 || !v.is_finite() {
         // denormal-ish noise and huge values: exponent form, not
         // hundreds of digits
-        if v.is_finite() { format!("{v:E}") } else { "0".into() }
+        if v.is_finite() {
+            format!("{v:E}")
+        } else {
+            "0".into()
+        }
     } else {
         format!("{v}")
     }
@@ -88,6 +92,15 @@ struct Ctx<'a> {
     master_f: HashMap<(u32, u32), std::collections::HashSet<String>>,
     /// formula cells of the master shape the current instance inherits
     inh: Option<std::collections::HashSet<String>>,
+    /// glue formulas seen on the current page: (shape, cell, formula)
+    glue: Vec<(u32, String, String)>,
+    /// named connection points: (shape, `Connections.<name>.X`) → row index
+    conn_rows: HashMap<(u32, String), u32>,
+    /// (master id, master shape id) → its named connection points
+    /// (name slot, name, row)
+    master_conn: HashMap<(u32, u32), Vec<(u32, String, u32)>>,
+    /// (master id, master shape id) → its connection point count
+    master_conn_count: HashMap<(u32, u32), u32>,
     pool: Vec<String>,
     media: Vec<(String, Vec<u8>)>,
 }
@@ -122,6 +135,10 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
         cur_master: None,
         master_f: HashMap::new(),
         inh: None,
+        glue: vec![],
+        conn_rows: HashMap::new(),
+        master_conn: HashMap::new(),
+        master_conn_count: HashMap::new(),
         pool: vec![],
         media: vec![],
     };
@@ -238,12 +255,20 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
             let pg = &kids[i as usize];
             // page header: background page id at 8 (u32::MAX = none)
             let ps = stream(&doc, pg);
-            let head = super::chunks(&ps).into_iter().find(|c| c.level == 0).map(|c| c.data.to_vec()).unwrap_or_default();
+            let head = super::chunks(&ps)
+                .into_iter()
+                .find(|c| c.level == 0)
+                .map(|c| c.data.to_vec())
+                .unwrap_or_default();
             let back = u32_at(&head, 8);
             let (sheet, shapes) = contents(&mut cx, pg, &format!("page{}", page_parts.len() + 1));
             let n = page_parts.len() + 1;
-            let (nm, nmu) = names.get(&i).copied().map_or((None, None), |(a, b)| (cx.name(a).map(str::to_owned), cx.name(b).map(str::to_owned)));
-            let nmu = nmu.or_else(|| nm.clone()).unwrap_or_else(|| format!("Page-{n}"));
+            let (nm, nmu) = names.get(&i).copied().map_or((None, None), |(a, b)| {
+                (cx.name(a).map(str::to_owned), cx.name(b).map(str::to_owned))
+            });
+            let nmu = nmu
+                .or_else(|| nm.clone())
+                .unwrap_or_else(|| format!("Page-{n}"));
             let nm = nm.unwrap_or_else(|| nmu.clone());
             let mut attrs = format!("ID='{i}' NameU='{}' Name='{}'", esc(&nmu), esc(&nm));
             if !order.is_empty() && !order.contains(&i) {
@@ -252,8 +277,15 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
             if back != u32::MAX && head.len() >= 12 {
                 let _ = write!(attrs, " BackPage='{back}'");
             }
-            let _ = write!(pages_xml, "<Page {attrs}>{sheet}<Rel r:id='rId{n}'/></Page>");
-            page_parts.push(format!("<?xml version='1.0' encoding='utf-8' ?>\n<PageContents {NS}><Shapes>{shapes}</Shapes></PageContents>"));
+            let _ = write!(
+                pages_xml,
+                "<Page {attrs}>{sheet}<Rel r:id='rId{n}'/></Page>"
+            );
+            let connects = connects_xml(
+                &std::mem::take(&mut cx.glue),
+                &std::mem::take(&mut cx.conn_rows),
+            );
+            page_parts.push(format!("<?xml version='1.0' encoding='utf-8' ?>\n<PageContents {NS}><Shapes>{shapes}</Shapes>{connects}</PageContents>"));
         }
     }
     pages_xml.push_str("</Pages>");
@@ -268,6 +300,83 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
     )
 }
 
+/// The page's `<Connects>`, derived from the connectors' glue formulas
+/// (the binary keeps glue in formulas; Visio rebuilds its table the same
+/// way): `PAR(PNT(Sheet.N!Connections.Xk,…))` on BeginX/EndX glues that
+/// end to connection point k of shape N; `_WALKGLUE` plus a trigger
+/// `_XFTRIGGER(Sheet.N!EventXFMod)` glues it to shape N as a whole.
+fn connects_xml(glue: &[(u32, String, String)], conn_rows: &HashMap<(u32, String), u32>) -> String {
+    let mut out = String::new();
+    let target = |f: &str| -> Option<(u32, String)> {
+        let i = f.find("Sheet.")? + 6;
+        let rest = &f[i..];
+        let (n, cell) = rest.split_once('!')?;
+        let cell = cell.split([',', ')']).next()?.to_string();
+        Some((n.parse().ok()?, cell))
+    };
+    for (shape, cell, f) in glue {
+        // (from cell, its part, trigger cell for dynamic glue)
+        let (end, part, trig): (&str, u32, &str) = match cell.as_str() {
+            "BeginX" => ("BeginX", 9, "BegTrigger"),
+            "EndX" => ("EndX", 12, "EndTrigger"),
+            c if c.starts_with("Controls.") => match c.rsplit_once('@') {
+                Some((name, ord)) => (name, 100 + ord.parse::<u32>().unwrap_or(0), ""),
+                None => continue,
+            },
+            _ => continue,
+        };
+        let to = if f.starts_with("PAR(PNT(") || f.starts_with("LOC(PNT(") {
+            target(f).and_then(|(n, c)| {
+                // Connections.Xk → point k (parts 100 + k - 1); a named
+                // point → its row index on the target
+                let rowname = |c: &str| -> Option<u32> {
+                    c.strip_prefix("Connections.Row_")?
+                        .strip_suffix(".X")?
+                        .parse::<u32>()
+                        .ok()
+                };
+                let tp = match c
+                    .strip_prefix("Connections.X")
+                    .and_then(|k| k.parse::<u32>().ok())
+                {
+                    Some(k) => 100 + k - 1,
+                    None => match conn_rows.get(&(n, c.clone())) {
+                        Some(r) => 100 + r,
+                        None => 100 + rowname(&c)? - 1,
+                    },
+                };
+                Some((n, c, tp))
+            })
+        } else if f.starts_with("_WALKGLUE(") {
+            glue.iter()
+                .find(|(s, c, _)| s == shape && c == trig)
+                .and_then(|(_, _, tf)| target(tf))
+                .map(|(n, _)| {
+                    // whole-shape glue: Visio names PinY when the
+                    // connector walks both ways (WalkPreference 3)
+                    let both = glue
+                        .iter()
+                        .any(|(s, c, v)| s == shape && c == "WalkPreference" && v == "3");
+                    (n, if both { "PinY" } else { "PinX" }.to_string(), 3)
+                })
+        } else {
+            None
+        };
+        if let Some((n, c, tp)) = to {
+            let _ = write!(
+                out,
+                "<Connect FromSheet='{shape}' FromCell='{end}' FromPart='{part}' ToSheet='{n}' ToCell='{}' ToPart='{tp}'/>",
+                esc(&c)
+            );
+        }
+    }
+    if out.is_empty() {
+        out
+    } else {
+        format!("<Connects>{out}</Connects>")
+    }
+}
+
 /// Slots of `kind` in display order: those missing from the order
 /// array first (background pages), then the order array's slots.
 fn display_order(kids: &[Ptr], order: &[u32], kind: u32) -> Vec<u32> {
@@ -279,7 +388,9 @@ fn display_order(kids: &[Ptr], order: &[u32], kind: u32) -> Vec<u32> {
             listed.push(i);
         }
     }
-    let mut out: Vec<u32> = (0..kids.len() as u32).filter(|&i| is(i) && !listed.contains(&i)).collect();
+    let mut out: Vec<u32> = (0..kids.len() as u32)
+        .filter(|&i| is(i) && !listed.contains(&i))
+        .collect();
     out.extend(listed);
     out
 }
@@ -349,6 +460,72 @@ fn style_attrs(self_id: u32, l: u32, f: u32, t: u32) -> String {
 /// A page or master: (`<PageSheet>` XML, shapes XML).
 fn contents(cx: &mut Ctx, container: &Ptr, part: &str) -> (String, String) {
     let all = super::sheets(cx.doc, container);
+    // named connection points of every sheet here (formulas refer to
+    // a named row by its name slot)
+    // (instances inherit their master shape's named points)
+    let mut conn = HashMap::new();
+    for (_, id, recs) in &all {
+        let mut named: Vec<(u32, String, u32)> = vec![];
+        for r in recs
+            .iter()
+            .filter(|r| r.typ == 0xc9 && r.list.is_some_and(|l| l.0 == 0x71))
+        {
+            for (row, (n, u)) in name_idx(&r.data) {
+                for slot in [n, u] {
+                    if let Some(name) = cx.name(slot) {
+                        named.push((slot, name.to_string(), row));
+                    }
+                }
+            }
+        }
+        let head = recs
+            .iter()
+            .find(|r| r.id == u32::MAX)
+            .map(|r| r.data.as_slice())
+            .unwrap_or(&[]);
+        let (m, ms) = (
+            u32_at(head, cells::HDR_MASTER),
+            u32_at(head, cells::HDR_MASTER_SHAPE),
+        );
+        if head.len() > cells::HDR_MASTER_SHAPE + 3 && m != u32::MAX && ms != u32::MAX {
+            if let Some(inh) = cx.master_conn.get(&(m, ms)) {
+                named.extend(inh.iter().cloned());
+            }
+        }
+        if let Some(mid) = cx.cur_master {
+            cx.master_conn.insert((mid, *id), named.clone());
+        }
+        for (slot, name, row) in named {
+            cx.conn_rows
+                .insert((*id, format!("Connections.{name}.X")), row);
+            conn.insert((*id, slot), name);
+        }
+    }
+    super::formula::set_conn_names(conn);
+    // connection point counts (instances without local rows inherit)
+    let mut counts = HashMap::new();
+    for (_, id, recs) in &all {
+        let local = recs.iter().filter(|r| r.typ == 0x99).count() as u32;
+        let head = recs
+            .iter()
+            .find(|r| r.id == u32::MAX)
+            .map(|r| r.data.as_slice())
+            .unwrap_or(&[]);
+        let (m, ms) = (
+            u32_at(head, cells::HDR_MASTER),
+            u32_at(head, cells::HDR_MASTER_SHAPE),
+        );
+        let inherited = (head.len() > cells::HDR_MASTER_SHAPE + 3)
+            .then(|| cx.master_conn_count.get(&(m, ms)).copied())
+            .flatten()
+            .unwrap_or(0);
+        let n = local.max(inherited);
+        if let Some(mid) = cx.cur_master {
+            cx.master_conn_count.insert((mid, *id), n);
+        }
+        counts.insert(*id, n);
+    }
+    super::formula::set_conn_counts(counts);
     let Some((_, _, srecs)) = all.iter().find(|(t, _, _)| *t == 0x46) else {
         return (String::new(), String::new());
     };
@@ -387,7 +564,9 @@ fn child_ids(recs: &[Rec]) -> Vec<u32> {
 /// Put a section's rows in the order its list record gives (rows the
 /// order omits keep their place after the listed ones).
 fn sort_rows(recs: &[Rec], rows: &mut [&Rec]) {
-    let Some(l) = rows.first().and_then(|r| r.list) else { return };
+    let Some(l) = rows.first().and_then(|r| r.list) else {
+        return;
+    };
     let Some(order) = recs
         .iter()
         .find(|r| r.list.is_none() && r.typ == l.0 && r.id == l.1)
@@ -442,10 +621,17 @@ fn shape_xml(
     attrs.push_str(&style_attrs(u32::MAX, l, f, t));
     // master instance: the master's id, and for a sub-shape the shape
     // of the master it instances (u32::MAX = none)
-    let (m, ms) = (u32_at(&head, cells::HDR_MASTER), u32_at(&head, cells::HDR_MASTER_SHAPE));
+    let (m, ms) = (
+        u32_at(&head, cells::HDR_MASTER),
+        u32_at(&head, cells::HDR_MASTER_SHAPE),
+    );
     // (the binary repeats the master on every sub-shape; VSDX names it
     // only on the instance root, its children carry MasterShape)
-    let m = if head.len() > cells::HDR_MASTER_SHAPE + 3 { m } else { u32::MAX };
+    let m = if head.len() > cells::HDR_MASTER_SHAPE + 3 {
+        m
+    } else {
+        u32::MAX
+    };
     if m != u32::MAX && m != parent_master {
         let _ = write!(attrs, " Master='{m}'");
     } else if m != u32::MAX && ms != u32::MAX {
@@ -494,7 +680,9 @@ fn value(
             let c = d.get(off..off + 4)?;
             let rgb = [c[1], c[2], c[3]];
             return Some((
-                if pal.get(c[0] as usize) == Some(&rgb) {
+                // Visio reads numeric colours as the 24 standard palette
+                // entries only; anything else must be written as RGB
+                if c[0] < 24 && pal.get(c[0] as usize) == Some(&rgb) {
                     c[0].to_string()
                 } else {
                     format!("#{:02x}{:02x}{:02x}", rgb[0], rgb[1], rgb[2])
@@ -558,6 +746,7 @@ fn formula_names(typ: u32) -> Option<&'static [&'static str]> {
         0xb4 => section_cells(242),
         0xb6 => section_cells(243),
         0xc4 => section_cells(244),
+        0xa8 => section_cells(241),
         0xa1 => Some(&["Value", "", "Format"]),
         _ => None,
     }
@@ -602,7 +791,14 @@ fn record_cells(
             value(&cx.palette, &r.data, off, enc).map(|v| (n.to_string(), Some(v), None))
         })
         .collect();
-    if let Some(names) = formula_names(r.typ) {
+    // shape-level 0xA7 is the layer membership row; in a geometry
+    // list the same type is a spline row
+    let names = if sec.is_none() && r.typ == 0xa7 {
+        Some(&["LayerMember"][..])
+    } else {
+        formula_names(r.typ)
+    };
+    if let Some(names) = names {
         for (ci, tok) in super::formula::entries(&r.data) {
             let Some(n) = names.get(ci as usize).copied() else {
                 continue;
@@ -637,7 +833,11 @@ fn record_cells(
         }
     }
     for c in out.iter_mut().filter(|c| c.0 == "Font") {
-        if let Some(name) = c.1.as_ref().and_then(|(v, _)| v.parse::<u32>().ok()).and_then(|id| cx.faces.get(&id)) {
+        if let Some(name) =
+            c.1.as_ref()
+                .and_then(|(v, _)| v.parse::<u32>().ok())
+                .and_then(|id| cx.faces.get(&id))
+        {
             c.1 = Some((name.clone(), None));
         }
     }
@@ -678,8 +878,30 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
             .collect();
         let mut cells = record_cells(cx, r, &defs, None);
         if let Some(inh) = &cx.inh {
-            for c in cells.iter_mut().filter(|c| c.2.is_none() && inh.contains(&c.0)) {
+            for c in cells
+                .iter_mut()
+                .filter(|c| c.2.is_none() && inh.contains(&c.0))
+            {
                 c.2 = Some("Inh".into());
+            }
+        }
+        if cx.cur_master.is_none() {
+            for c in cells.iter().filter(|c| {
+                matches!(
+                    c.0.as_str(),
+                    "BeginX" | "EndX" | "BegTrigger" | "EndTrigger"
+                )
+            }) {
+                if let Some(f) = &c.2 {
+                    cx.glue.push((cx.cur, c.0.clone(), f.clone()));
+                }
+            }
+            if let Some((v, _)) = cells
+                .iter()
+                .find(|c| c.0 == "WalkPreference")
+                .and_then(|c| c.1.clone())
+            {
+                cx.glue.push((cx.cur, "WalkPreference".into(), v));
             }
         }
         if let Some(mid) = cx.cur_master {
@@ -742,8 +964,17 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
                 .get(&r.id)
                 .and_then(|&(_, u)| cx.name(u))
                 .map(str::to_owned);
+            // control handles glued to a connection point (labels,
+            // callouts) feed the page's Connects like connector ends
+            if *sec == "Control" && cx.cur_master.is_none() {
+                if let Some(f) = cells.iter().find(|c| c.0 == "X").and_then(|c| c.2.clone()) {
+                    // unnamed control rows are Row_<n> to Visio
+                    let n = rname.clone().unwrap_or_else(|| format!("Row_{}", ord + 1));
+                    cx.glue.push((cx.cur, format!("Controls.{n}@{ord}"), f));
+                }
+            }
             match rname {
-                Some(n) if named || *sec == "Control" => {
+                Some(n) if named || *sec == "Control" || *sec == "Connection" => {
                     let _ = write!(out, "<Row N='{}'{t}>", esc(&n));
                 }
                 _ => {
@@ -787,9 +1018,14 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
 /// missing tail means "to the end".
 fn text_runs(txt: &str, recs: &[Rec]) -> String {
     let lens = |t: u32| {
+        // in display order (the list's order array), the same order the
+        // Character/Paragraph rows are written in
         let mut rows: Vec<&Rec> = recs.iter().filter(|r| r.typ == t).collect();
         rows.sort_by_key(|r| r.id);
-        rows.iter().map(|r| u32_at(&r.data, 0) as usize).collect::<Vec<_>>()
+        sort_rows(recs, &mut rows);
+        rows.iter()
+            .map(|r| u32_at(&r.data, 0) as usize)
+            .collect::<Vec<_>>()
     };
     // run starts (in UTF-16 units) → marker index
     let starts = |l: Vec<usize>| {
@@ -918,6 +1154,9 @@ fn package(
         let _ = write!(ct, "<Override PartName='/visio/masters/master{i}.xml' ContentType='application/vnd.ms-visio.master+xml'/>");
     }
     ct.push_str("<Override PartName='/visio/pages/pages.xml' ContentType='application/vnd.ms-visio.pages+xml'/>");
+    if !stencil {
+        ct.push_str("<Override PartName='/visio/windows.xml' ContentType='application/vnd.ms-visio.windows+xml'/>");
+    }
     for i in 1..=pages.len() {
         let _ = write!(ct, "<Override PartName='/visio/pages/page{i}.xml' ContentType='application/vnd.ms-visio.page+xml'/>");
     }
@@ -946,18 +1185,17 @@ fn package(
         ("visio/document.xml".into(), docxml.as_bytes().to_vec()),
         (
             "visio/_rels/document.xml.rels".into(),
-            rels(&[
-                (
-                    "rId1".into(),
-                    format!("{R}/masters"),
-                    "masters/masters.xml".into(),
-                ),
-                (
-                    "rId2".into(),
-                    format!("{R}/pages"),
-                    "pages/pages.xml".into(),
-                ),
-            ])
+            rels(&{
+                let mut r = vec![
+                    ("rId1".into(), format!("{R}/masters"), "masters/masters.xml".into()),
+                    ("rId2".into(), format!("{R}/pages"), "pages/pages.xml".into()),
+                ];
+                // Visio refuses a drawing without a windows part
+                if !stencil {
+                    r.push(("rId3".into(), format!("{R}/windows"), "windows.xml".into()));
+                }
+                r
+            })
             .into_bytes(),
         ),
         (
@@ -999,6 +1237,16 @@ fn package(
             .into_bytes(),
         ),
     ];
+    if !stencil {
+        let first = pages_xml.split("<Page ID='").nth(1).and_then(|s| s.split('\'').next()).unwrap_or("0");
+        files.push((
+            "visio/windows.xml".into(),
+            format!(
+                "<?xml version='1.0' encoding='utf-8' ?>\n<Windows ClientWidth='1280' ClientHeight='800' {NS}><Window ID='0' WindowType='Drawing' WindowState='1073741824' WindowLeft='0' WindowTop='0' WindowWidth='1280' WindowHeight='800' ContainerType='Page' Page='{first}' ViewScale='-1'/></Windows>"
+            )
+            .into_bytes(),
+        ));
+    }
     // per-part media relationships
     let mut part_media: HashMap<String, Vec<(String, String, String)>> = HashMap::new();
     for (i, (key, bytes)) in media.iter().enumerate() {

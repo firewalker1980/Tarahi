@@ -158,7 +158,10 @@ pub fn children_ordered(p: &Ptr, s: &[u8]) -> (Vec<Ptr>, Vec<u32>) {
     // The order array fills the rest of the stream; its count is either
     // its first word or (page lists) the word just before the list.
     let after = lo + 8 + 18 * n;
-    let words: Vec<u32> = (after..s.len().saturating_sub(3)).step_by(4).map(|o| u32_at(s, o)).collect();
+    let words: Vec<u32> = (after..s.len().saturating_sub(3))
+        .step_by(4)
+        .map(|o| u32_at(s, o))
+        .collect();
     let order = match words.first() {
         Some(&m) if m as usize == words.len() - 1 => words[1..].to_vec(),
         _ => words,
@@ -203,7 +206,12 @@ pub fn text(d: &[u8]) -> String {
         let end = d.iter().position(|&b| b == 0).unwrap_or(d.len());
         return d[..end].iter().map(|&b| b as char).collect();
     }
-    let units: Vec<u16> = d.as_chunks::<2>().0.iter().map(|b| u16::from_le_bytes(*b)).collect();
+    let units: Vec<u16> = d
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|b| u16::from_le_bytes(*b))
+        .collect();
     let end = units.iter().position(|&u| u == 0).unwrap_or(units.len());
     String::from_utf16_lossy(&units[..end])
 }
@@ -227,7 +235,11 @@ pub fn chunks(s: &[u8]) -> Vec<Chunk<'_>> {
         let end = (p + 19 + len).min(s.len());
         // a list chunk's 8-byte "trailer" is the tail of its row-order
         // array, so it belongs to the record data (see [`list_order`])
-        let data_end = if list != 0 { (end + 8).min(s.len()) } else { end };
+        let data_end = if list != 0 {
+            (end + 8).min(s.len())
+        } else {
+            end
+        };
         out.push(Chunk {
             pos: p,
             typ,
@@ -396,7 +408,12 @@ fn collect(doc: &[u8], p: &Ptr, slot: u32, list: Option<(u32, u32)>, out: &mut V
             for o in &order {
                 d.extend_from_slice(&o.to_le_bytes());
             }
-            out.push(Rec { typ: p.typ, id: slot, list: None, data: d });
+            out.push(Rec {
+                typ: p.typ,
+                id: slot,
+                list: None,
+                data: d,
+            });
         }
         for (i, c) in kids.iter().enumerate() {
             collect(doc, c, i as u32, sect, out);
