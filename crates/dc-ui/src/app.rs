@@ -2137,7 +2137,9 @@ impl App {
                         .add_filter("CSV", &["csv"])
                         .set_file_name("shape-report.csv")
                         .save_file(),
-                    PendingKind::DataOpen => rfd::FileDialog::new().add_filter("CSV", &["csv", "txt"]).pick_file(),
+                    PendingKind::DataOpen => rfd::FileDialog::new()
+                        .add_filter("Excel / CSV", &["xlsx", "xlsm", "xls", "ods", "csv", "txt"])
+                        .pick_file(),
                     PendingKind::StencilSave => {
                         let mut d = rfd::FileDialog::new().add_filter("Visio stencil", &["vssx"]).set_file_name(format!("{stencil_name}.vssx"));
                         if let Some(dir) = my_shapes {
@@ -6619,12 +6621,11 @@ impl App {
         }
     }
 
-    /// Read a CSV into the Data tab's table and show it.
+    /// Read a CSV or workbook into the Data tab's table and show it.
     fn load_data_table(&mut self, path: PathBuf) {
-        match std::fs::read(&path) {
-            Ok(bytes) => {
-                let text = String::from_utf8(bytes.clone()).unwrap_or_else(|_| bytes.iter().map(|&b| b as char).collect());
-                self.data_table = Some((crate::datalink::parse_csv(&text), path));
+        match crate::datalink::read_table(&path) {
+            Ok(table) => {
+                self.data_table = Some((table, path));
                 self.data_window = true;
                 self.data_row = None;
             }

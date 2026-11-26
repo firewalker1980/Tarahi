@@ -7275,13 +7275,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50586,
-            Self::En => 50586..99266,
-            Self::Es => 99266..152886,
-            Self::Fa => 152886..215736,
-            Self::Ja => 215736..269978,
-            Self::Ko => 269978..319942,
-            Self::ZhHans => 319942..363208,
+            Self::De => 0..50577,
+            Self::En => 50577..99251,
+            Self::Es => 99251..152861,
+            Self::Fa => 152861..215688,
+            Self::Ja => 215688..269921,
+            Self::Ko => 269921..319880,
+            Self::ZhHans => 319880..363140,
         }
     }
     /// Load a L10nLanguage from the embedded data.

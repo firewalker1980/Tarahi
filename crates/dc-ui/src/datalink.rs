@@ -63,6 +63,42 @@ pub fn parse_csv(text: &str) -> Table {
     Table { columns, rows }
 }
 
+/// The first worksheet of an Excel / ODS workbook as a table (first
+/// row = headers; numbers without a trailing ".0", dates as shown by
+/// calamine's display form).
+pub fn read_workbook(path: &std::path::Path) -> anyhow::Result<Table> {
+    use calamine::{Data, Reader};
+    let mut wb = calamine::open_workbook_auto(path)?;
+    let range = wb.worksheet_range_at(0).ok_or_else(|| anyhow::anyhow!("no worksheet"))??;
+    let cell = |d: &Data| match d {
+        Data::Empty => String::new(),
+        Data::Float(f) if f.fract() == 0.0 && f.abs() < 1e15 => format!("{}", *f as i64),
+        other => other.to_string(),
+    };
+    let mut rows = range.rows().map(|r| r.iter().map(cell).collect::<Vec<String>>());
+    let columns: Vec<String> = rows.next().unwrap_or_default().into_iter().map(|c| c.trim().to_string()).collect();
+    let rows = rows
+        .filter(|r| r.iter().any(|v| !v.trim().is_empty()))
+        .map(|mut r| {
+            r.resize(columns.len(), String::new());
+            r
+        })
+        .collect();
+    Ok(Table { columns, rows })
+}
+
+/// A table from a file: CSV/TXT as text, anything else as a workbook.
+pub fn read_table(path: &std::path::Path) -> anyhow::Result<Table> {
+    let ext = path.extension().map(|e| e.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
+    if ext == "csv" || ext == "txt" {
+        let bytes = std::fs::read(path)?;
+        let text = String::from_utf8(bytes.clone()).unwrap_or_else(|_| bytes.iter().map(|&b| b as char).collect());
+        Ok(parse_csv(&text))
+    } else {
+        read_workbook(path)
+    }
+}
+
 /// What a key value is compared with.
 #[derive(Debug, Clone, PartialEq)]
 pub enum MatchOn {
@@ -216,5 +252,38 @@ mod tests {
         assert_eq!(n, 2);
         ed.apply(dc_core::Macro::new("refresh", cmds)).unwrap();
         assert_eq!(ip(&ed, 0).as_deref(), Some("10.9.9.9"));
+    }
+
+    /// A minimal hand-made workbook (one sheet: inline strings and a
+    /// number) reads as a table.
+    #[test]
+    fn reads_an_xlsx_workbook() {
+        use std::io::Write;
+        let path = std::env::temp_dir().join(format!("tarahi-wb-{}.xlsx", std::process::id()));
+        let mut z = zip::ZipWriter::new(std::fs::File::create(&path).unwrap());
+        let o = zip::write::SimpleFileOptions::default();
+        let parts = [
+            ("[Content_Types].xml", r#"<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>"#),
+            ("_rels/.rels", r#"<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>"#),
+            ("xl/workbook.xml", r#"<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets></workbook>"#),
+            ("xl/_rels/workbook.xml.rels", r#"<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>"#),
+            ("xl/worksheets/sheet1.xml", r#"<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>Name</t></is></c><c r="B1" t="inlineStr"><is><t>VLAN</t></is></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>core</t></is></c><c r="B2"><v>10</v></c></row></sheetData></worksheet>"#),
+        ];
+        for (n, x) in parts {
+            z.start_file(n, o).unwrap();
+            z.write_all(x.as_bytes()).unwrap();
+        }
+        z.finish().unwrap();
+        let t = read_table(&path).unwrap();
+        assert_eq!(t.columns, vec!["Name", "VLAN"]);
+        assert_eq!(t.rows, vec![vec!["core".to_string(), "10".to_string()]]);
+    }
+
+    /// XLSX_CHECK=file: print what a real workbook reads as.
+    #[test]
+    fn print_real_workbook() {
+        let Some(p) = std::env::var_os("XLSX_CHECK") else { return };
+        let t = read_table(std::path::Path::new(&p)).unwrap();
+        eprintln!("{:?}\n{:?}", t.columns, t.rows);
     }
 }
