@@ -55,6 +55,7 @@ pub(crate) struct TabCtx {
     pub show_grid: bool,
     pub show_comments: bool,
     pub show_guides: bool,
+    pub show_page_breaks: bool,
     pub stamp: bool,
     pub data_table: bool,
     pub stencil_editing: bool,
@@ -226,6 +227,7 @@ pub enum Action {
     /// View tab: Guides / Connection Points / AutoConnect toggles,
     /// Page Width, the Zoom dialog, Switch Windows.
     ToggleGuides,
+    TogglePageBreaks,
     ToggleConnPoints,
     ToggleAutoConnect,
     PageWidth,

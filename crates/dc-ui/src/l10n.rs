@@ -3824,13 +3824,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "page-breaks-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "page-name",
         attribute: None,
         vars: &[],
@@ -7176,6 +7169,13 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "page-breaks-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7275,13 +7275,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50577,
-            Self::En => 50577..99251,
-            Self::Es => 99251..152861,
-            Self::Fa => 152861..215688,
-            Self::Ja => 215688..269921,
-            Self::Ko => 269921..319880,
-            Self::ZhHans => 319880..363140,
+            Self::De => 0..50603,
+            Self::En => 50603..99299,
+            Self::Es => 99299..152928,
+            Self::Fa => 152928..215785,
+            Self::Ja => 215785..270045,
+            Self::Ko => 270045..320019,
+            Self::ZhHans => 320019..363291,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -9421,9 +9421,6 @@ impl L10nLanguage {
     pub fn msg_page_breaks(&self) -> String {
         self.0.msg("page-breaks", None).unwrap()
     }
-    pub fn msg_page_breaks_planned(&self) -> String {
-        self.0.msg("page-breaks-planned", None).unwrap()
-    }
     pub fn msg_page_name(&self) -> String {
         self.0.msg("page-name", None).unwrap()
     }
@@ -11251,5 +11248,8 @@ impl L10nLanguage {
     }
     pub fn msg_layout_size_tip(&self) -> String {
         self.0.msg("layout-size-tip", None).unwrap()
+    }
+    pub fn msg_page_breaks_tip(&self) -> String {
+        self.0.msg("page-breaks-tip", None).unwrap()
     }
 }

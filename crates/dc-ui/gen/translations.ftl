@@ -602,7 +602,6 @@ org-chart = Organigramm
 orientation = Ausrichtung
 output-file = Ausgabedatei
 page-breaks = Seitenumbrüche
-page-breaks-planned = Seitenumbrüche — geplant
 page-name = Seitenname
 page-name-is-a-foreground-page-a = Seite { $name } ist wieder eine Vordergrundseite
 page-name-marked-as-a-background = Seite { $name } als Hintergrund markiert
@@ -1174,6 +1173,7 @@ layout-circular = Kreisförmig
 re-layout-tip = Seite anhand der Verbindungen anordnen
 layout-options-tip = Layoutstil und Abstand zwischen Formen
 layout-size-tip = Seite an die Zeichnung anpassen
+page-breaks-tip = Zeigen, wo die Seite auf mehrere Blätter aufgeteilt wird
 
 
 ## ########## Resource: app ###############
@@ -1824,7 +1824,6 @@ org-chart = Org Chart
 orientation = Orientation
 output-file = Output file
 page-breaks = Page Breaks
-page-breaks-planned = Page breaks — planned
 page-name = Page name
 # $name (String) - argument
 page-name-is-a-foreground-page-a = page { $name } is a foreground page again
@@ -2426,6 +2425,7 @@ layout-circular = Circular
 re-layout-tip = Lay the page out from its connections
 layout-options-tip = Layout style and spacing between shapes
 layout-size-tip = Fit the page to the drawing
+page-breaks-tip = Show where the page splits across sheets of paper
 
 
 ## ########## Resource: app ###############
@@ -3074,7 +3074,6 @@ org-chart = Organigrama
 orientation = Orientación
 output-file = Archivo de salida
 page-breaks = Saltos de página
-page-breaks-planned = Saltos de página — planeado
 page-name = Nombre de página
 # $name - argumento
 page-name-is-a-foreground-page-a = la página { $name } vuelve a ser una página de primer plano
@@ -3673,6 +3672,7 @@ layout-circular = Circular
 re-layout-tip = Redistribuir la página según sus conexiones
 layout-options-tip = Estilo de diseño y espacio entre formas
 layout-size-tip = Ajustar la página al dibujo
+page-breaks-tip = Mostrar dónde se divide la página en hojas de papel
 
 
 ## ########## Resource: app ###############
@@ -4278,7 +4278,6 @@ org-chart = نمودار سازمانی
 orientation = جهت‌گیری
 output-file = پروندهٔ خروجی
 page-breaks = شکستن صفحه
-page-breaks-planned = شکستن صفحه — برنامه‌ریزی شده
 page-name = نام صفحه
 page-name-is-a-foreground-page-a = صفحهٔ { $name } دوباره صفحهٔ پیش‌زمینه شد
 page-name-marked-as-a-background = صفحهٔ { $name } به‌عنوان پس‌زمینه نشانه‌گذاری شد
@@ -4850,6 +4849,7 @@ layout-circular = دایره‌ای
 re-layout-tip = چیدن صفحه بر پایهٔ اتصال‌ها
 layout-options-tip = سبک چیدمان و فاصلهٔ شکل‌ها
 layout-size-tip = تطبیق صفحه با نقشه
+page-breaks-tip = نمایش جایی که صفحه روی چند برگ کاغذ تقسیم می‌شود
 
 
 ## ########## Resource: app ###############
@@ -5414,7 +5414,6 @@ org-chart = 組織図
 orientation = 向き
 output-file = 出力ファイル
 page-breaks = 改ページ
-page-breaks-planned = 改ページ — 予定
 page-name = ページ名
 page-name-is-a-foreground-page-a = ページ { $name } を前面ページに戻しました
 page-name-marked-as-a-background = ページ { $name } を背景として設定しました
@@ -5923,6 +5922,7 @@ layout-circular = 円形
 re-layout-tip = 接続に基づいてページを再レイアウト
 layout-options-tip = レイアウトのスタイルと図形の間隔
 layout-size-tip = ページを図面に合わせる
+page-breaks-tip = ページが用紙のどこで分かれるかを表示
 
 
 ## ########## Resource: app ###############
@@ -6488,7 +6488,6 @@ org-chart = 조직도
 orientation = 방향
 output-file = 출력 파일
 page-breaks = 페이지 나누기
-page-breaks-planned = 페이지 나누기 — 예정
 page-name = 페이지 이름
 page-name-is-a-foreground-page-a = 페이지 { $name }을(를) 다시 전경 페이지로 만들었습니다
 page-name-marked-as-a-background = 페이지 { $name }을(를) 배경으로 설정했습니다
@@ -6997,6 +6996,7 @@ layout-circular = 원형
 re-layout-tip = 연결을 기준으로 페이지 다시 배치
 layout-options-tip = 레이아웃 스타일 및 도형 간격
 layout-size-tip = 페이지를 그림에 맞춤
+page-breaks-tip = 페이지가 용지에서 나뉘는 위치 표시
 
 
 ## ########## Resource: app ###############
@@ -7561,7 +7561,6 @@ org-chart = 组织结构图
 orientation = 方向
 output-file = 输出文件
 page-breaks = 分页符
-page-breaks-planned = 分页符 — 计划中
 page-name = 页面名称
 page-name-is-a-foreground-page-a = 页面 { $name } 现在重新成为前景页
 page-name-marked-as-a-background = 页面 { $name } 已标记为背景
@@ -8075,4 +8074,5 @@ layout-circular = 圆形
 re-layout-tip = 根据连接重新布局页面
 layout-options-tip = 布局样式和形状间距
 layout-size-tip = 使页面适合绘图
+page-breaks-tip = 显示页面在纸张上的分页位置
 

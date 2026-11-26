@@ -42,9 +42,10 @@ fn show_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::
                 .enabled(ctx.has_doc)
                 .selected(ctx.show_guides)
                 .tip(s.msg_view_guides_tip()),
-            RibbonButton::new(Icon::Delete, s.msg_page_breaks(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_page_breaks_planned()),
+            RibbonButton::new(Icon::Delete, s.msg_page_breaks(), Action::TogglePageBreaks)
+                .enabled(ctx.has_doc)
+                .selected(ctx.show_page_breaks)
+                .tip(s.msg_page_breaks_tip()),
         ],
         vec![
             // Q4 default: the comments pane toggle stays on View (the

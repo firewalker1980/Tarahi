@@ -6331,6 +6331,50 @@ impl App {
         self.view.fit_pending = true;
     }
 
+    /// The paper sheet size (inches, portrait w x h) the page prints on:
+    /// its own PrintPageWidth/Height, else A4 in a metric view and Letter
+    /// otherwise.
+    fn paper_size(&self) -> (f64, f64) {
+        let sheet = self.ed().and_then(|ed| ed.doc.pages.get(self.page_idx)).and_then(|p| p.sheet());
+        let n = |c: &str| sheet.and_then(|s| s.cell(c)).and_then(|c| c.numeric()).filter(|v| *v > 0.0);
+        match (n("PrintPageWidth"), n("PrintPageHeight")) {
+            (Some(w), Some(h)) => (w, h),
+            _ if self.view.unit == crate::units::Unit::Mm => (210.0 / 25.4, 297.0 / 25.4),
+            _ => (8.5, 11.0),
+        }
+    }
+
+    /// View ▸ Page Breaks: dashed lines where a page larger than the
+    /// paper splits across sheets (paper turned to match the page's
+    /// orientation; scaled pages count in paper units).
+    fn paint_page_breaks(&self, ui: &Ui, geom: &canvas::PageGeom) {
+        let (pw, ph) = self.paper_size();
+        let k = self
+            .ed()
+            .and_then(|ed| ed.doc.pages.get(self.page_idx))
+            .and_then(|p| {
+                let s = p.sheet()?;
+                let d = s.cell("DrawingScale")?.numeric()?;
+                let q = s.cell("PageScale")?.numeric()?;
+                (d > 0.0 && q > 0.0).then_some(d / q)
+            })
+            .unwrap_or(1.0);
+        let (w, h) = (geom.w_in, geom.h_in);
+        let (tw, th) = if (w >= h) == (pw >= ph) { (pw * k, ph * k) } else { (ph * k, pw * k) };
+        let painter = ui.painter().with_clip_rect(self.canvas_rect);
+        let stroke = egui::Stroke::new(1.0, egui::Color32::from_rgb(0x80, 0x80, 0x80));
+        let dash = |a: Pos2, b: Pos2| {
+            painter.extend(egui::Shape::dashed_line(&[a, b], stroke, 6.0, 4.0));
+        };
+        let (xs, ys) = page_break_lines(w, h, tw, th);
+        for x in xs {
+            dash(canvas::page_to_screen(x, 0.0, &self.view, geom), canvas::page_to_screen(x, h, &self.view, geom));
+        }
+        for y in ys {
+            dash(canvas::page_to_screen(0.0, y, &self.view, geom), canvas::page_to_screen(w, y, &self.view, geom));
+        }
+    }
+
     /// Design ▸ Scale: the page's drawing scale (1:1 … 1:1000). The paper
     /// stays the same size, so the page's drawing size grows with the
     /// scale; shapes keep their drawing coordinates (Visio's Page Setup
@@ -10368,6 +10412,7 @@ impl App {
                 }
             }
             Action::ToggleGuides => self.view.show_guides = !self.view.show_guides,
+            Action::TogglePageBreaks => self.view.show_page_breaks = !self.view.show_page_breaks,
             Action::ToggleConnPoints => self.view.show_conn_points = !self.view.show_conn_points,
             Action::ToggleAutoConnect => self.view.autoconnect = !self.view.autoconnect,
             Action::PageWidth => self.zoom_width_pending = true,
@@ -11026,6 +11071,7 @@ impl App {
             show_grid: self.view.show_grid,
             show_comments: self.show_comments,
             show_guides: self.view.show_guides,
+            show_page_breaks: self.view.show_page_breaks,
             stamp: self.stamp,
             data_table: self.data_table.is_some(),
             stencil_editing: self.edit_stencil.is_some_and(|ix| self.stencils.get(ix).is_some()),
@@ -12596,6 +12642,9 @@ impl App {
         );
         self.mouse_page = mouse;
         self.canvas_rect = out.canvas_rect;
+        if self.view.show_page_breaks {
+            self.paint_page_breaks(ui, &geom);
+        }
         // #283 review: the live drag ghost's exact screen rect (the
         // canvas's own quad_to_screen mapping), for the #96 contract.
         self.last_drag_ghost_rect = out.drag_ghost_rects.first().copied();
@@ -21443,6 +21492,15 @@ mod tests {
     }
 
     #[test]
+    fn page_breaks_tile_from_the_top_left() {
+        let (xs, ys) = super::page_break_lines(17.0, 11.0, 8.5, 11.0);
+        assert_eq!((xs, ys), (vec![8.5], vec![]));
+        let (xs, ys) = super::page_break_lines(8.5, 25.0, 8.5, 11.0);
+        assert!(xs.is_empty());
+        assert_eq!(ys, vec![14.0, 3.0]);
+    }
+
+    #[test]
     fn dialog_pending_keeps_polling() {
         let ctx = Context::default();
         let mut app = App::with_doc_opt(None);
@@ -21774,6 +21832,15 @@ fn classify_dbl_click(formula: Option<&str>) -> DblClick {
     } else {
         DblClick::Deferred(crate::i18n::strs().msg_eventdblclick_f_macro_and_naviga(f))
     }
+}
+
+/// Page-break positions for a `w` x `h` page tiled by `tw` x `th`
+/// sheets from the top-left: vertical lines' x, horizontal lines' y
+/// (page inches, y up).
+fn page_break_lines(w: f64, h: f64, tw: f64, th: f64) -> (Vec<f64>, Vec<f64>) {
+    let xs = (1..).map(|i| i as f64 * tw).take_while(|x| *x < w - 1e-6).collect();
+    let ys = (1..).map(|i| h - i as f64 * th).take_while(|y| *y > 1e-6).collect();
+    (xs, ys)
 }
 
 /// "#rrggbb" → rgb triple (the renderer's resolved color form);

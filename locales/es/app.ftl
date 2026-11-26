@@ -642,7 +642,6 @@ org-chart = Organigrama
 orientation = Orientación
 output-file = Archivo de salida
 page-breaks = Saltos de página
-page-breaks-planned = Saltos de página — planeado
 page-name = Nombre de página
 # $name - argumento
 page-name-is-a-foreground-page-a = la página { $name } vuelve a ser una página de primer plano
@@ -1241,3 +1240,4 @@ layout-circular = Circular
 re-layout-tip = Redistribuir la página según sus conexiones
 layout-options-tip = Estilo de diseño y espacio entre formas
 layout-size-tip = Ajustar la página al dibujo
+page-breaks-tip = Mostrar dónde se divide la página en hojas de papel

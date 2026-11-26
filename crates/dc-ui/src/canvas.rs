@@ -40,6 +40,8 @@ pub struct View {
     /// View ▸ Show: Guides, Connection Points (on every shape), and the
     /// AutoConnect arrows.
     pub show_guides: bool,
+    /// View ▸ Page Breaks.
+    pub show_page_breaks: bool,
     pub show_conn_points: bool,
     pub autoconnect: bool,
 }
@@ -57,6 +59,7 @@ impl Default for View {
             last_content: Vec2::ZERO,
             last_origin: Vec2::ZERO,
             show_guides: true,
+            show_page_breaks: false,
             show_conn_points: false,
             autoconnect: true,
         }

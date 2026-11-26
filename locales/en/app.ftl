@@ -644,7 +644,6 @@ org-chart = Org Chart
 orientation = Orientation
 output-file = Output file
 page-breaks = Page Breaks
-page-breaks-planned = Page breaks — planned
 page-name = Page name
 # $name (String) - argument
 page-name-is-a-foreground-page-a = page { $name } is a foreground page again
@@ -1246,3 +1245,4 @@ layout-circular = Circular
 re-layout-tip = Lay the page out from its connections
 layout-options-tip = Layout style and spacing between shapes
 layout-size-tip = Fit the page to the drawing
+page-breaks-tip = Show where the page splits across sheets of paper
