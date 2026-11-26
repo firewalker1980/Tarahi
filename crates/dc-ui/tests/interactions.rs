@@ -10920,3 +10920,24 @@ fn size_position_pane_edits_the_selection() {
     h.run();
     assert!(h.state().debug_canvas_rect().left() < left - 50.0, "Shapes pane hidden");
 }
+
+/// Free rotation: the handle above a 2-D shape drags its Angle about
+/// the pin (whole degrees), one undo step.
+#[test]
+fn rotation_handle_rotates_about_the_pin() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.run();
+    let handle = h.state().debug_handle_screen(dc_ui::canvas::HandleId::Rotate).expect("rotation handle");
+    let centre = h.state().debug_shape_screen_rect(sid).unwrap().center();
+    assert!(handle.y < centre.y, "handle above the shape");
+    // drag it to the right of the pin: a quarter turn clockwise
+    drag_on_canvas(&mut h, handle, centre + egui::vec2(150.0, 0.0));
+    let a: f64 = h.state().debug_cell_for_test(sid, "Angle").unwrap().parse().unwrap();
+    assert!((a.to_degrees() + 90.0).abs() < 1.5, "angle {}", a.to_degrees());
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    let a = h.state().debug_cell_for_test(sid, "Angle").and_then(|v| v.parse::<f64>().ok()).unwrap_or(0.0);
+    assert!(a.abs() < 1e-9, "undo");
+}

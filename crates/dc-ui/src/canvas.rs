@@ -498,6 +498,9 @@ const GUIDE: Color32 = Color32::from_rgb(0x00, 0x8F, 0xA3);
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum HandleId {
     Corner(Corner),
+    /// The rotation handle above a 2-D shape's top edge: dragging it
+    /// sets Angle about the pin.
+    Rotate,
     LineBegin,
     LineEnd,
     LineMid,
@@ -1319,6 +1322,7 @@ pub fn show(
                     HandleId::LineBegin | HandleId::LineEnd => egui::CursorIcon::Crosshair,
                     HandleId::LineMid => egui::CursorIcon::AllScroll,
                     HandleId::GeoPoint { .. } => egui::CursorIcon::Crosshair,
+                    HandleId::Rotate => egui::CursorIcon::Grab,
                 }
             });
         }
@@ -1596,6 +1600,11 @@ pub fn show(
                 p.circle_filled(*pos, r, Color32::WHITE);
                 p.circle_stroke(*pos, r, Stroke::new(1.2, t.selection));
             }
+            HandleId::Rotate => {
+                p.circle_filled(*pos, 5.0, Color32::WHITE);
+                p.circle_stroke(*pos, 5.0, Stroke::new(1.5, t.selection));
+                p.circle_filled(*pos, 1.8, t.selection);
+            }
         }
     }
 
@@ -1641,6 +1650,12 @@ pub fn show(
             })
         });
         match hid {
+            HandleId::Rotate => {
+                // live feedback: a line from the handle to the pointer
+                if let Some((_, o)) = handles_screen.iter().find(|(id, _)| *id == HandleId::Rotate) {
+                    lines.push((*o, ptr));
+                }
+            }
             HandleId::Corner(c) => {
                 if let Some(sr) = sel_rect {
                     // #160: the preview follows the SNAPPED corner —

@@ -2683,6 +2683,21 @@ impl App {
             pos: (x as f64, page_h - y as f64),
         })
         .collect();
+        // The rotation handle: above the top edge's middle, in the
+        // shape's own (rotated) frame; top-level 2-D shapes only.
+        if !nested {
+            if let (Some(px), Some(py), Some(w), Some(h)) = (get("PinX"), get("PinY"), get("Width"), get("Height")) {
+                let ly = get("LocPinY").unwrap_or(h / 2.0);
+                let lx = get("LocPinX").unwrap_or(w / 2.0);
+                let a = get("Angle").unwrap_or(0.0);
+                let up = h - ly + 22.0 / self.view.px_per_in() as f64;
+                let (dx, dy) = (w / 2.0 - lx, up);
+                out.push(Handle {
+                    id: HandleId::Rotate,
+                    pos: (px + dx * a.cos() - dy * a.sin(), py + dx * a.sin() + dy * a.cos()),
+                });
+            }
+        }
         // Geometry vertex handles (#137): one per point row of the
         // shape's OWN Geometry sections (master-inherited geometry has
         // no local rows to drag — its handles arrive with master
@@ -4055,6 +4070,25 @@ impl App {
         if let Some(note) = guard_note {
             self.status = note;
         }
+    }
+
+    /// Rotation-handle drop: Angle = the pin→pointer direction less a
+    /// quarter turn (the handle sits "up"), rounded to whole degrees;
+    /// glued connectors reroute in the same undo step.
+    fn apply_rotate_drag(&mut self, end: (f64, f64)) {
+        let Some((page, sid)) = self.sel else { return };
+        let (Some(px), Some(py)) = (self.selected_cell(sid, "PinX"), self.selected_cell(sid, "PinY")) else { return };
+        let deg = ((end.1 - py).atan2(end.0 - px).to_degrees() - 90.0).round();
+        let deg = (deg + 540.0).rem_euclid(360.0) - 180.0;
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = vec![Box::new(SetCell::new(
+            Scope::Shape { page, shape: sid },
+            "Angle",
+            vsdx::Cell::value(format!("{:.10}", deg.to_radians())),
+        ))];
+        if let Some(r) = self.reroute_cmd(page, &[sid]) {
+            cmds.push(r);
+        }
+        self.apply(Macro::new(crate::i18n::strs().msg_angle(), cmds));
     }
 
     /// Guard for a 1D endpoint/midpoint drag: refuse when any of the
@@ -11411,6 +11445,7 @@ impl App {
                             }
                         }
                     }
+                    HandleId::Rotate => self.apply_rotate_drag(end),
                     HandleId::LineMid => {
                         // #172: connectors translate like any shape —
                         // free ends move plainly, glued ends move through
