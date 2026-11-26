@@ -13924,22 +13924,24 @@ impl App {
         let horiz = cell == "FlipX";
         let pin = if horiz { "PinX" } else { "PinY" };
         let sel = self.sel_set.clone();
-        let rects: Vec<(i64, i64, (f64, f64, f64, f64))> = self
+        // each top-level shape's (id, low, high) along the flip axis
+        let spans: Vec<(i64, f64, f64)> = self
             .ed
             .as_ref()
             .map(|ed| {
                 sel.iter()
                     .filter_map(|&(p, s)| {
                         let page = ed.doc.pages.iter().find(|pg| pg.id == p)?;
-                        let sh = page.shapes.iter().find(|x| x.id == s)?; // top level only
-                        Some((p, s, self.shape_rect(&ed.doc, p, sh)?))
+                        let sh = page.shapes.iter().find(|x| x.id == s)?;
+                        let (x, y, w, h) = self.shape_rect(&ed.doc, p, sh)?;
+                        Some(if horiz { (s, x, x + w) } else { (s, y, y + h) })
                     })
                     .collect()
             })
             .unwrap_or_default();
-        let centre = (rects.len() > 1).then(|| {
-            let lo = rects.iter().map(|r| if horiz { r.2 .0 } else { r.2 .1 }).fold(f64::MAX, f64::min);
-            let hi = rects.iter().map(|r| if horiz { r.2 .0 + r.2 .2 } else { r.2 .1 + r.2 .3 }).fold(f64::MIN, f64::max);
+        let centre = (spans.len() > 1).then(|| {
+            let lo = spans.iter().map(|r| r.1).fold(f64::MAX, f64::min);
+            let hi = spans.iter().map(|r| r.2).fold(f64::MIN, f64::max);
             (lo + hi) / 2.0
         });
         let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
@@ -13951,7 +13953,7 @@ impl App {
                 vsdx::Cell::value(if cur != 0.0 { "0" } else { "1" }),
             )));
             if let (Some(c), Some(p)) = (centre, self.selected_cell(shape, pin)) {
-                if rects.iter().any(|r| r.1 == shape) {
+                if spans.iter().any(|r| r.0 == shape) {
                     cmds.push(Box::new(SetCell::new(
                         Scope::Shape { page, shape },
                         pin,
