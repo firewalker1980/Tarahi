@@ -401,6 +401,8 @@ fn litscan_flags_unrouted_chrome_literals() {
     let exempt_values: BTreeSet<String> = [
         "Container".to_string(),
         "Background".to_string(),
+        // the Angle ShapeSheet cell, also the Size & Position label
+        "Angle".to_string(),
         "Calibri".to_string(),
         // The My Shapes FOLDER NAME on disk (Visio convention; never
         // translated — `my_shapes_path` joins it literally). The

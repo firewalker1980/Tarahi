@@ -10870,3 +10870,53 @@ fn home_font_pickers_bullets_and_indent() {
     h.run();
     assert_eq!(h.state().debug_cell_for_test(sid, "Para.IndLeft").as_deref(), Some("0.5"));
 }
+
+/// View ▸ Task Panes ▸ Size & Position: typed X / Width / Angle move,
+/// resize and rotate the selection; the Shapes pane can be hidden.
+#[test]
+fn size_position_pane_edits_the_selection() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::View);
+    h.run();
+    h.get_by_label("Task Panes").click();
+    h.run();
+    h.run();
+    h.get_by_label("Size & Position").click();
+    h.run();
+    h.run();
+    let unit_in = h.query_by_label("X (in)").is_some();
+    let u = if unit_in { "in" } else { "mm" };
+    let typed = |h: &mut Harness<'_, App>, label: &str, v: &str| {
+        let n = h.get_by_label(label);
+        n.focus();
+        h.run();
+        h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::A);
+        h.run();
+        h.get_by_label(label).type_text(v);
+        h.run();
+        h.key_press(egui::Key::Enter);
+        h.run();
+        h.run();
+    };
+    let (x_val, w_val, x_in, w_in) = if unit_in { ("3", "2", 3.0, 2.0) } else { ("76.2", "50.8", 3.0, 2.0) };
+    typed(&mut h, &format!("X ({u})"), x_val);
+    let px: f64 = h.state().debug_cell_for_test(sid, "PinX").unwrap().parse().unwrap();
+    assert!((px - x_in).abs() < 1e-6, "PinX {px}");
+    typed(&mut h, &format!("Width ({u})"), w_val);
+    let w: f64 = h.state().debug_cell_for_test(sid, "Width").unwrap().parse().unwrap();
+    assert!((w - w_in).abs() < 1e-6, "Width {w}");
+    typed(&mut h, "Angle (°)", "45");
+    let a: f64 = h.state().debug_cell_for_test(sid, "Angle").unwrap().parse().unwrap();
+    assert!((a - std::f64::consts::FRAC_PI_4).abs() < 1e-6, "Angle {a}");
+
+    // Shapes pane off: the canvas takes its room
+    let left = h.state().debug_canvas_rect().left();
+    // the checkbox in the Task Panes window (the pane's own title is
+    // the other "Shapes")
+    h.get_all_by_label("Shapes").max_by(|a, b| a.rect().top().total_cmp(&b.rect().top())).unwrap().click();
+    h.run();
+    h.run();
+    assert!(h.state().debug_canvas_rect().left() < left - 50.0, "Shapes pane hidden");
+}

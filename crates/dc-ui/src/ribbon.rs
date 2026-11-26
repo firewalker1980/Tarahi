@@ -55,6 +55,7 @@ pub(crate) struct TabCtx {
     pub show_grid: bool,
     pub show_comments: bool,
     pub show_guides: bool,
+    pub doc_stencil: bool,
     pub show_conn_points: bool,
     pub autoconnect: bool,
     pub dynamic_grid: bool,
@@ -160,6 +161,10 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Developer ▸ Show Document Stencil.
+    ToggleDocStencil,
+    /// View ▸ Task Panes menu (Shapes, Shape Data, Size & Position).
+    TaskPanes,
     /// Data ▸ Shape Data Window: the selection's Shape Data.
     ShapeDataWindow,
     /// View tab: Guides / Connection Points / AutoConnect toggles,

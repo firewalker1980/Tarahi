@@ -232,7 +232,6 @@ document-inspection-arrives-with = Dokumentprüfung kommt in einem späteren Mei
 document-masters = Dokument-Master
 document-protection-arrives-with = Dokumentschutz kommt in einem späteren Meilenstein
 document-stencil = Dokumentschablone
-document-stencil-planned = Dokumentschablone — geplant
 don-t-save = Nicht speichern
 dot = Punkt
 double-arrow-filled = Doppelter Pfeil (gefüllt)
@@ -897,7 +896,6 @@ symbol = Symbol
 symbol-planned = Symbol — geplant
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — Visio-kompatibles Diagramming im Cleanroom-Verfahren
 task-panes = Aufgabenbereiche
-task-panes-shapes-pan-zoom-plann = Aufgabenbereiche (Formen, Verschieben & Zoomen …) — geplant
 tell-me = Tell Me
 tell-me-planned-for-a-later-mile = Tell Me — für einen späteren Meilenstein geplant
 tell-me-search-arrives-with-a-la = Die Tell-Me-Suche kommt in einem späteren Meilenstein
@@ -1113,6 +1111,9 @@ container-locked-status = Der Container ist gesperrt
 view-guides-tip = Führungslinien ein- oder ausblenden
 view-conn-points-tip = Verbindungspunkte aller Formen anzeigen
 view-autoconnect-tip = AutoConnect-Pfeile um die Auswahl anzeigen
+size-position = Größe und Position
+angle = Winkel
+task-panes-tip = Aufgabenbereiche ein- oder ausblenden
 
 
 ## ########## Resource: app ###############
@@ -1370,7 +1371,6 @@ document-inspection-arrives-with = Document inspection arrives with a later mile
 document-masters = Document Masters
 document-protection-arrives-with = Document protection arrives with a later milestone
 document-stencil = Document Stencil
-document-stencil-planned = Document stencil — planned
 don-t-save = Don't Save
 dot = Dot
 double-arrow-filled = Double Arrow (Filled)
@@ -2087,7 +2087,6 @@ symbol-planned = Symbol — planned
 # $version (String) - argument
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — cleanroom Visio-compatible diagramming
 task-panes = Task Panes
-task-panes-shapes-pan-zoom-plann = Task panes (Shapes, Pan & Zoom…) — planned
 tell-me = Tell Me
 tell-me-planned-for-a-later-mile = Tell Me — planned for a later milestone
 tell-me-search-arrives-with-a-la = Tell Me search arrives with a later milestone
@@ -2304,6 +2303,9 @@ container-locked-status = The container is locked
 view-guides-tip = Show or hide the guides
 view-conn-points-tip = Show every shape's connection points
 view-autoconnect-tip = Show the AutoConnect arrows around the selection
+size-position = Size & Position
+angle = Angle
+task-panes-tip = Show or hide the task panes
 
 
 ## ########## Resource: app ###############
@@ -2559,7 +2561,6 @@ document-inspection-arrives-with = La inspección de documentos llega con un hit
 document-masters = Patrones del documento
 document-protection-arrives-with = La protección de documentos llega con un hito posterior
 document-stencil = Galería del documento
-document-stencil-planned = Galería del documento — planeado
 don-t-save = No guardar
 dot = Punto
 double-arrow-filled = Flecha doble (rellena)
@@ -3273,7 +3274,6 @@ symbol-planned = Símbolo — planeado
 # $version - argumento
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — diagramación compatible con Visio sin copias de Microsoft
 task-panes = Paneles de tareas
-task-panes-shapes-pan-zoom-plann = Paneles de tareas (Formas, Panorámica y zoom…) — planeado
 tell-me = ¿Qué quieres hacer?
 tell-me-planned-for-a-later-mile = ¿Qué quieres hacer? — planeado para un hito posterior
 tell-me-search-arrives-with-a-la = La búsqueda de Tell Me llega con un hito posterior
@@ -3490,6 +3490,9 @@ container-locked-status = El contenedor está bloqueado
 view-guides-tip = Mostrar u ocultar las guías
 view-conn-points-tip = Mostrar los puntos de conexión de todas las formas
 view-autoconnect-tip = Mostrar las flechas de AutoConectar alrededor de la selección
+size-position = Tamaño y posición
+angle = Ángulo
+task-panes-tip = Mostrar u ocultar los paneles de tareas
 
 
 ## ########## Resource: app ###############
@@ -3725,7 +3728,6 @@ document-inspection-arrives-with = بازرسی سند با نقطهٔ عطف ب
 document-masters = استادهای سند
 document-protection-arrives-with = حفاظت سند با نقطهٔ عطف بعدی عرضه می‌شود
 document-stencil = شابلون سند
-document-stencil-planned = شابلون سند — برنامه‌ریزی شده
 don-t-save = ذخیره نکن
 dot = نقطه
 double-arrow-filled = پیکان دوتایی (توپر)
@@ -4390,7 +4392,6 @@ symbol = نماد
 symbol-planned = نماد — برنامه‌ریزی شده
 tarahi-v-cargo-pkg-version-clean = طارحی نسخهٔ { $version } — نقاشیِ سازگار با Visio به روش Cleanroom
 task-panes = قاب‌های کاری
-task-panes-shapes-pan-zoom-plann = قاب‌های کاری (Shapes، Pan و Zoom…) — برنامه‌ریزی شده
 tell-me = Tell Me
 tell-me-planned-for-a-later-mile = Tell Me — برنامه‌ریزی‌شده برای نقطهٔ عطف بعدی
 tell-me-search-arrives-with-a-la = جستجوی Tell Me با نقطهٔ عطف بعدی می‌آید
@@ -4606,6 +4607,9 @@ container-locked-status = ظرف قفل است
 view-guides-tip = نمایش یا پنهان‌کردن راهنماها
 view-conn-points-tip = نمایش نقاط اتصال همهٔ شکل‌ها
 view-autoconnect-tip = نمایش پیکان‌های اتصال خودکار پیرامون انتخاب
+size-position = اندازه و موقعیت
+angle = زاویه
+task-panes-tip = نمایش یا پنهان‌کردن پنل‌های کار
 
 
 ## ########## Resource: app ###############
@@ -4826,7 +4830,6 @@ document-inspection-arrives-with = ドキュメントの検査は後のマイル
 document-masters = ドキュメント マスター
 document-protection-arrives-with = ドキュメントの保護は後のマイルストーンで提供されます
 document-stencil = ドキュメント ステンシル
-document-stencil-planned = ドキュメント ステンシル — 予定
 don-t-save = 保存しない
 dot = ドット
 double-arrow-filled = 二重矢印（塗りつぶし）
@@ -5438,7 +5441,6 @@ symbol = 記号
 symbol-planned = 記号 — 予定
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — クリーンルーム実装の Visio 互換図面ツール
 task-panes = 作業ウィンドウ
-task-panes-shapes-pan-zoom-plann = 作業ウィンドウ（シェイプ、パンとズーム…）— 予定
 tell-me = 操作の検索
 tell-me-planned-for-a-later-mile = 操作の検索 — 後のマイルストーンで予定
 tell-me-search-arrives-with-a-la = 操作の検索は後のマイルストーンで提供されます
@@ -5619,6 +5621,9 @@ container-locked-status = コンテナーはロックされています
 view-guides-tip = ガイドの表示/非表示
 view-conn-points-tip = すべての図形の接続ポイントを表示
 view-autoconnect-tip = 選択範囲の周りにオートコネクト矢印を表示
+size-position = サイズと位置
+angle = 角度
+task-panes-tip = 作業ウィンドウの表示/非表示
 
 
 ## ########## Resource: app ###############
@@ -5840,7 +5845,6 @@ document-inspection-arrives-with = 문서 검사는 이후 마일스톤에서 �
 document-masters = 문서 마스터
 document-protection-arrives-with = 문서 보호는 이후 마일스톤에서 제공됩니다
 document-stencil = 문서 스텐실
-document-stencil-planned = 문서 스텐실 — 예정
 don-t-save = 저장 안 함
 dot = 점
 double-arrow-filled = 이중 화살표(채움)
@@ -6452,7 +6456,6 @@ symbol = 기호
 symbol-planned = 기호 — 예정
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — 클린룸 Visio 호환 드로잉 도구
 task-panes = 작업 창
-task-panes-shapes-pan-zoom-plann = 작업 창(셰이프, 이동 및 확대/축소…) — 예정
 tell-me = 수행할 작업 검색
 tell-me-planned-for-a-later-mile = 수행할 작업 검색 — 이후 마일스톤 예정
 tell-me-search-arrives-with-a-la = 수행할 작업 검색은 이후 마일스톤에서 제공됩니다
@@ -6633,6 +6636,9 @@ container-locked-status = 컨테이너가 잠겨 있습니다
 view-guides-tip = 안내선 표시 또는 숨기기
 view-conn-points-tip = 모든 도형의 연결 지점 표시
 view-autoconnect-tip = 선택 영역 주위에 자동 연결 화살표 표시
+size-position = 크기 및 위치
+angle = 각도
+task-panes-tip = 작업 창 표시 또는 숨기기
 
 
 ## ########## Resource: app ###############
@@ -6852,7 +6858,6 @@ document-inspection-arrives-with = 文档检查将在后期里程碑提供
 document-masters = 文档主形状
 document-protection-arrives-with = 文档保护将在后期里程碑提供
 document-stencil = 文档模具
-document-stencil-planned = 文档模具 — 计划中
 don-t-save = 不保存
 dot = 点
 double-arrow-filled = 双箭头（实心）
@@ -7470,7 +7475,6 @@ symbol = 符号
 symbol-planned = 符号 — 计划中
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version }——净室开发的 Visio 兼容绘图工具
 task-panes = 任务窗格
-task-panes-shapes-pan-zoom-plann = 任务窗格（形状、平移和缩放…）— 计划中
 tell-me = 告诉我
 tell-me-planned-for-a-later-mile = 告诉我 — 计划中（后期里程碑）
 tell-me-search-arrives-with-a-la = “告诉我”搜索将在后期里程碑提供
@@ -7651,4 +7655,7 @@ container-locked-status = 容器已锁定
 view-guides-tip = 显示或隐藏参考线
 view-conn-points-tip = 显示所有形状的连接点
 view-autoconnect-tip = 在所选内容周围显示自动连接箭头
+size-position = 大小和位置
+angle = 角度
+task-panes-tip = 显示或隐藏任务窗格
 

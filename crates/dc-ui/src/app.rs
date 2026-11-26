@@ -281,6 +281,12 @@ pub struct App {
     container_menu: Option<u8>,
     /// Home ▸ Font popups: Some(false) family list, Some(true) sizes.
     font_menu: Option<bool>,
+    /// View ▸ Task Panes: the menu, the Shapes pane switch, and the
+    /// Size & Position window with its edit buffers.
+    panes_menu: bool,
+    hide_shapes_pane: bool,
+    sizepos_open: bool,
+    sizepos_bufs: std::collections::HashMap<&'static str, String>,
     font_filter: String,
     find_open: bool,
     find_replace: bool,
@@ -836,6 +842,10 @@ impl App {
             print_preview: 0,
             container_menu: None,
             font_menu: None,
+            panes_menu: false,
+            hide_shapes_pane: false,
+            sizepos_open: false,
+            sizepos_bufs: std::collections::HashMap::new(),
             font_filter: String::new(),
             find_open: false,
             find_replace: false,
@@ -4567,6 +4577,135 @@ impl App {
             cmds.extend(crate::containers::fit_cmds(&probe, page_id, cid, false));
         }
         self.apply(Macro::new(format!("container {row}"), cmds));
+    }
+
+    /// View ▸ Task Panes: switch the Shapes pane, Shape Data and Size &
+    /// Position.
+    fn panes_menu_window(&mut self, ctx: &egui::Context) {
+        if !self.panes_menu {
+            return;
+        }
+        let s = crate::i18n::strs();
+        let mut open = true;
+        let right = ctx.input(|i| i.viewport().inner_rect).map_or(1280.0, |r| r.right());
+        egui::Window::new(s.msg_task_panes())
+            .open(&mut open)
+            .resizable(false)
+            .collapsible(false)
+            .default_pos(egui::pos2(right - 230.0, 130.0))
+            .show(ctx, |ui| {
+            let mut shapes = !self.hide_shapes_pane;
+            if ui.checkbox(&mut shapes, s.msg_shapes()).changed() {
+                self.hide_shapes_pane = !shapes;
+            }
+            let mut data = self.shape_data_open.is_some();
+            if ui.add_enabled(self.sel.is_some() || data, egui::Checkbox::new(&mut data, s.msg_shape_data())).changed() {
+                self.shape_data_open = if data { self.sel.map(|(_, s)| s) } else { None };
+                self.prop_bufs.clear();
+            }
+            ui.checkbox(&mut self.sizepos_open, s.msg_size_position());
+        });
+        if !open {
+            self.panes_menu = false;
+        }
+    }
+
+    /// Size & Position (Visio's task pane): the selection's X, Y (pin),
+    /// Width, Height and Angle in the view's units; an edit moves,
+    /// resizes or rotates it as one undo step.
+    fn sizepos_window(&mut self, ctx: &egui::Context) {
+        if !self.sizepos_open {
+            return;
+        }
+        let s = crate::i18n::strs();
+        let unit = self.view.unit;
+        let sel = self.sel;
+        let get = |app: &Self, c: &str| sel.and_then(|(_, sid)| app.selected_cell(sid, c));
+        let fields: [(&'static str, String, bool); 5] = [
+            ("PinX", "X".into(), true),
+            ("PinY", "Y".into(), true),
+            ("Width", s.msg_width(), true),
+            ("Height", s.msg_height(), true),
+            ("Angle", s.msg_angle(), false),
+        ];
+        let mut commit: Option<(&'static str, f64)> = None;
+        let mut open = true;
+        let right = ctx.input(|i| i.viewport().inner_rect).map_or(1280.0, |r| r.right());
+        egui::Window::new(s.msg_size_position())
+            .open(&mut open)
+            .resizable(false)
+            .collapsible(false)
+            .default_pos(egui::pos2(right - 260.0, 300.0))
+            .show(ctx, |ui| {
+            egui::Grid::new("dc-sizepos").num_columns(2).show(ui, |ui| {
+                for (cell, label, length) in &fields {
+                    ui.label(label);
+                    // a missing Angle is 0 (Visio's default)
+                    let cur = get(self, cell).or((*cell == "Angle" && sel.is_some()).then_some(0.0));
+                    let shown = cur.map_or(String::new(), |v| {
+                        if *length {
+                            format!("{:.3}", unit.from_in(v))
+                        } else {
+                            format!("{:.2}", v.to_degrees())
+                        }
+                    });
+                    let buf = self.sizepos_bufs.entry(cell).or_insert_with(|| shown.clone());
+                    let r = ui.add_enabled(cur.is_some(), egui::TextEdit::singleline(buf).desired_width(90.0));
+                    let suffix = if *length { unit.suffix() } else { "°" };
+                    r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, format!("{label} ({suffix})")));
+                    ui.label(suffix);
+                    if r.lost_focus() {
+                        if let Ok(v) = buf.trim().replace(',', ".").parse::<f64>() {
+                            commit = Some((cell, if *length { unit.to_in(v) } else { v.to_radians() }));
+                        }
+                        self.sizepos_bufs.remove(cell);
+                    } else if !r.has_focus() {
+                        *buf = shown;
+                    }
+                    ui.end_row();
+                }
+            });
+        });
+        if !open {
+            self.sizepos_open = false;
+        }
+        let (Some((cell, v)), Some((page, sid))) = (commit, sel) else { return };
+        if cell == "PinX" || cell == "PinY" {
+            let (x, y) = (get(self, "PinX").unwrap_or(0.0), get(self, "PinY").unwrap_or(0.0));
+            let to = if cell == "PinX" { (v, y) } else { (x, v) };
+            // a group member's pin is in its parent's frame: write it
+            // as is; top-level shapes move through the normal path
+            let top = self.ed().and_then(|ed| ed.doc.pages.iter().find(|p| p.id == page)).is_some_and(|p| p.shapes.iter().any(|s| s.id == sid));
+            let mut cmds = vec![if top {
+                self.move_cmd_for(page, sid, to)
+            } else {
+                Box::new(SetCell::new(Scope::Shape { page, shape: sid }, cell, vsdx::Cell::value(format!("{v:.10}"))))
+            }];
+            if let Some(r) = self.reroute_cmd(page, &[sid]) {
+                cmds.push(r);
+            }
+            self.apply(Macro::new(s.msg_size_position(), cmds));
+        } else if cell == "Angle" {
+            self.apply(SetCell::new(Scope::Shape { page, shape: sid }, "Angle", vsdx::Cell::value(format!("{v:.10}"))));
+        } else if v > 0.0 {
+            // keep the pin's relative spot, scale like a handle resize
+            let old = get(self, cell).unwrap_or(v).max(1e-9);
+            let loc = if cell == "Width" { "LocPinX" } else { "LocPinY" };
+            let ratio = get(self, loc).unwrap_or(old / 2.0) / old;
+            let scope = Scope::Shape { page, shape: sid };
+            let mut cmds: Vec<Box<dyn dc_core::Command>> = vec![
+                Box::new(SetCell::new(scope.clone(), cell, vsdx::Cell::value(format!("{v:.10}")))),
+                Box::new(SetCell::new(scope, loc, vsdx::Cell::value(format!("{:.10}", ratio * v)))),
+            ];
+            if let Some(ed) = self.ed() {
+                let (kx, ky) = if cell == "Width" { (v / old, 1.0) } else { (1.0, v / old) };
+                cmds.extend(crate::cmd::group_cache_refresh(&ed.doc, page, sid, kx, ky));
+            }
+            if let Some(r) = self.reroute_cmd(page, &[sid]) {
+                cmds.push(r);
+            }
+            self.apply(Macro::new(s.msg_size_position(), cmds));
+        }
     }
 
     /// Home ▸ Font: the family list (fonts the renderer knows, with a
@@ -8818,6 +8957,11 @@ impl App {
                 }
             }
             Action::ContainerMenu(n) => self.container_menu = Some(n),
+            Action::TaskPanes => self.panes_menu = !self.panes_menu,
+            Action::ToggleDocStencil => {
+                self.stencil.doc_stencil_visible = !self.stencil.doc_stencil_visible;
+                self.hide_shapes_pane = false;
+            }
             Action::FontMenu => self.font_menu = Some(false),
             Action::FontSizeMenu => self.font_menu = Some(true),
             Action::Bullets => {
@@ -9484,6 +9628,7 @@ impl App {
             show_grid: self.view.show_grid,
             show_comments: self.show_comments,
             show_guides: self.view.show_guides,
+            doc_stencil: self.stencil.doc_stencil_visible,
             show_conn_points: self.view.show_conn_points,
             autoconnect: self.view.autoconnect,
             dynamic_grid: self.snap.dynamic_grid,
@@ -17616,6 +17761,8 @@ impl App {
         self.container_menu_window(&ctx);
         self.zoom_window(&ctx);
         self.font_menu_window(&ctx);
+        self.panes_menu_window(&ctx);
+        self.sizepos_window(&ctx);
         self.switch_window(&ctx);
         self.snap_glue_window(&ctx);
         self.hyperlink_window(&ctx);
@@ -17691,10 +17838,11 @@ impl App {
         // stencil (#63): it stays up once a stencil is open, even for
         // a master-less document — but it needs a document to render
         // against (the pane body draws nothing without an editor).
-        let pane_wanted = self
-            .ed()
-            .map(|ed| !ed.doc.masters.is_empty() || !self.stencils.is_empty())
-            .unwrap_or(false);
+        let pane_wanted = !self.hide_shapes_pane
+            && self
+                .ed()
+                .map(|ed| !ed.doc.masters.is_empty() || !self.stencils.is_empty())
+                .unwrap_or(false);
         if pane_wanted {
             // #257 item 3: RTL mirrors the pane sides — Shapes on the
             // right, Format on the left (the observed Office RTL

@@ -51,9 +51,9 @@ fn show_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::
             // pane itself; Review owns comment authoring).
             RibbonButton::new(Icon::Comment, s.msg_comments(), Action::ToggleComments)
                 .selected(ctx.show_comments),
-            RibbonButton::new(Icon::Shapes, s.msg_task_panes(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_task_panes_shapes_pan_zoom_plann()),
+            RibbonButton::new(Icon::Shapes, s.msg_task_panes(), Action::TaskPanes)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_task_panes_tip()),
         ],
     ])]
 }

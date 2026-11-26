@@ -1479,13 +1479,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "document-stencil-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "don-t-save",
         attribute: None,
         vars: &[],
@@ -5700,13 +5693,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "task-panes-shapes-pan-zoom-plann",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "tell-me",
         attribute: None,
         vars: &[],
@@ -6798,6 +6784,27 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "size-position",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "angle",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "task-panes-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6897,13 +6904,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48108,
-            Self::En => 48108..94556,
-            Self::Es => 94556..145693,
-            Self::Fa => 145693..205921,
-            Self::Ja => 205921..257473,
-            Self::Ko => 257473..304996,
-            Self::ZhHans => 304996..346278,
+            Self::De => 0..48059,
+            Self::En => 48059..94460,
+            Self::Es => 94460..145545,
+            Self::Fa => 145545..205712,
+            Self::Ja => 205712..257190,
+            Self::Ko => 257190..304662,
+            Self::ZhHans => 304662..345888,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7795,9 +7802,6 @@ impl L10nLanguage {
     }
     pub fn msg_document_stencil(&self) -> String {
         self.0.msg("document-stencil", None).unwrap()
-    }
-    pub fn msg_document_stencil_planned(&self) -> String {
-        self.0.msg("document-stencil-planned", None).unwrap()
     }
     pub fn msg_don_t_save(&self) -> String {
         self.0.msg("don-t-save", None).unwrap()
@@ -10091,11 +10095,6 @@ impl L10nLanguage {
     pub fn msg_task_panes(&self) -> String {
         self.0.msg("task-panes", None).unwrap()
     }
-    pub fn msg_task_panes_shapes_pan_zoom_plann(&self) -> String {
-        self.0
-            .msg("task-panes-shapes-pan-zoom-plann", None)
-            .unwrap()
-    }
     pub fn msg_tell_me(&self) -> String {
         self.0.msg("tell-me", None).unwrap()
     }
@@ -10710,5 +10709,14 @@ impl L10nLanguage {
     }
     pub fn msg_view_autoconnect_tip(&self) -> String {
         self.0.msg("view-autoconnect-tip", None).unwrap()
+    }
+    pub fn msg_size_position(&self) -> String {
+        self.0.msg("size-position", None).unwrap()
+    }
+    pub fn msg_angle(&self) -> String {
+        self.0.msg("angle", None).unwrap()
+    }
+    pub fn msg_task_panes_tip(&self) -> String {
+        self.0.msg("task-panes-tip", None).unwrap()
     }
 }
