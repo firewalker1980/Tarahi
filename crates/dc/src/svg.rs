@@ -4344,6 +4344,15 @@ fn render_all_geometry(
     // #228: both frames below accumulate into ONE shape-level paint —
     // the alternate-fill union flushes under the per-section strokes.
     let mut paint = ShapePaint::default();
+    // Shadow (ShdwPattern 1): an offset copy of the fill.
+    // ponytail: offset in the shape's frame, so a rotated shape's shadow
+    // turns with it; Visio keeps it page-aligned.
+    let num = |n: &str| doc.resolve_cell(s, chain, n).and_then(|c| c.numeric());
+    if num("ShdwPattern").unwrap_or(0.0) == 1.0 {
+        let c = themed_color_string(doc, s, chain, "ShdwForegnd");
+        let a = 1.0 - num("ShdwForegndTrans").unwrap_or(0.0);
+        paint.shadow = Some((c, a, num("ShapeShdwOffsetX").unwrap_or(0.125), -num("ShapeShdwOffsetY").unwrap_or(-0.125)));
+    }
     // #294: a connector's stored jump ArcTo rows straighten — the
     // jump overlay owns the one arc at the current crossing, and a
     // stored arc stops lingering after a move. `strip_jumps` arrives
@@ -7331,6 +7340,9 @@ struct ShapePaint {
     /// Stroke-only paths, arrow shafts/heads, and standalone ellipse
     /// rows, in emission order.
     strokes: String,
+    /// Drop shadow under the fill: colour, alpha, offset (local inches,
+    /// SVG y-down).
+    shadow: Option<(String, f64, f64, f64)>,
 }
 
 impl Default for ShapePaint {
@@ -7341,6 +7353,7 @@ impl Default for ShapePaint {
             fill_opacity: 1.0,
             fill_tiles: None,
             strokes: String::new(),
+            shadow: None,
         }
     }
 }
@@ -7348,6 +7361,15 @@ impl Default for ShapePaint {
 /// Emit the accumulated paint under the caller's ink (#228): the ONE
 /// even-odd fill path first, then the per-section strokes.
 fn flush_shape_paint(paint: &mut ShapePaint, out: &mut String) {
+    if let (false, Some((c, a, dx, dy))) = (paint.fill_d.is_empty(), &paint.shadow) {
+        let _ = writeln!(
+            out,
+            r#"<path fill-rule="evenodd" transform="translate({dx:.6},{dy:.6})" d="{}" fill="{}"{}/>"#,
+            escape_attr(paint.fill_d.trim()),
+            escape_attr(c),
+            opacity_attr("fill-opacity", *a)
+        );
+    }
     if let (false, Some(tiles)) = (paint.fill_d.is_empty(), &paint.fill_tiles) {
         let d = paint.fill_d.trim();
         let id = format!("dc-gclip{:x}", fnv(&format!("{d}|{tiles}")));

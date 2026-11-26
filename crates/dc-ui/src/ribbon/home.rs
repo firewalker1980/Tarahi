@@ -283,9 +283,9 @@ fn tools_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super:
 fn shape_styles_cols(s: &'static crate::l10n::L10nLanguage, has_sel: bool) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::Theme, s.msg_quick_styles(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_style_gallery_planned()),
+            RibbonButton::new(Icon::Theme, s.msg_quick_styles(), Action::ThemeMenu(5))
+                .enabled(has_sel)
+                .tip(s.msg_quick_styles_tip()),
         ),
         stack(vec![
             RibbonButton::new(Icon::Bucket, s.msg_fill(), Action::FillMenu)

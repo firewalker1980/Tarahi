@@ -173,6 +173,9 @@ pub enum Action {
     LayoutSize,
     /// Design ▸ Scale (drawing scale).
     DrawingScale,
+    /// Design ▸ Themes (0), Variants (1), Colors (2), Effects (3),
+    /// Connectors (4); Home ▸ Quick Styles (5).
+    ThemeMenu(u8),
     /// Insert ▸ New Background Page.
     NewBackgroundPage,
     /// Data ▸ Data Graphics (also Create New / Edit) and Insert ▸ Legend.

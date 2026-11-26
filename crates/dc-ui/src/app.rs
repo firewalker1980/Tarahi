@@ -286,6 +286,8 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// The open theme gallery (Action::ThemeMenu).
+    theme_menu: Option<u8>,
     /// Data ▸ Data Graphics dialog: color-by-value mode, chosen labels.
     dg_dialog: Option<(bool, Vec<String>)>,
     /// Review ▸ AutoCorrect Options: the dialog's working copy and the
@@ -897,6 +899,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            theme_menu: None,
             dg_dialog: None,
             autocorrect_draft: None,
             layout_menu: None,
@@ -6417,6 +6420,111 @@ impl App {
         self.view.fit_pending = true;
     }
 
+    /// The theme galleries: Themes and Colors list the palettes (Themes
+    /// also resets variant and effects), Variants the four accents,
+    /// Effects and Connectors their presets, Quick Styles accent ×
+    /// intensity for the selection. Page-wide picks are one undo step.
+    fn theme_menu_window(&mut self, ctx: &egui::Context) {
+        use crate::themes::{Intensity, Theme, PALETTES};
+        let Some(which) = self.theme_menu else { return };
+        let Some(page_id) = self.page_id() else { return };
+        let Some(ed) = self.ed() else { return };
+        let cur = crate::themes::page_theme(&ed.doc, page_id).unwrap_or(Theme { palette: 0, variant: 0, effect: 0, connector: 0 });
+        let s = crate::i18n::strs();
+        let swatches = |ui: &mut egui::Ui, cols: &[String]| {
+            for c in cols {
+                let (r, _) = ui.allocate_exact_size(egui::vec2(14.0, 14.0), egui::Sense::hover());
+                let col = egui::Color32::from_hex(c).unwrap_or(egui::Color32::GRAY);
+                ui.painter().rect_filled(r, 2.0, col);
+            }
+        };
+        let title = [s.msg_themes(), s.msg_variants(), s.msg_colors(), s.msg_effects(), s.msg_connectors(), s.msg_quick_styles()][which as usize % 6].clone();
+        let mut pick: Option<Theme> = None;
+        let mut quick: Option<(usize, Intensity)> = None;
+        let mut open = true;
+        egui::Window::new(title).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            let pal = &PALETTES[cur.palette];
+            match which {
+                0 | 2 => {
+                    for (i, p) in PALETTES.iter().enumerate() {
+                        ui.horizontal(|ui| {
+                            if ui.selectable_label(cur.palette == i, p.name).clicked() {
+                                pick = Some(if which == 0 { Theme { palette: i, variant: 0, effect: i % crate::themes::EFFECTS, connector: 1 } } else { Theme { palette: i, ..cur } });
+                            }
+                            swatches(ui, &p.accents.iter().map(|c| c.to_string()).collect::<Vec<_>>());
+                        });
+                    }
+                }
+                1 => {
+                    for v in 0..4 {
+                        ui.horizontal(|ui| {
+                            if ui.selectable_label(cur.variant == v, s.msg_variant_n(v as i64 + 1)).clicked() {
+                                pick = Some(Theme { variant: v, ..cur });
+                            }
+                            let (f, l, _) = crate::themes::quick_colors(pal, v, Intensity::Moderate);
+                            swatches(ui, &[f, l]);
+                        });
+                    }
+                }
+                3 => {
+                    for (e, name) in [s.msg_none(), s.msg_shadow(), s.msg_rounded(), s.msg_rounded_shadow()].into_iter().enumerate() {
+                        if ui.selectable_label(cur.effect == e, name).clicked() {
+                            pick = Some(Theme { effect: e, ..cur });
+                        }
+                    }
+                }
+                4 => {
+                    for (i, (w, arrow)) in crate::themes::CONNECTORS.iter().enumerate() {
+                        let name = format!("{w} pt{}", if *arrow > 0 { " →" } else { "" });
+                        if ui.selectable_label(cur.connector == i, name).clicked() {
+                            pick = Some(Theme { connector: i, ..cur });
+                        }
+                    }
+                }
+                _ => {
+                    for (intensity, name) in [(Intensity::Subtle, s.msg_subtle()), (Intensity::Moderate, s.msg_moderate()), (Intensity::Intense, s.msg_intense())] {
+                        ui.horizontal(|ui| {
+                            ui.label(name.clone());
+                            for a in 0..4 {
+                                let (f, l, _) = crate::themes::quick_colors(pal, a, intensity);
+                                let fill = egui::Color32::from_hex(&f).unwrap_or(egui::Color32::GRAY);
+                                let line = egui::Color32::from_hex(&l).unwrap_or(egui::Color32::GRAY);
+                                let b = ui.add(egui::Button::new("").fill(fill).stroke(egui::Stroke::new(1.5, line)).min_size(egui::vec2(22.0, 18.0)));
+                                let label = format!("{name} {}", a + 1);
+                                b.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, label.clone()));
+                                if b.clicked() {
+                                    quick = Some((a, intensity));
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+        if let Some(t) = pick {
+            let cmds = crate::themes::apply_theme(&ed.doc, page_id, t);
+            self.apply(Macro::new(s.msg_themes(), cmds));
+            self.theme_menu = None;
+        } else if let Some((a, i)) = quick {
+            let page = ed.doc.pages.iter().find(|p| p.id == page_id);
+            let cmds: Vec<Box<dyn dc_core::Command>> = page
+                .map(|p| {
+                    p.shapes
+                        .iter()
+                        .filter(|sh| self.sel_set.contains(&(page_id, sh.id)))
+                        .flat_map(|sh| crate::themes::style_shape(page_id, sh, &PALETTES[cur.palette], a, i, cur.effect, cur.connector))
+                        .collect()
+                })
+                .unwrap_or_default();
+            if !cmds.is_empty() {
+                self.apply(Macro::new(s.msg_quick_styles(), cmds));
+            }
+            self.theme_menu = None;
+        } else if !open {
+            self.theme_menu = None;
+        }
+    }
+
     /// Data ▸ Data Graphics: show chosen Shape Data fields in the
     /// selected shapes' text (all on the page without a selection), or
     /// colour the page's shapes by one field's value.
@@ -10212,6 +10320,14 @@ impl App {
     /// A placement plus Visio's drop scale for the new instance (same
     /// undo step); unchanged when `k` is 1.
     fn with_drop_scale(cmd: dc_core::Macro, page: i64, id: i64, k: f64) -> dc_core::Macro {
+        // a drop on a themed page takes the theme
+        let touch = dc_core::TouchList {
+            pages: vec![],
+            shapes: vec![dc_core::Touched { page, shape: id, touch: dc_core::Touch::Ink, sub: None }],
+        };
+        let label = cmd.label.clone();
+        let themed = crate::cmd::Deferred::new("theme", touch, move |doc| crate::themes::theme_shape(doc, page, id));
+        let cmd = dc_core::Macro::new(label, vec![Box::new(cmd), Box::new(themed)]);
         if (k - 1.0).abs() < 1e-12 {
             return cmd;
         }
@@ -10415,6 +10531,7 @@ impl App {
             Action::SaveAs => self.do_save(true),
             Action::Undo => self.do_undo(),
             Action::Redo => self.do_redo(),
+            Action::ThemeMenu(n) => self.theme_menu = Some(n),
             Action::NewBackgroundPage => {
                 // a page marked Background (pages index, as Visio writes it),
                 // and the current page shows it behind its shapes
@@ -19521,6 +19638,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.theme_menu_window(&ctx);
         self.data_graphics_window(&ctx);
         self.autocorrect_window(&ctx);
         self.layout_window(&ctx);

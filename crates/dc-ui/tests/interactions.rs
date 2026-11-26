@@ -11740,3 +11740,54 @@ fn new_background_page_is_assigned() {
         }
     }
 }
+
+/// Design ▸ Themes colours the page's shapes and a later drop takes the
+/// theme; Home ▸ Quick Styles restyles the selection; one undo each
+/// (THEME_OUT saves the themed page for a Visio check).
+#[test]
+fn themes_and_quick_styles() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, a) = place_master(&mut h, 2);
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Design);
+    h.run();
+    h.get_by_label("Themes").click();
+    h.run();
+    h.run();
+    h.get_by_label("Lagoon").click();
+    h.run();
+    let lagoon = Some("#087E8B".to_string());
+    assert_eq!(h.state().debug_cell_for_test(a, "FillForegnd"), lagoon);
+    let (_, b) = place_master(&mut h, 4);
+    assert_eq!(h.state().debug_cell_for_test(b, "FillForegnd"), lagoon, "a drop takes the theme");
+
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Home);
+    h.run();
+    h.get_by_label("Quick Styles").click();
+    h.run();
+    h.run();
+    h.get_by_label("Subtle 4").click();
+    h.run();
+    assert_ne!(h.state().debug_cell_for_test(b, "FillForegnd"), lagoon);
+    if let Some(out) = std::env::var_os("THEME_OUT") {
+        h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Design);
+        h.run();
+        h.get_by_label("Effects").click();
+        h.run();
+        h.run();
+        h.get_by_label("Rounded with shadow").click();
+        h.run();
+        h.state_mut().preset_save_as_for_test(Some(std::path::PathBuf::from(out.clone())));
+        h.key_press_modifiers(egui::Modifiers::COMMAND | egui::Modifiers::SHIFT, egui::Key::S);
+        for _ in 0..30 {
+            h.run();
+            if std::path::Path::new(&out).exists() {
+                break;
+            }
+        }
+        return;
+    }
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    assert_eq!(h.state().debug_cell_for_test(b, "FillForegnd"), lagoon, "undo the quick style");
+}

@@ -49,5 +49,6 @@ pub mod spellcheck;
 pub mod stencil;
 pub mod svgimg;
 pub mod textedit;
+pub mod themes;
 pub mod theme;
 pub mod units;

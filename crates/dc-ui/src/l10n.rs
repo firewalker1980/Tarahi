@@ -5371,13 +5371,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "style-gallery-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "styles",
         attribute: None,
         vars: &[],
@@ -5602,21 +5595,7 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "theme-variants-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "themes",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "themes-planned-gallery-folds-bro",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -5981,27 +5960,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "value",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "variant-colors-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "variant-connectors-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "variant-effects-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -7232,6 +7190,97 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "themes-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "variants-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "colors-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "effects-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "connectors-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "quick-styles-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "variant-n",
+        attribute: None,
+        vars: &["n"],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "shadow",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "rounded",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "rounded-shadow",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "subtle",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "moderate",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "intense",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7331,13 +7380,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..51027,
-            Self::En => 51027..100124,
-            Self::Es => 100124..154246,
-            Self::Fa => 154246..217620,
-            Self::Ja => 217620..272363,
-            Self::Ko => 272363..322775,
-            Self::ZhHans => 322775..366357,
+            Self::De => 0..51097,
+            Self::En => 51097..100260,
+            Self::Es => 100260..154459,
+            Self::Fa => 154459..217756,
+            Self::Ja => 217756..272481,
+            Self::Ko => 272481..322964,
+            Self::ZhHans => 322964..366535,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -10357,9 +10406,6 @@ impl L10nLanguage {
     pub fn msg_style(&self) -> String {
         self.0.msg("style", None).unwrap()
     }
-    pub fn msg_style_gallery_planned(&self) -> String {
-        self.0.msg("style-gallery-planned", None).unwrap()
-    }
     pub fn msg_styles(&self) -> String {
         self.0.msg("styles", None).unwrap()
     }
@@ -10487,16 +10533,8 @@ impl L10nLanguage {
             .msg("the-svg-markup-lands-on-the-clip", None)
             .unwrap()
     }
-    pub fn msg_theme_variants_planned(&self) -> String {
-        self.0.msg("theme-variants-planned", None).unwrap()
-    }
     pub fn msg_themes(&self) -> String {
         self.0.msg("themes", None).unwrap()
-    }
-    pub fn msg_themes_planned_gallery_folds_bro(&self) -> String {
-        self.0
-            .msg("themes-planned-gallery-folds-bro", None)
-            .unwrap()
     }
     pub fn msg_thesaurus(&self) -> String {
         self.0.msg("thesaurus", None).unwrap()
@@ -10749,15 +10787,6 @@ impl L10nLanguage {
     }
     pub fn msg_value(&self) -> String {
         self.0.msg("value", None).unwrap()
-    }
-    pub fn msg_variant_colors_planned(&self) -> String {
-        self.0.msg("variant-colors-planned", None).unwrap()
-    }
-    pub fn msg_variant_connectors_planned(&self) -> String {
-        self.0.msg("variant-connectors-planned", None).unwrap()
-    }
-    pub fn msg_variant_effects_planned(&self) -> String {
-        self.0.msg("variant-effects-planned", None).unwrap()
     }
     pub fn msg_variants(&self) -> String {
         self.0.msg("variants", None).unwrap()
@@ -11330,5 +11359,46 @@ impl L10nLanguage {
     }
     pub fn msg_define_shape_data_tip(&self) -> String {
         self.0.msg("define-shape-data-tip", None).unwrap()
+    }
+    pub fn msg_themes_tip(&self) -> String {
+        self.0.msg("themes-tip", None).unwrap()
+    }
+    pub fn msg_variants_tip(&self) -> String {
+        self.0.msg("variants-tip", None).unwrap()
+    }
+    pub fn msg_colors_tip(&self) -> String {
+        self.0.msg("colors-tip", None).unwrap()
+    }
+    pub fn msg_effects_tip(&self) -> String {
+        self.0.msg("effects-tip", None).unwrap()
+    }
+    pub fn msg_connectors_tip(&self) -> String {
+        self.0.msg("connectors-tip", None).unwrap()
+    }
+    pub fn msg_quick_styles_tip(&self) -> String {
+        self.0.msg("quick-styles-tip", None).unwrap()
+    }
+    pub fn msg_variant_n<'a, F0: Into<FluentValue<'a>>>(&self, n: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("n", n);
+        self.0.msg("variant-n", Some(_args)).unwrap()
+    }
+    pub fn msg_shadow(&self) -> String {
+        self.0.msg("shadow", None).unwrap()
+    }
+    pub fn msg_rounded(&self) -> String {
+        self.0.msg("rounded", None).unwrap()
+    }
+    pub fn msg_rounded_shadow(&self) -> String {
+        self.0.msg("rounded-shadow", None).unwrap()
+    }
+    pub fn msg_subtle(&self) -> String {
+        self.0.msg("subtle", None).unwrap()
+    }
+    pub fn msg_moderate(&self) -> String {
+        self.0.msg("moderate", None).unwrap()
+    }
+    pub fn msg_intense(&self) -> String {
+        self.0.msg("intense", None).unwrap()
     }
 }

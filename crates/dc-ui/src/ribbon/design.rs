@@ -43,9 +43,9 @@ fn page_setup_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<s
 fn themes_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::Theme, s.msg_themes(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_themes_planned_gallery_folds_bro()),
+            RibbonButton::new(Icon::Theme, s.msg_themes(), Action::ThemeMenu(0))
+                .enabled(ctx.has_doc)
+                .tip(s.msg_themes_tip()),
         ),
     ]
 }
@@ -53,20 +53,20 @@ fn themes_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super
 fn variants_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![grid(vec![
         vec![
-            RibbonButton::new(Icon::Theme, s.msg_variants(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_theme_variants_planned()),
-            RibbonButton::new(Icon::Bucket, s.msg_colors(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_variant_colors_planned()),
+            RibbonButton::new(Icon::Theme, s.msg_variants(), Action::ThemeMenu(1))
+                .enabled(ctx.has_doc)
+                .tip(s.msg_variants_tip()),
+            RibbonButton::new(Icon::Bucket, s.msg_colors(), Action::ThemeMenu(2))
+                .enabled(ctx.has_doc)
+                .tip(s.msg_colors_tip()),
         ],
         vec![
-            RibbonButton::new(Icon::Effects, s.msg_effects(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_variant_effects_planned()),
-            RibbonButton::new(Icon::Connector, s.msg_connectors(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_variant_connectors_planned()),
+            RibbonButton::new(Icon::Effects, s.msg_effects(), Action::ThemeMenu(3))
+                .enabled(ctx.has_doc)
+                .tip(s.msg_effects_tip()),
+            RibbonButton::new(Icon::Connector, s.msg_connectors(), Action::ThemeMenu(4))
+                .enabled(ctx.has_doc)
+                .tip(s.msg_connectors_tip()),
         ],
     ])]
 }
