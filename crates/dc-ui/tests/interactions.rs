@@ -10825,3 +10825,48 @@ fn view_page_width_zoom_dialog_and_connection_points() {
     h.run();
     assert!(!h.state().debug_conn_fx().reveal.is_empty(), "points shown");
 }
+
+/// Home ▸ Font family / size pickers, Bullets and Increase Indent write
+/// the selection's Character / Paragraph cells.
+#[test]
+fn home_font_pickers_bullets_and_indent() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().debug_set_shape_text_for_test(sid, "core switch");
+    h.run();
+    let top = |h: &Harness<'_, App>, label: &str| {
+        h.get_all_by_label(label)
+            .min_by(|a, b| a.rect().top().total_cmp(&b.rect().top()))
+            .unwrap_or_else(|| panic!("{label}"))
+            .rect()
+            .center()
+    };
+    let font = top(&h, "Font");
+    click_at(&mut h, font, egui::PointerButton::Primary);
+    h.run();
+    h.run();
+    h.get_all_by_label("Font").find(|n| n.rect().width() > 100.0 && n.rect().top() > 150.0).expect("filter field").focus();
+    h.run();
+    h.get_all_by_label("Font").find(|n| n.rect().width() > 100.0 && n.rect().top() > 150.0).unwrap().type_text("carlito");
+    h.run();
+    h.get_all_by_label("Carlito").max_by(|a, b| a.rect().top().total_cmp(&b.rect().top())).unwrap().click();
+    h.run();
+    assert_eq!(h.state().debug_cell_for_test(sid, "Char.Font").as_deref(), Some("Carlito"));
+
+    let size = top(&h, "Size (pt)");
+    click_at(&mut h, size, egui::PointerButton::Primary);
+    h.run();
+    h.run();
+    h.get_by_label("24 pt").click();
+    h.run();
+    let sz: f64 = h.state().debug_cell_for_test(sid, "Char.Size").unwrap().parse().unwrap();
+    assert!((sz * 72.0 - 24.0).abs() < 1e-4, "{sz}");
+
+    h.get_by_label("Bullets").click();
+    h.run();
+    assert_eq!(h.state().debug_cell_for_test(sid, "Para.Bullet").as_deref(), Some("1"));
+    h.get_by_label("Increase Indent").click();
+    h.run();
+    assert_eq!(h.state().debug_cell_for_test(sid, "Para.IndLeft").as_deref(), Some("0.5"));
+}

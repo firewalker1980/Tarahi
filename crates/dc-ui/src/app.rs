@@ -279,6 +279,9 @@ pub struct App {
     print_preview: usize,
     /// Container Tools popup: 0 Margins, 1 Automatic Resize.
     container_menu: Option<u8>,
+    /// Home ▸ Font popups: Some(false) family list, Some(true) sizes.
+    font_menu: Option<bool>,
+    font_filter: String,
     find_open: bool,
     find_replace: bool,
     find_text: String,
@@ -832,6 +835,8 @@ impl App {
             print_all: true,
             print_preview: 0,
             container_menu: None,
+            font_menu: None,
+            font_filter: String::new(),
             find_open: false,
             find_replace: false,
             find_text: String::new(),
@@ -4562,6 +4567,57 @@ impl App {
             cmds.extend(crate::containers::fit_cmds(&probe, page_id, cid, false));
         }
         self.apply(Macro::new(format!("container {row}"), cmds));
+    }
+
+    /// Home ▸ Font: the family list (fonts the renderer knows, with a
+    /// filter) or the point sizes; a pick writes the selection's
+    /// Character row 0 (one undo step).
+    fn font_menu_window(&mut self, ctx: &egui::Context) {
+        let Some(sizes) = self.font_menu else { return };
+        let s = crate::i18n::strs();
+        let mut pick: Option<(&str, String)> = None;
+        let mut open = true;
+        egui::Window::new(if sizes { s.msg_size_pt() } else { s.msg_font() })
+            .open(&mut open)
+            .resizable(false)
+            .collapsible(false)
+            .default_width(220.0)
+            .show(ctx, |ui| {
+                if sizes {
+                    egui::ScrollArea::vertical().max_height(320.0).show(ui, |ui| {
+                        for pt in [6.0, 8.0, 9.0, 10.0, 11.0, 12.0, 14.0, 16.0, 18.0, 20.0, 24.0, 28.0, 36.0, 48.0, 72.0] {
+                            if ui.selectable_label(false, format!("{pt} pt")).clicked() {
+                                pick = Some(("Size", format!("{:.10}", pt / 72.0)));
+                            }
+                        }
+                    });
+                } else {
+                    let r = ui.add(egui::TextEdit::singleline(&mut self.font_filter).hint_text(s.msg_font()));
+                    r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::SearchInput, true, s.msg_font()));
+                    let f = self.font_filter.to_lowercase();
+                    let mut fams: Vec<String> = dc::raster::font_db()
+                        .faces()
+                        .filter_map(|face| face.families.first().map(|(n, _)| n.clone()))
+                        .filter(|n| f.is_empty() || n.to_lowercase().contains(&f))
+                        .collect();
+                    fams.sort();
+                    fams.dedup();
+                    egui::ScrollArea::vertical().max_height(320.0).show(ui, |ui| {
+                        for n in fams {
+                            if ui.selectable_label(false, &n).clicked() {
+                                pick = Some(("Font", n));
+                            }
+                        }
+                    });
+                }
+            });
+        if let Some((cell, v)) = pick {
+            self.fmt_set_row("Character", cell, &v);
+            self.font_menu = None;
+            self.font_filter.clear();
+        } else if !open {
+            self.font_menu = None;
+        }
     }
 
     /// View ▸ Zoom: Visio's Zoom dialog — presets, whole page, page
@@ -8762,6 +8818,19 @@ impl App {
                 }
             }
             Action::ContainerMenu(n) => self.container_menu = Some(n),
+            Action::FontMenu => self.font_menu = Some(false),
+            Action::FontSizeMenu => self.font_menu = Some(true),
+            Action::Bullets => {
+                let on = self.eff_row_str("Paragraph", "Bullet").and_then(|v| v.parse::<f64>().ok()).unwrap_or(0.0) != 0.0;
+                // Visio's bullet: Bullet 1, hanging 0.25 in
+                let (b, left, first) = if on { ("0", "0", "0") } else { ("1", "0.25", "-0.25") };
+                self.fmt_set_rows("Paragraph", &[("Bullet", b), ("IndLeft", left), ("IndFirst", first)]);
+            }
+            Action::Indent(more) => {
+                let cur = self.eff_row_str("Paragraph", "IndLeft").and_then(|v| v.parse::<f64>().ok()).unwrap_or(0.0);
+                let next = if more { cur + 0.25 } else { (cur - 0.25).max(0.0) };
+                self.fmt_set_row("Paragraph", "IndLeft", &format!("{next}"));
+            }
             Action::ShapeDataWindow => {
                 if let Some((_, s)) = self.sel {
                     self.shape_data_open = if self.shape_data_open == Some(s) { None } else { Some(s) };
@@ -9389,6 +9458,12 @@ impl App {
             tri_sel: sel_count >= 3,
             tool: self.tool,
             painter_armed: self.painter_armed.is_some(),
+            font_name: self.eff_row_str("Character", "Font").filter(|f| !f.is_empty()).unwrap_or_else(|| "Calibri".into()),
+            font_size: self
+                .eff_row_str("Character", "Size")
+                .and_then(|v| v.parse::<f64>().ok())
+                .map_or("12".into(), |v| format!("{}", (v * 72.0 * 2.0).round() / 2.0)),
+            bullet: self.eff_row_str("Paragraph", "Bullet").and_then(|v| v.parse::<f64>().ok()).unwrap_or(0.0) != 0.0,
             char_style: self
                 .eff_row_str("Character", "Style")
                 .and_then(|v| v.parse().ok())
@@ -9776,26 +9851,29 @@ impl App {
     }
 
     fn fmt_set_row(&mut self, section: &str, cell: &str, value: &str) {
+        self.fmt_set_rows(section, &[(cell, value)]);
+    }
+
+    /// Several row-0 cells of one section on every selected shape, one
+    /// undo step.
+    fn fmt_set_rows(&mut self, section: &str, cells: &[(&str, &str)]) {
         let targets = self.sel_set.clone();
         let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
         for (page_id, sid) in targets {
-            cmds.push(Box::new(dc_core::SetRowCell::new(
-                Scope::Shape {
-                    page: page_id,
-                    shape: sid,
-                },
-                section,
-                0,
-                dc_core::commands::RowSel::Ix(0),
-                cell,
-                vsdx::Cell::value(value.to_owned()),
-            )));
+            for (cell, value) in cells {
+                cmds.push(Box::new(dc_core::SetRowCell::new(
+                    Scope::Shape { page: page_id, shape: sid },
+                    section,
+                    0,
+                    dc_core::commands::RowSel::Ix(0),
+                    *cell,
+                    vsdx::Cell::value(value.to_string()),
+                )));
+            }
         }
         if !cmds.is_empty() {
-            self.apply(Macro::new(
-                crate::i18n::strs().msg_undo_set_section_cell(section, cell),
-                cmds,
-            ));
+            let first = cells.first().map_or("", |c| c.0);
+            self.apply(Macro::new(crate::i18n::strs().msg_undo_set_section_cell(section, first), cmds));
         }
     }
 
@@ -17537,6 +17615,7 @@ impl App {
         self.find_window(&ctx);
         self.container_menu_window(&ctx);
         self.zoom_window(&ctx);
+        self.font_menu_window(&ctx);
         self.switch_window(&ctx);
         self.snap_glue_window(&ctx);
         self.hyperlink_window(&ctx);

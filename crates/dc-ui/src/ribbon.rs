@@ -23,7 +23,7 @@ pub mod view;
 /// Everything a tab's group builder needs from the app — one snapshot
 /// computed per frame in `app.rs`, so the per-tab modules never borrow
 /// the app and stay pure layout.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub(crate) struct TabCtx {
     pub has_doc: bool,
     pub has_sel: bool,
@@ -39,6 +39,11 @@ pub(crate) struct TabCtx {
     /// underline), Strikethru and Paragraph HorzAlign, for the Font and
     /// Paragraph buttons' pressed state.
     pub char_style: i64,
+    /// The selection's font name and size (pt) for the Font combos,
+    /// and whether its text is bulleted.
+    pub font_name: String,
+    pub font_size: String,
+    pub bullet: bool,
     pub strike: bool,
     pub horz_align: i64,
     pub selby_open: bool,
@@ -150,6 +155,11 @@ pub(crate) fn anchor_labels(tab: Tab, ctx: &TabCtx) -> Vec<String> {
 /// Everything the ribbon can ask the app to do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
+    /// Home ▸ Font family / size pickers, Paragraph bullets and indent.
+    FontMenu,
+    FontSizeMenu,
+    Bullets,
+    Indent(bool),
     /// Data ▸ Shape Data Window: the selection's Shape Data.
     ShapeDataWindow,
     /// View tab: Guides / Connection Points / AutoConnect toggles,

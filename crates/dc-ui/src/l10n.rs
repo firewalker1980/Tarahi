@@ -576,13 +576,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "bullets-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "cad-drawing",
         attribute: None,
         vars: &[],
@@ -591,13 +584,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "cad-drawing-import-planned-later",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "calibri",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -1284,13 +1270,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "decrease-indent",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "decrease-indent-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -2326,13 +2305,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "font-family-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "font-increase",
         attribute: None,
         vars: &[],
@@ -2348,13 +2320,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "font-size",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "font-size-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -2719,13 +2684,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "increase-indent",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "increase-indent-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -3559,20 +3517,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "nudge-selection",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "numbering",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "numbering-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6953,13 +6897,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48457,
-            Self::En => 48457..95221,
-            Self::Es => 95221..146705,
-            Self::Fa => 146705..207482,
-            Self::Ja => 207482..259406,
-            Self::Ko => 259406..307265,
-            Self::ZhHans => 307265..348869,
+            Self::De => 0..48108,
+            Self::En => 48108..94556,
+            Self::Es => 94556..145693,
+            Self::Fa => 145693..205921,
+            Self::Ja => 205921..257473,
+            Self::Ko => 257473..304996,
+            Self::ZhHans => 304996..346278,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7319,9 +7263,6 @@ impl L10nLanguage {
     pub fn msg_bullets(&self) -> String {
         self.0.msg("bullets", None).unwrap()
     }
-    pub fn msg_bullets_planned(&self) -> String {
-        self.0.msg("bullets-planned", None).unwrap()
-    }
     pub fn msg_cad_drawing(&self) -> String {
         self.0.msg("cad-drawing", None).unwrap()
     }
@@ -7329,9 +7270,6 @@ impl L10nLanguage {
         self.0
             .msg("cad-drawing-import-planned-later", None)
             .unwrap()
-    }
-    pub fn msg_calibri(&self) -> String {
-        self.0.msg("calibri", None).unwrap()
     }
     pub fn msg_callout(&self) -> String {
         self.0.msg("callout", None).unwrap()
@@ -7753,9 +7691,6 @@ impl L10nLanguage {
     }
     pub fn msg_decrease_indent(&self) -> String {
         self.0.msg("decrease-indent", None).unwrap()
-    }
-    pub fn msg_decrease_indent_planned(&self) -> String {
-        self.0.msg("decrease-indent-planned", None).unwrap()
     }
     /// $entry (String) - default stencil entry
     /// $e (String) - error text
@@ -8272,9 +8207,6 @@ impl L10nLanguage {
     pub fn msg_font_decrease_tip(&self) -> String {
         self.0.msg("font-decrease-tip", None).unwrap()
     }
-    pub fn msg_font_family_planned(&self) -> String {
-        self.0.msg("font-family-planned", None).unwrap()
-    }
     pub fn msg_font_increase(&self) -> String {
         self.0.msg("font-increase", None).unwrap()
     }
@@ -8283,9 +8215,6 @@ impl L10nLanguage {
     }
     pub fn msg_font_size(&self) -> String {
         self.0.msg("font-size", None).unwrap()
-    }
-    pub fn msg_font_size_planned(&self) -> String {
-        self.0.msg("font-size-planned", None).unwrap()
     }
     pub fn msg_foreground(&self) -> String {
         self.0.msg("foreground", None).unwrap()
@@ -8486,9 +8415,6 @@ impl L10nLanguage {
     }
     pub fn msg_increase_indent(&self) -> String {
         self.0.msg("increase-indent", None).unwrap()
-    }
-    pub fn msg_increase_indent_planned(&self) -> String {
-        self.0.msg("increase-indent-planned", None).unwrap()
     }
     pub fn msg_info(&self) -> String {
         self.0.msg("info", None).unwrap()
@@ -8946,12 +8872,6 @@ impl L10nLanguage {
     }
     pub fn msg_nudge_selection(&self) -> String {
         self.0.msg("nudge-selection", None).unwrap()
-    }
-    pub fn msg_numbering(&self) -> String {
-        self.0.msg("numbering", None).unwrap()
-    }
-    pub fn msg_numbering_planned(&self) -> String {
-        self.0.msg("numbering-planned", None).unwrap()
     }
     pub fn msg_nurbs_control_customized_the_e_f(&self) -> String {
         self.0

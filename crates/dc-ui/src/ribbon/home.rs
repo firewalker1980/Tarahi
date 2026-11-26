@@ -112,16 +112,18 @@ fn clipboard_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, has_sel: 
 fn font_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, has_sel: bool) -> super::Col {
     grid(vec![
         vec![
-            RibbonButton::new(Icon::FontA, s.msg_calibri(), Action::Macros)
+            RibbonButton::new(Icon::FontA, ctx.font_name.clone(), Action::FontMenu)
+                .alt(s.msg_font())
                 .combo()
                 .width(96.0)
-                .enabled(false)
-                .tip(s.msg_font_family_planned()),
-            RibbonButton::new(Icon::FontA, "11", Action::Macros)
+                .enabled(has_sel)
+                .tip(s.msg_font()),
+            RibbonButton::new(Icon::FontA, ctx.font_size.clone(), Action::FontSizeMenu)
+                .alt(s.msg_size_pt())
                 .combo()
                 .width(40.0)
-                .enabled(false)
-                .tip(s.msg_font_size_planned()),
+                .enabled(has_sel)
+                .tip(s.msg_size_pt()),
             RibbonButton::new(Icon::Grow, "", Action::FontGrow)
                 .alt(s.msg_font_increase())
                 .enabled(has_sel)
@@ -188,22 +190,19 @@ fn paragraph_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> super:
                 .tip(s.msg_justify()),
         ],
         vec![
-            RibbonButton::new(Icon::Bullets, "", Action::Macros)
+            RibbonButton::new(Icon::Bullets, "", Action::Bullets)
                 .alt(s.msg_bullets())
-                .enabled(false)
-                .tip(s.msg_bullets_planned()),
-            RibbonButton::new(Icon::Numbering, "", Action::Macros)
-                .alt(s.msg_numbering())
-                .enabled(false)
-                .tip(s.msg_numbering_planned()),
-            RibbonButton::new(Icon::IndentLess, "", Action::Macros)
+                .enabled(ctx.has_sel)
+                .selected(ctx.has_sel && ctx.bullet)
+                .tip(s.msg_bullets()),
+            RibbonButton::new(Icon::IndentLess, "", Action::Indent(false))
                 .alt(s.msg_decrease_indent())
-                .enabled(false)
-                .tip(s.msg_decrease_indent_planned()),
-            RibbonButton::new(Icon::IndentMore, "", Action::Macros)
+                .enabled(ctx.has_sel)
+                .tip(s.msg_decrease_indent()),
+            RibbonButton::new(Icon::IndentMore, "", Action::Indent(true))
                 .alt(s.msg_increase_indent())
-                .enabled(false)
-                .tip(s.msg_increase_indent_planned()),
+                .enabled(ctx.has_sel)
+                .tip(s.msg_increase_indent()),
         ],
     ])
 }
