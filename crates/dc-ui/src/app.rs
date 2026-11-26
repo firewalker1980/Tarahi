@@ -263,6 +263,13 @@ pub struct App {
     layer_edit: Option<(i64, String)>,
     /// Find & Replace dialog: open, show the Replace row, texts,
     /// options (case, whole word, all pages) and the current match.
+    /// File ▸ Print: printers (loaded when the page first shows), the
+    /// chosen one, copies, all pages vs current, previewed page.
+    print_printers: Option<(Vec<String>, Option<String>)>,
+    print_printer: Option<String>,
+    print_copies: u32,
+    print_all: bool,
+    print_preview: usize,
     find_open: bool,
     find_replace: bool,
     find_text: String,
@@ -801,6 +808,11 @@ impl App {
             align_to_page: false,
             selby_open: false,
             layers_open: false,
+            print_printers: None,
+            print_printer: None,
+            print_copies: 1,
+            print_all: true,
+            print_preview: 0,
             find_open: false,
             find_replace: false,
             find_text: String::new(),
@@ -3310,7 +3322,12 @@ impl App {
             if i.key_pressed(egui::Key::F7) && (!kb_owned || self.text_edit.is_some()) {
                 self.dispatch(Action::SpellCheck);
             }
-            // Find / Replace (Visio's Ctrl+F / Ctrl+H)
+            // Ctrl+P: File ▸ Print (Visio)
+            if !kb_owned && ctrl && i.key_pressed(egui::Key::P) && self.ed.is_some() {
+                self.backstage = true;
+                self.backstage_page = BackPage::Print;
+            }
+            // Find (Visio's Ctrl+F)
             if !kb_owned && ctrl && i.key_pressed(egui::Key::F) && self.ed.is_some() {
                 self.dispatch(Action::Find);
             }
@@ -12261,6 +12278,115 @@ impl App {
     /// page or all pages; Find Next selects the match (switching page),
     /// Replace swaps the current match and moves on, Replace All is one
     /// undo step.
+    /// File ▸ Print: printer, copies, all pages or the current one, a
+    /// preview of each page as it will print (non-printing layers off),
+    /// and Print — the PDF export sent to CUPS (`lp`), or opened in the
+    /// system viewer when there is no printer.
+    /// ponytail: renders the PDF on the UI thread; a big drawing
+    /// pauses the window for a moment.
+    fn print_page(&mut self, ui: &mut Ui) {
+        let s = crate::i18n::strs();
+        ui.heading(s.msg_rail_print());
+        ui.add_space(6.0);
+        ui.weak(s.msg_send_the_drawing_to_a_printer_or());
+        ui.add_space(10.0);
+        let Some(npages) = self.ed().map(|ed| ed.doc.pages.len()) else { return };
+        let (list, default) = self.print_printers.get_or_insert_with(crate::print::printers).clone();
+        if self.print_printer.is_none() {
+            self.print_printer = default.or_else(|| list.first().cloned());
+        }
+        let mut go = false;
+        ui.horizontal_top(|ui| {
+            ui.vertical(|ui| {
+                ui.set_width(260.0);
+                if ui.add(egui::Button::new(s.msg_print_button()).min_size(Vec2::new(120.0, 36.0))).clicked() {
+                    go = true;
+                }
+                ui.add_space(10.0);
+                egui::Grid::new("dc-print").num_columns(2).spacing(Vec2::new(10.0, 8.0)).show(ui, |ui| {
+                    ui.label(s.msg_printer());
+                    if list.is_empty() {
+                        ui.weak(s.msg_no_printers());
+                    } else {
+                        let cur = self.print_printer.clone().unwrap_or_default();
+                        ui.menu_button(format!("{cur}  ›"), |ui| {
+                            for p in &list {
+                                if ui.selectable_label(*p == cur, p).clicked() {
+                                    self.print_printer = Some(p.clone());
+                                    ui.close();
+                                }
+                            }
+                        });
+                    }
+                    ui.end_row();
+                    ui.label(s.msg_copies());
+                    let r = ui.add(egui::DragValue::new(&mut self.print_copies).range(1..=99));
+                    r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::SpinButton, true, s.msg_copies()));
+                    ui.end_row();
+                    ui.label(s.msg_print_range());
+                    ui.vertical(|ui| {
+                        ui.radio_value(&mut self.print_all, true, s.msg_all_pages());
+                        ui.radio_value(&mut self.print_all, false, s.msg_current_page());
+                    });
+                    ui.end_row();
+                });
+            });
+            ui.add_space(24.0);
+            // preview: the page as it prints
+            ui.vertical(|ui| {
+                let idx = if self.print_all { self.print_preview.min(npages - 1) } else { self.page_idx };
+                let t = crate::theme::shell_tokens(ui.visuals());
+                let (w_in, h_in, part) = {
+                    let ed = self.ed.as_ref().unwrap();
+                    let page = &ed.doc.pages[idx];
+                    let n = |c: &str| page.sheet().and_then(|s| s.cell(c)).and_then(|c| c.numeric()).unwrap_or(0.0);
+                    (n("PageWidth").max(0.1), n("PageHeight").max(0.1), page.part.clone())
+                };
+                let box_w = 420.0_f64;
+                let box_h = 520.0_f64;
+                let scale = (box_w / w_in).min(box_h / h_in);
+                let size = Vec2::new((w_in * scale) as f32, (h_in * scale) as f32);
+                let (r, _) = ui.allocate_exact_size(size, Sense::hover());
+                ui.painter().rect_filled(r, 0.0, Color32::WHITE);
+                ui.painter().rect_stroke(r, 0.0, Stroke::new(1.0, t.ribbon_group), egui::StrokeKind::Outside);
+                let key = format!("print-{}", part.replace('/', "_"));
+                if let Ok(Some(tex)) = self.tex.get(ui.ctx(), &mut self.pool, w_in, &key, self.version, scale as f32, || {
+                    let ed = self.ed.as_ref().unwrap();
+                    let doc = crate::print::printable(&ed.doc);
+                    dc::svg::render_page(&doc, &doc.pages[idx])
+                }) {
+                    let uv = Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0));
+                    ui.painter().image(tex.id(), r, uv, Color32::WHITE);
+                }
+                if self.print_all && npages > 1 {
+                    ui.horizontal(|ui| {
+                        if ui.add_enabled(idx > 0, egui::Button::new("‹")).on_hover_text(s.msg_previous_page()).clicked() {
+                            self.print_preview = idx - 1;
+                        }
+                        ui.label(s.msg_page_n_of_total(idx as i64 + 1, npages as i64));
+                        if ui.add_enabled(idx + 1 < npages, egui::Button::new("›")).on_hover_text(s.msg_next_page()).clicked() {
+                            self.print_preview = idx + 1;
+                        }
+                    });
+                }
+            });
+        });
+        if go {
+            let pages: Vec<usize> = if self.print_all { vec![] } else { vec![self.page_idx] };
+            let printer = if list.is_empty() { None } else { self.print_printer.clone() };
+            let res = self
+                .ed()
+                .map(|ed| crate::print::write_pdf(&ed.doc, &pages))
+                .unwrap_or_else(|| Err(anyhow::anyhow!("no document")))
+                .and_then(|pdf| crate::print::send(&pdf, printer.as_deref(), self.print_copies));
+            self.status = match (res, printer) {
+                (Ok(_), Some(p)) => s.msg_sent_to_printer(p),
+                (Ok(_), None) => s.msg_print_opened_viewer(),
+                (Err(e), _) => s.msg_print_failed(e.to_string()),
+            };
+        }
+    }
+
     fn find_window(&mut self, ctx: &egui::Context) {
         if !self.find_open {
             return;
@@ -16071,6 +16197,24 @@ impl App {
     /// kittest: jump straight to one backstage page ("info" | "recent"
     /// | "new" | "print" | "share" | "export").
     #[doc(hidden)]
+    /// kittest: a fixed printer list (never the machine's real CUPS
+    /// queues) and the PDF the Print button would send.
+    #[doc(hidden)]
+    pub fn set_printers_for_test(&mut self, printers: Vec<String>) {
+        let first = printers.first().cloned();
+        self.print_printers = Some((printers, first));
+    }
+    #[doc(hidden)]
+    pub fn debug_print_pdf_for_test(&self, all: bool) -> Option<Vec<u8>> {
+        let pages: Vec<usize> = if all { vec![] } else { vec![self.page_idx] };
+        let path = crate::print::write_pdf(&self.ed()?.doc, &pages).ok()?;
+        std::fs::read(path).ok()
+    }
+    #[doc(hidden)]
+    pub fn debug_print_settings_for_test(&self) -> (Option<String>, u32, bool) {
+        (self.print_printer.clone(), self.print_copies, self.print_all)
+    }
+
     pub fn set_backstage_page_for_test(&mut self, name: &str) {
         if let Some(p) = BackPage::from_test_name(name) {
             self.backstage_page = p;
@@ -18275,13 +18419,7 @@ impl App {
                             ui.weak(crate::i18n::strs().msg_no_templates_match(search_text.trim()));
                         }
                     }
-                    BackPage::Print => backstage_stub(
-                        ui,
-                        &crate::i18n::strs().msg_rail_print(),
-                        &crate::i18n::strs().msg_send_the_drawing_to_a_printer_or(),
-                        &crate::i18n::strs().msg_print_stub(),
-                        &crate::i18n::strs().msg_printing_arrives_with_m6(),
-                    ),
+                    BackPage::Print => self.print_page(ui),
                     BackPage::Share => backstage_stub(
                         ui,
                         &crate::i18n::strs().msg_share(),

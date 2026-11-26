@@ -632,9 +632,7 @@ previous-comment = 이전 메모
 previous-comment-planned = 이전 메모 — 예정
 previous-page = 이전 페이지
 print-384-dpi = 인쇄(384dpi)
-print-stub = 인쇄…
 print-the-current-drawing = 현재 드로잉을 인쇄합니다
-printing-arrives-with-m6 = 인쇄는 M6에서 제공됩니다
 proofing = 언어 교정
 protect-drawing = 드로잉 보호…
 protection = 보호
@@ -1012,3 +1010,16 @@ replaced-n-matches =
        *[other] { $n }개 바꿈
     }
 find-replace-tip = 도형의 텍스트 찾기 및 바꾸기 (Ctrl+F)
+printer = 프린터
+copies = 매수
+print-button = 인쇄
+no-printers = 프린터 없음: PDF를 뷰어에서 열어 인쇄합니다
+# $printer (String) - printer name
+sent-to-printer = { $printer }(으)로 보냄
+print-opened-viewer = 뷰어에서 PDF를 열었습니다
+# $e (String) - error text
+print-failed = 인쇄 실패: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = { $total }페이지 중 { $n }페이지
+print-range = 페이지

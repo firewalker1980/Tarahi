@@ -631,9 +631,7 @@ previous-comment = 前のコメント
 previous-comment-planned = 前のコメント — 予定
 previous-page = 前のページ
 print-384-dpi = 印刷（384 dpi）
-print-stub = 印刷…
 print-the-current-drawing = 現在の図面を印刷します
-printing-arrives-with-m6 = 印刷は M6 で提供されます
 proofing = 校閲
 protect-drawing = 図面の保護…
 protection = 保護
@@ -1011,3 +1009,16 @@ replaced-n-matches =
        *[other] { $n } 件置換しました
     }
 find-replace-tip = 図形内のテキストを検索/置換 (Ctrl+F)
+printer = プリンター
+copies = 部数
+print-button = 印刷
+no-printers = プリンターが見つかりません: PDF をビューアーで開いて印刷します
+# $printer (String) - printer name
+sent-to-printer = { $printer } に送信しました
+print-opened-viewer = PDF をビューアーで開きました
+# $e (String) - error text
+print-failed = 印刷に失敗しました: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = { $total } ページ中 { $n } ページ
+print-range = ページ

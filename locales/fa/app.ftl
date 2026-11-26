@@ -685,9 +685,7 @@ previous-comment = نظر قبلی
 previous-comment-planned = نظر قبلی — برنامه‌ریزی شده
 previous-page = صفحهٔ قبلی
 print-384-dpi = چاپ (۳۸۴ dpi)
-print-stub = چاپ…
 print-the-current-drawing = چاپ نقاشی جاری
-printing-arrives-with-m6 = چاپ با M6 می‌آید
 proofing = بازخوانی
 protect-drawing = حفاظت نقاشی…
 protection = حفاظت
@@ -1114,3 +1112,16 @@ replaced-n-matches =
        *[other] { $n } مورد جایگزین شد
     }
 find-replace-tip = یافتن و جایگزینی متن در شکل‌ها (Ctrl+F)
+printer = چاپگر
+copies = تعداد نسخه
+print-button = چاپ
+no-printers = چاپگری پیدا نشد: PDF برای چاپ در نمایشگر باز می‌شود
+# $printer (String) - printer name
+sent-to-printer = به { $printer } فرستاده شد
+print-opened-viewer = PDF در نمایشگر باز شد
+# $e (String) - error text
+print-failed = چاپ ناموفق بود: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = صفحهٔ { $n } از { $total }
+print-range = صفحه‌ها

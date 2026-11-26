@@ -29,6 +29,7 @@ pub mod mini_toolbar;
 pub mod options;
 pub mod os_theme;
 pub mod perf;
+pub mod print;
 pub mod props;
 pub mod quickshapes;
 mod rasterpool;

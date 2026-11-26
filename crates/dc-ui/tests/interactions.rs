@@ -10622,3 +10622,38 @@ fn find_replace_and_flip_shortcut() {
         assert_eq!(h.state().debug_cell_for_test(s, "FlipX").as_deref(), Some("1"));
     }
 }
+
+/// File ▸ Print: the page lists the printers, defaults to the first,
+/// toggles all pages / current page, and the PDF it would send has one
+/// page per drawing page. (Never clicks Print: that would reach a
+/// real spooler.)
+#[test]
+fn print_page_lists_printers_and_builds_the_pdf() {
+    let mut h = harness_with_blank();
+    h.run();
+    h.state_mut().debug_add_page();
+    h.run();
+    h.state_mut().set_printers_for_test(vec!["Office".into(), "Plotter".into()]);
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::P); // Visio's key
+    h.run();
+    assert!(h.state().debug_backstage());
+    h.run();
+    assert_eq!(h.state().debug_print_settings_for_test().0.as_deref(), Some("Office"));
+    h.get_by_label("Office  ›").click();
+    h.run();
+    h.get_by_label("Plotter").click();
+    h.run();
+    assert_eq!(h.state().debug_print_settings_for_test().0.as_deref(), Some("Plotter"));
+    assert!(h.query_by_label("Page \u{2068}1\u{2069} of \u{2068}2\u{2069}").is_some(), "preview pager");
+    h.get_by_label("Current page").click();
+    h.run();
+    assert!(!h.state().debug_print_settings_for_test().2);
+    let count = |pdf: &[u8]| {
+        let s = String::from_utf8_lossy(pdf);
+        s.matches("/Type /Page").count() - s.matches("/Type /Pages").count()
+    };
+    let all = h.state().debug_print_pdf_for_test(true).expect("pdf");
+    let one = h.state().debug_print_pdf_for_test(false).expect("pdf");
+    assert!(all.starts_with(b"%PDF"));
+    assert_eq!((count(&all), count(&one)), (2, 1), "all pages vs current page");
+}

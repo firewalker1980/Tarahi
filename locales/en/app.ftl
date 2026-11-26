@@ -740,9 +740,7 @@ previous-comment = Previous Comment
 previous-comment-planned = Previous comment — planned
 previous-page = Previous page
 print-384-dpi = Print (384 dpi)
-print-stub = Print…
 print-the-current-drawing = Print the current drawing
-printing-arrives-with-m6 = Printing arrives with M6
 proofing = Proofing
 protect-drawing = Protect Drawing…
 protection = Protection
@@ -1189,3 +1187,16 @@ replaced-n-matches =
        *[other] replaced { $n } matches
     }
 find-replace-tip = Find and replace text in shapes (Ctrl+F)
+printer = Printer
+copies = Copies
+print-button = Print
+no-printers = No printer found: the PDF opens in your viewer to print from there
+# $printer (String) - printer name
+sent-to-printer = Sent to { $printer }
+print-opened-viewer = Opened the PDF in your viewer
+# $e (String) - error text
+print-failed = Printing failed: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = Page { $n } of { $total }
+print-range = Pages

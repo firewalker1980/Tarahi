@@ -4335,21 +4335,7 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "print-stub",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "print-the-current-drawing",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "printing-arrives-with-m6",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6854,6 +6840,69 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "printer",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "copies",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "print-button",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "no-printers",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "sent-to-printer",
+        attribute: None,
+        vars: &["printer"],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "print-opened-viewer",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "print-failed",
+        attribute: None,
+        vars: &["e"],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "page-n-of-total",
+        attribute: None,
+        vars: &["n", "total"],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "print-range",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6953,13 +7002,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48658,
-            Self::En => 48658..95625,
-            Self::Es => 95625..147366,
-            Self::Fa => 147366..208754,
-            Self::Ja => 208754..260866,
-            Self::Ko => 260866..308837,
-            Self::ZhHans => 308837..350791,
+            Self::De => 0..49053,
+            Self::En => 49053..96397,
+            Self::Es => 96397..148513,
+            Self::Fa => 148513..210366,
+            Self::Ja => 210366..262933,
+            Self::Ko => 262933..311296,
+            Self::ZhHans => 311296..353634,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -9419,14 +9468,8 @@ impl L10nLanguage {
     pub fn msg_print_384_dpi(&self) -> String {
         self.0.msg("print-384-dpi", None).unwrap()
     }
-    pub fn msg_print_stub(&self) -> String {
-        self.0.msg("print-stub", None).unwrap()
-    }
     pub fn msg_print_the_current_drawing(&self) -> String {
         self.0.msg("print-the-current-drawing", None).unwrap()
-    }
-    pub fn msg_printing_arrives_with_m6(&self) -> String {
-        self.0.msg("printing-arrives-with-m6", None).unwrap()
     }
     pub fn msg_proofing(&self) -> String {
         self.0.msg("proofing", None).unwrap()
@@ -10791,5 +10834,47 @@ impl L10nLanguage {
     }
     pub fn msg_find_replace_tip(&self) -> String {
         self.0.msg("find-replace-tip", None).unwrap()
+    }
+    pub fn msg_printer(&self) -> String {
+        self.0.msg("printer", None).unwrap()
+    }
+    pub fn msg_copies(&self) -> String {
+        self.0.msg("copies", None).unwrap()
+    }
+    pub fn msg_print_button(&self) -> String {
+        self.0.msg("print-button", None).unwrap()
+    }
+    pub fn msg_no_printers(&self) -> String {
+        self.0.msg("no-printers", None).unwrap()
+    }
+    /// $printer (String) - printer name
+    pub fn msg_sent_to_printer<F0: AsRef<str>>(&self, printer: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("printer", printer.as_ref());
+        self.0.msg("sent-to-printer", Some(_args)).unwrap()
+    }
+    pub fn msg_print_opened_viewer(&self) -> String {
+        self.0.msg("print-opened-viewer", None).unwrap()
+    }
+    /// $e (String) - error text
+    pub fn msg_print_failed<F0: AsRef<str>>(&self, e: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("e", e.as_ref());
+        self.0.msg("print-failed", Some(_args)).unwrap()
+    }
+    /// $n (Number) - page number
+    /// $total (Number) - page count
+    pub fn msg_page_n_of_total<F0: Into<FluentNumber>, F1: Into<FluentNumber>>(
+        &self,
+        n: F0,
+        total: F1,
+    ) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("n", n.into());
+        _args.set("total", total.into());
+        self.0.msg("page-n-of-total", Some(_args)).unwrap()
+    }
+    pub fn msg_print_range(&self) -> String {
+        self.0.msg("print-range", None).unwrap()
     }
 }

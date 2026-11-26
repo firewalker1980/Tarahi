@@ -737,9 +737,7 @@ previous-comment = Comentario anterior
 previous-comment-planned = Comentario anterior — planeado
 previous-page = Página anterior
 print-384-dpi = Impresión (384 ppp)
-print-stub = Imprimir…
 print-the-current-drawing = Imprimir el dibujo actual
-printing-arrives-with-m6 = La impresión llega con M6
 proofing = Revisión
 protect-drawing = Proteger dibujo…
 protection = Protección
@@ -1184,3 +1182,16 @@ replaced-n-matches =
        *[other] se reemplazaron { $n } coincidencias
     }
 find-replace-tip = Buscar y reemplazar texto en formas (Ctrl+F)
+printer = Impresora
+copies = Copias
+print-button = Imprimir
+no-printers = No hay impresora: el PDF se abre en el visor para imprimirlo
+# $printer (String) - printer name
+sent-to-printer = Enviado a { $printer }
+print-opened-viewer = PDF abierto en el visor
+# $e (String) - error text
+print-failed = Error al imprimir: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = Página { $n } de { $total }
+print-range = Páginas

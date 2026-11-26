@@ -688,9 +688,7 @@ previous-comment = Vorheriger Kommentar
 previous-comment-planned = Vorheriger Kommentar — geplant
 previous-page = Vorherige Seite
 print-384-dpi = Druck (384 dpi)
-print-stub = Drucken …
 print-the-current-drawing = Die aktuelle Zeichnung drucken
-printing-arrives-with-m6 = Drucken kommt mit M6
 proofing = Prüfung
 protect-drawing = Zeichnung schützen …
 protection = Schutz
@@ -1117,6 +1115,19 @@ replaced-n-matches =
        *[other] { $n } Treffer ersetzt
     }
 find-replace-tip = Text in Formen suchen und ersetzen (Strg+F)
+printer = Drucker
+copies = Kopien
+print-button = Drucken
+no-printers = Kein Drucker gefunden: das PDF öffnet sich im Betrachter zum Drucken
+# $printer (String) - printer name
+sent-to-printer = An { $printer } gesendet
+print-opened-viewer = PDF im Betrachter geöffnet
+# $e (String) - error text
+print-failed = Drucken fehlgeschlagen: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = Seite { $n } von { $total }
+print-range = Seiten
 
 
 ## ########## Resource: app ###############
@@ -1863,9 +1874,7 @@ previous-comment = Previous Comment
 previous-comment-planned = Previous comment — planned
 previous-page = Previous page
 print-384-dpi = Print (384 dpi)
-print-stub = Print…
 print-the-current-drawing = Print the current drawing
-printing-arrives-with-m6 = Printing arrives with M6
 proofing = Proofing
 protect-drawing = Protect Drawing…
 protection = Protection
@@ -2312,6 +2321,19 @@ replaced-n-matches =
        *[other] replaced { $n } matches
     }
 find-replace-tip = Find and replace text in shapes (Ctrl+F)
+printer = Printer
+copies = Copies
+print-button = Print
+no-printers = No printer found: the PDF opens in your viewer to print from there
+# $printer (String) - printer name
+sent-to-printer = Sent to { $printer }
+print-opened-viewer = Opened the PDF in your viewer
+# $e (String) - error text
+print-failed = Printing failed: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = Page { $n } of { $total }
+print-range = Pages
 
 
 ## ########## Resource: app ###############
@@ -3055,9 +3077,7 @@ previous-comment = Comentario anterior
 previous-comment-planned = Comentario anterior — planeado
 previous-page = Página anterior
 print-384-dpi = Impresión (384 ppp)
-print-stub = Imprimir…
 print-the-current-drawing = Imprimir el dibujo actual
-printing-arrives-with-m6 = La impresión llega con M6
 proofing = Revisión
 protect-drawing = Proteger dibujo…
 protection = Protección
@@ -3502,6 +3522,19 @@ replaced-n-matches =
        *[other] se reemplazaron { $n } coincidencias
     }
 find-replace-tip = Buscar y reemplazar texto en formas (Ctrl+F)
+printer = Impresora
+copies = Copias
+print-button = Imprimir
+no-printers = No hay impresora: el PDF se abre en el visor para imprimirlo
+# $printer (String) - printer name
+sent-to-printer = Enviado a { $printer }
+print-opened-viewer = PDF abierto en el visor
+# $e (String) - error text
+print-failed = Error al imprimir: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = Página { $n } de { $total }
+print-range = Páginas
 
 
 ## ########## Resource: app ###############
@@ -4193,9 +4226,7 @@ previous-comment = نظر قبلی
 previous-comment-planned = نظر قبلی — برنامه‌ریزی شده
 previous-page = صفحهٔ قبلی
 print-384-dpi = چاپ (۳۸۴ dpi)
-print-stub = چاپ…
 print-the-current-drawing = چاپ نقاشی جاری
-printing-arrives-with-m6 = چاپ با M6 می‌آید
 proofing = بازخوانی
 protect-drawing = حفاظت نقاشی…
 protection = حفاظت
@@ -4622,6 +4653,19 @@ replaced-n-matches =
        *[other] { $n } مورد جایگزین شد
     }
 find-replace-tip = یافتن و جایگزینی متن در شکل‌ها (Ctrl+F)
+printer = چاپگر
+copies = تعداد نسخه
+print-button = چاپ
+no-printers = چاپگری پیدا نشد: PDF برای چاپ در نمایشگر باز می‌شود
+# $printer (String) - printer name
+sent-to-printer = به { $printer } فرستاده شد
+print-opened-viewer = PDF در نمایشگر باز شد
+# $e (String) - error text
+print-failed = چاپ ناموفق بود: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = صفحهٔ { $n } از { $total }
+print-range = صفحه‌ها
 
 
 ## ########## Resource: app ###############
@@ -5259,9 +5303,7 @@ previous-comment = 前のコメント
 previous-comment-planned = 前のコメント — 予定
 previous-page = 前のページ
 print-384-dpi = 印刷（384 dpi）
-print-stub = 印刷…
 print-the-current-drawing = 現在の図面を印刷します
-printing-arrives-with-m6 = 印刷は M6 で提供されます
 proofing = 校閲
 protect-drawing = 図面の保護…
 protection = 保護
@@ -5639,6 +5681,19 @@ replaced-n-matches =
        *[other] { $n } 件置換しました
     }
 find-replace-tip = 図形内のテキストを検索/置換 (Ctrl+F)
+printer = プリンター
+copies = 部数
+print-button = 印刷
+no-printers = プリンターが見つかりません: PDF をビューアーで開いて印刷します
+# $printer (String) - printer name
+sent-to-printer = { $printer } に送信しました
+print-opened-viewer = PDF をビューアーで開きました
+# $e (String) - error text
+print-failed = 印刷に失敗しました: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = { $total } ページ中 { $n } ページ
+print-range = ページ
 
 
 ## ########## Resource: app ###############
@@ -6277,9 +6332,7 @@ previous-comment = 이전 메모
 previous-comment-planned = 이전 메모 — 예정
 previous-page = 이전 페이지
 print-384-dpi = 인쇄(384dpi)
-print-stub = 인쇄…
 print-the-current-drawing = 현재 드로잉을 인쇄합니다
-printing-arrives-with-m6 = 인쇄는 M6에서 제공됩니다
 proofing = 언어 교정
 protect-drawing = 드로잉 보호…
 protection = 보호
@@ -6657,6 +6710,19 @@ replaced-n-matches =
        *[other] { $n }개 바꿈
     }
 find-replace-tip = 도형의 텍스트 찾기 및 바꾸기 (Ctrl+F)
+printer = 프린터
+copies = 매수
+print-button = 인쇄
+no-printers = 프린터 없음: PDF를 뷰어에서 열어 인쇄합니다
+# $printer (String) - printer name
+sent-to-printer = { $printer }(으)로 보냄
+print-opened-viewer = 뷰어에서 PDF를 열었습니다
+# $e (String) - error text
+print-failed = 인쇄 실패: { $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = { $total }페이지 중 { $n }페이지
+print-range = 페이지
 
 
 ## ########## Resource: app ###############
@@ -7294,9 +7360,7 @@ previous-comment = 上一条批注
 previous-comment-planned = 上一条批注 — 计划中
 previous-page = 上一页
 print-384-dpi = 打印（384 dpi）
-print-stub = 打印…
 print-the-current-drawing = 打印当前绘图
-printing-arrives-with-m6 = 打印将在 M6 提供
 proofing = 校对
 protect-drawing = 保护绘图…
 protection = 保护
@@ -7679,4 +7743,17 @@ replaced-n-matches =
        *[other] 已替换 { $n } 处
     }
 find-replace-tip = 查找和替换形状中的文本 (Ctrl+F)
+printer = 打印机
+copies = 份数
+print-button = 打印
+no-printers = 未找到打印机:将在查看器中打开 PDF 以便打印
+# $printer (String) - printer name
+sent-to-printer = 已发送到 { $printer }
+print-opened-viewer = 已在查看器中打开 PDF
+# $e (String) - error text
+print-failed = 打印失败:{ $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = 第 { $n } 页,共 { $total } 页
+print-range = 页面
 

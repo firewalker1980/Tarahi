@@ -631,9 +631,7 @@ previous-comment = 上一条批注
 previous-comment-planned = 上一条批注 — 计划中
 previous-page = 上一页
 print-384-dpi = 打印（384 dpi）
-print-stub = 打印…
 print-the-current-drawing = 打印当前绘图
-printing-arrives-with-m6 = 打印将在 M6 提供
 proofing = 校对
 protect-drawing = 保护绘图…
 protection = 保护
@@ -1016,3 +1014,16 @@ replaced-n-matches =
        *[other] 已替换 { $n } 处
     }
 find-replace-tip = 查找和替换形状中的文本 (Ctrl+F)
+printer = 打印机
+copies = 份数
+print-button = 打印
+no-printers = 未找到打印机:将在查看器中打开 PDF 以便打印
+# $printer (String) - printer name
+sent-to-printer = 已发送到 { $printer }
+print-opened-viewer = 已在查看器中打开 PDF
+# $e (String) - error text
+print-failed = 打印失败:{ $e }
+# $n (Number) - page number
+# $total (Number) - page count
+page-n-of-total = 第 { $n } 页,共 { $total } 页
+print-range = 页面
