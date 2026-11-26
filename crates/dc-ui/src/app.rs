@@ -1857,6 +1857,12 @@ impl App {
             .unwrap_or_else(|| crate::i18n::strs().msg_stencil_fallback());
         match self.stencils.open_file(&path) {
             Ok((ix, existing)) => {
+                // with no drawing open the start screen hides the Shapes
+                // pane: a blank drawing shows the stencil, ready to use
+                // (a stencil double-clicked in the file manager)
+                if self.ed.is_none() && self.loading.is_none() {
+                    self.do_new();
+                }
                 self.stencil.reveal = Some(StencilId::Open(ix));
                 self.status = if existing {
                     crate::i18n::strs().msg_stencil_stem_is_already_open_exp(stem)

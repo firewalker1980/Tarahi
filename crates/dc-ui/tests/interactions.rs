@@ -11814,3 +11814,29 @@ fn text_background_stays_while_editing() {
     let p = img.get_pixel((r.center().x + r.width() * 0.3) as u32, (r.center().y + r.height() * 0.3) as u32);
     assert!(p[0] < 60 && p[1] < 60 && p[2] < 60, "text background while editing: {p:?}");
 }
+
+/// A stencil opened with no drawing (double-clicked in the file manager,
+/// `tarahi x.vssx`) starts a blank drawing so the Shapes pane shows it;
+/// on the start screen it used to load out of sight.
+#[test]
+fn stencil_opened_without_a_drawing_shows_in_a_blank_one() {
+    dc_ui::svgimg::pin_determinism_for_tests();
+    let mut h = Harness::builder()
+        .with_size(egui::vec2(1280.0, 800.0))
+        .with_max_steps(16)
+        .build_ui_state(
+            |ui, app: &mut App| {
+                dc_ui::theme::install(ui.ctx());
+                app.draw(ui);
+            },
+            App::with_doc_opt(None),
+        );
+    h.run();
+    assert!(!h.state().debug_doc_open());
+    let tmp = tempfile::tempdir().unwrap();
+    let s = synth_stencil(tmp.path(), "epsilon", &[("Box", 3)]);
+    h.state_mut().debug_load_for_test(s);
+    h.run();
+    assert!(h.state().debug_doc_open(), "a blank drawing opened");
+    assert_eq!(h.state().debug_stencil_entries(), vec![("epsilon".to_string(), true)]);
+}
