@@ -17,39 +17,39 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
 fn external_data_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::Open, s.msg_quick_import(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_data_linking_m6()),
+            RibbonButton::new(Icon::Open, s.msg_quick_import(), Action::DataImport)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_data_import_tip()),
         ),
         grid(vec![
             vec![
-                RibbonButton::new(Icon::Link, "", Action::Macros)
+                RibbonButton::new(Icon::Link, "", Action::DataLinkRow)
                     .alt(s.msg_link_data_to_shapes())
-                    .enabled(false)
-                    .tip(s.msg_data_linking_m6()),
-                RibbonButton::new(Icon::Refresh, "", Action::Macros)
+                    .enabled(ctx.has_sel && ctx.data_table)
+                    .tip(s.msg_link_row_tip()),
+                RibbonButton::new(Icon::Refresh, "", Action::DataRefresh)
                     .alt(s.msg_refresh_all())
-                    .enabled(false)
-                    .tip(s.msg_data_linking_m6()),
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_refresh_all_tip()),
             ],
             vec![
-                RibbonButton::new(Icon::Shapes, "", Action::Macros)
+                RibbonButton::new(Icon::Shapes, "", Action::DataImport)
                     .alt(s.msg_custom_import())
-                    .enabled(false)
-                    .tip(s.msg_data_linking_m6()),
-                RibbonButton::new(Icon::Magnet, "", Action::Macros)
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_data_import_tip()),
+                RibbonButton::new(Icon::Magnet, "", Action::DataAutoLink)
                     .alt(s.msg_automatically_link())
-                    .enabled(false)
-                    .tip(s.msg_data_linking_m6()),
+                    .enabled(ctx.data_table)
+                    .tip(s.msg_auto_link_tip()),
             ],
         ]),
         stack(vec![RibbonButton::new(
             Icon::Units,
             s.msg_external_data_window(),
-            Action::Macros,
+            Action::DataWindow,
         )
-        .enabled(false)
-        .tip(s.msg_external_data_window_m6())]),
+        .enabled(ctx.data_table)
+        .tip(s.msg_external_data_tip())]),
     ]
 }
 

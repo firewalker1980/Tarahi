@@ -56,6 +56,7 @@ pub(crate) struct TabCtx {
     pub show_comments: bool,
     pub show_guides: bool,
     pub stamp: bool,
+    pub data_table: bool,
     pub stencil_editing: bool,
     pub autosize: bool,
     pub doc_stencil: bool,
@@ -164,6 +165,13 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Data tab: import a CSV, show it, link the selected row, link
+    /// automatically, refresh.
+    DataImport,
+    DataWindow,
+    DataLinkRow,
+    DataAutoLink,
+    DataRefresh,
     /// Developer ▸ New Stencil, Edit Stencil (add the selection as
     /// masters), Save Stencil.
     NewStencil,

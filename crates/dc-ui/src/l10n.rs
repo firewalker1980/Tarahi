@@ -1213,13 +1213,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "data-linking-m6",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "date-time",
         attribute: None,
         vars: &[],
@@ -2075,13 +2068,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "external-data-window",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "external-data-window-m6",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6903,6 +6889,97 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "data-import-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "link-row-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "refresh-all-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "auto-link-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "external-data-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "match-column",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "match-against",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "match-shape-text",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "match-shape-field",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "link-button",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "linked-n-shapes",
+        attribute: None,
+        vars: &["n"],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "no-table-imported",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "table-file-missing",
+        attribute: None,
+        vars: &["path"],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7002,13 +7079,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48681,
-            Self::En => 48681..95674,
-            Self::Es => 95674..147452,
-            Self::Fa => 147452..208225,
-            Self::Ja => 208225..260446,
-            Self::Ko => 260446..308622,
-            Self::ZhHans => 308622..350348,
+            Self::De => 0..49404,
+            Self::En => 49404..97043,
+            Self::Es => 97043..149545,
+            Self::Fa => 149545..211236,
+            Self::Ja => 211236..264208,
+            Self::Ko => 264208..313036,
+            Self::ZhHans => 313036..355354,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7770,9 +7847,6 @@ impl L10nLanguage {
     pub fn msg_data_graphics_m6(&self) -> String {
         self.0.msg("data-graphics-m6", None).unwrap()
     }
-    pub fn msg_data_linking_m6(&self) -> String {
-        self.0.msg("data-linking-m6", None).unwrap()
-    }
     pub fn msg_date_time(&self) -> String {
         self.0.msg("date-time", None).unwrap()
     }
@@ -8200,9 +8274,6 @@ impl L10nLanguage {
     }
     pub fn msg_external_data_window(&self) -> String {
         self.0.msg("external-data-window", None).unwrap()
-    }
-    pub fn msg_external_data_window_m6(&self) -> String {
-        self.0.msg("external-data-window-m6", None).unwrap()
     }
     pub fn msg_extracting_built_in_stencils_to<
         'a,
@@ -10854,5 +10925,50 @@ impl L10nLanguage {
     }
     pub fn msg_save_stencil_tip(&self) -> String {
         self.0.msg("save-stencil-tip", None).unwrap()
+    }
+    pub fn msg_data_import_tip(&self) -> String {
+        self.0.msg("data-import-tip", None).unwrap()
+    }
+    pub fn msg_link_row_tip(&self) -> String {
+        self.0.msg("link-row-tip", None).unwrap()
+    }
+    pub fn msg_refresh_all_tip(&self) -> String {
+        self.0.msg("refresh-all-tip", None).unwrap()
+    }
+    pub fn msg_auto_link_tip(&self) -> String {
+        self.0.msg("auto-link-tip", None).unwrap()
+    }
+    pub fn msg_external_data_tip(&self) -> String {
+        self.0.msg("external-data-tip", None).unwrap()
+    }
+    pub fn msg_match_column(&self) -> String {
+        self.0.msg("match-column", None).unwrap()
+    }
+    pub fn msg_match_against(&self) -> String {
+        self.0.msg("match-against", None).unwrap()
+    }
+    pub fn msg_match_shape_text(&self) -> String {
+        self.0.msg("match-shape-text", None).unwrap()
+    }
+    pub fn msg_match_shape_field(&self) -> String {
+        self.0.msg("match-shape-field", None).unwrap()
+    }
+    pub fn msg_link_button(&self) -> String {
+        self.0.msg("link-button", None).unwrap()
+    }
+    /// $n (Number) - shapes linked
+    pub fn msg_linked_n_shapes<F0: Into<FluentNumber>>(&self, n: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("n", n.into());
+        self.0.msg("linked-n-shapes", Some(_args)).unwrap()
+    }
+    pub fn msg_no_table_imported(&self) -> String {
+        self.0.msg("no-table-imported", None).unwrap()
+    }
+    /// $path (String) - file path
+    pub fn msg_table_file_missing<F0: AsRef<str>>(&self, path: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("path", path.as_ref());
+        self.0.msg("table-file-missing", Some(_args)).unwrap()
     }
 }

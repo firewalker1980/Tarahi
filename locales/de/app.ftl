@@ -189,7 +189,6 @@ dash-dot-dot = Strich-Punkt-Punkt
 data = Daten
 data-graphics = Datengrafiken
 data-graphics-m6 = Datengrafiken (M6)
-data-linking-m6 = Datenverknüpfung (M6)
 date-time = Datum & Uhrzeit
 decrease-indent = Einzug verkleinern
 # $entry - Standardeintrag
@@ -323,7 +322,6 @@ exported-files =
 exporting = Wird exportiert …
 external-data = Externe Daten
 external-data-window = Fenster für externe Daten
-external-data-window-m6 = Fenster für externe Daten (M6)
 extracting-built-in-stencils-to = Mitgelieferte Schablonen werden nach „My Shapes" extrahiert ({ $done }/{ $total }) …
 file = Datei
 files-you-open-will-appear-here = Hier erscheinen die Dateien, die Sie öffnen.
@@ -1125,3 +1123,22 @@ symbol-tip = Ein Symbol in den Text der Form einfügen
 add-to-stencil-tip = Ausgewählte Formen als Master zur bearbeiteten Schablone hinzufügen
 new-stencil-tip = Eine leere Schablone im Formenbereich anlegen
 save-stencil-tip = Die bearbeitete Schablone speichern (eine neue in Eigene Formen)
+data-import-tip = CSV-Tabelle importieren (Excel: als CSV speichern) und mit Formen verknüpfen
+link-row-tip = Ausgewählte Tabellenzeile mit den ausgewählten Formen verknüpfen
+refresh-all-tip = Tabelle neu lesen und verknüpfte Formen aktualisieren
+auto-link-tip = Zeilen mit Formen verknüpfen, deren Text oder Daten einer Spalte entsprechen
+external-data-tip = Importierte Tabelle anzeigen
+match-column = Spalte
+match-against = vergleichen mit
+match-shape-text = Formtext
+match-shape-field = Formdatenfeld
+link-button = Verknüpfen
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+        [one] eine Form verknüpft
+       *[other] { $n } Formen verknüpft
+    }
+no-table-imported = Noch keine Tabelle importiert
+# $path (String) - file path
+table-file-missing = Verknüpfte Tabellendatei fehlt: { $path }

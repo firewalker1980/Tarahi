@@ -175,7 +175,6 @@ dash-dot-dot = 双点划线
 data = 数据
 data-graphics = 数据图形
 data-graphics-m6 = 数据图形（M6）
-data-linking-m6 = 数据链接（M6）
 date-time = 日期和时间
 decrease-indent = 减少缩进
 default-stencil-failed = 默认模具 { $entry } 加载失败：{ $e }
@@ -303,7 +302,6 @@ exported-files =
 exporting = 正在导出…
 external-data = 外部数据
 external-data-window = 外部数据窗口
-external-data-window-m6 = 外部数据窗口（M6）
 extracting-built-in-stencils-to = 正在将内置模具提取到“My Shapes”（{ $done }/{ $total }）…
 file = 文件
 files-you-open-will-appear-here = 在此处显示打开的文件。
@@ -1027,3 +1025,21 @@ symbol-tip = 在形状文本中插入符号
 add-to-stencil-tip = 将所选形状作为主控形状添加到正在编辑的模具
 new-stencil-tip = 在形状窗格中新建空模具
 save-stencil-tip = 保存正在编辑的模具 (新模具保存到“我的形状”)
+data-import-tip = 导入 CSV 表格并链接到形状 (Excel:另存为 CSV)
+link-row-tip = 将所选表格行链接到所选形状
+refresh-all-tip = 重新读取表格并更新已链接的形状
+auto-link-tip = 将行链接到文本或数据与某列匹配的形状
+external-data-tip = 显示已导入的表格
+match-column = 列
+match-against = 匹配
+match-shape-text = 形状文本
+match-shape-field = 形状数据字段
+link-button = 链接
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+       *[other] 已链接 { $n } 个形状
+    }
+no-table-imported = 尚未导入表格
+# $path (String) - file path
+table-file-missing = 找不到链接的表格文件:{ $path }

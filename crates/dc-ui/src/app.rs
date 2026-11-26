@@ -286,6 +286,12 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Data tab: the imported table and its file, the External Data
+    /// window, the selected row, the Automatically Link dialog state.
+    data_table: Option<(crate::datalink::Table, PathBuf)>,
+    data_window: bool,
+    data_row: Option<usize>,
+    autolink: Option<(usize, Option<String>)>,
     /// The stencil Developer ▸ Edit Stencil adds to (pane index).
     edit_stencil: Option<usize>,
     dirty_stencil: bool,
@@ -547,6 +553,7 @@ enum PendingDialog {
     ExportSave(Receiver<Option<PathBuf>>),
     ReportSave(Receiver<Option<PathBuf>>),
     StencilSave(Receiver<Option<PathBuf>>),
+    DataOpen(Receiver<Option<PathBuf>>),
 }
 
 #[derive(Clone, Copy)]
@@ -567,6 +574,8 @@ enum PendingKind {
     ReportSave,
     /// Developer ▸ Save Stencil for a new stencil (My Shapes).
     StencilSave,
+    /// Data ▸ Import: a CSV table.
+    DataOpen,
 }
 
 /// Backstage rail command.
@@ -869,6 +878,10 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            data_table: None,
+            data_window: false,
+            data_row: None,
+            autolink: None,
             edit_stencil: None,
             dirty_stencil: false,
             symbol_open: false,
@@ -2103,6 +2116,7 @@ impl App {
                         .add_filter("CSV", &["csv"])
                         .set_file_name("shape-report.csv")
                         .save_file(),
+                    PendingKind::DataOpen => rfd::FileDialog::new().add_filter("CSV", &["csv", "txt"]).pick_file(),
                     PendingKind::StencilSave => {
                         let mut d = rfd::FileDialog::new().add_filter("Visio stencil", &["vssx"]).set_file_name(format!("{stencil_name}.vssx"));
                         if let Some(dir) = my_shapes {
@@ -2123,6 +2137,7 @@ impl App {
             PendingKind::ExportSave(_) => PendingDialog::ExportSave(rx),
             PendingKind::ReportSave => PendingDialog::ReportSave(rx),
             PendingKind::StencilSave => PendingDialog::StencilSave(rx),
+            PendingKind::DataOpen => PendingDialog::DataOpen(rx),
         });
     }
 
@@ -2173,6 +2188,7 @@ impl App {
             | PendingDialog::ExportSave(rx)
             | PendingDialog::ReportSave(rx)
             | PendingDialog::StencilSave(rx)
+            | PendingDialog::DataOpen(rx)
             | PendingDialog::HyperlinkAddress(rx) => match rx.try_recv() {
                 Ok(picked) => (picked, false),
                 Err(mpsc::TryRecvError::Empty) => (None, true),
@@ -2201,6 +2217,7 @@ impl App {
             // The picked export target lands in the pane's path field
             // (#35); a typed/picked extension re-targets the format.
             PendingDialog::ExportSave(_) => self.export_pane.set_path(path.clone()),
+            PendingDialog::DataOpen(_) => self.load_data_table(path.clone()),
             PendingDialog::StencilSave(_) => {
                 if let Some(ix) = self.edit_stencil {
                     let path = if path.extension().is_none() { path.with_extension("vssx") } else { path.clone() };
@@ -6139,6 +6156,148 @@ impl App {
         }
     }
 
+    /// Read a CSV into the Data tab's table and show it.
+    fn load_data_table(&mut self, path: PathBuf) {
+        match std::fs::read(&path) {
+            Ok(bytes) => {
+                let text = String::from_utf8(bytes.clone()).unwrap_or_else(|_| bytes.iter().map(|&b| b as char).collect());
+                self.data_table = Some((crate::datalink::parse_csv(&text), path));
+                self.data_window = true;
+                self.data_row = None;
+            }
+            Err(e) => self.status = format!("{}: {e}", path.display()),
+        }
+    }
+
+    /// Data ▸ Refresh All: re-read the linked table (this session's, else
+    /// the one the document names) and update every linked shape.
+    fn refresh_data(&mut self) {
+        let s = crate::i18n::strs();
+        let Some(ed) = self.ed() else { return };
+        let stored = crate::datalink::stored_link(&ed.doc);
+        let (path, key_name) = match (&self.data_table, &stored) {
+            (_, Some((p, k))) => (PathBuf::from(p), Some(k.clone())),
+            (Some((_, p)), None) => (p.clone(), None),
+            _ => {
+                self.status = s.msg_no_table_imported();
+                return;
+            }
+        };
+        if !path.exists() {
+            self.status = s.msg_table_file_missing(path.display().to_string());
+            return;
+        }
+        self.load_data_table(path);
+        self.data_window = false;
+        let Some((t, _)) = &self.data_table else { return };
+        let key = key_name.and_then(|k| t.columns.iter().position(|c| *c == k)).unwrap_or(0);
+        let Some(ed) = self.ed() else { return };
+        let (cmds, n) = crate::datalink::refresh(&ed.doc, t, key);
+        if !cmds.is_empty() {
+            self.apply(Macro::new(s.msg_refresh_all(), cmds));
+        }
+        self.status = s.msg_linked_n_shapes(n as i64);
+    }
+
+    /// The External Data window (the table; click a row to pick it) and
+    /// the Automatically Link dialog.
+    fn data_windows(&mut self, ctx: &egui::Context) {
+        let s = crate::i18n::strs();
+        if self.data_window {
+            if let Some((t, path)) = &self.data_table {
+                let mut open = true;
+                let title = format!("{} — {}", s.msg_external_data_window(), path.file_name().map_or(String::new(), |n| n.to_string_lossy().into_owned()));
+                egui::Window::new(title).id(egui::Id::unique("dc-ext-data")).open(&mut open).default_width(640.0).show(ctx, |ui| {
+                    egui::ScrollArea::both().max_height(300.0).show(ui, |ui| {
+                        egui::Grid::new("dc-ext-grid").striped(true).show(ui, |ui| {
+                            for c in &t.columns {
+                                ui.strong(c);
+                            }
+                            ui.end_row();
+                            for (i, r) in t.rows.iter().enumerate() {
+                                for (j, v) in r.iter().enumerate() {
+                                    let on = self.data_row == Some(i);
+                                    if j == 0 {
+                                        if ui.selectable_label(on, v).clicked() {
+                                            self.data_row = Some(i);
+                                        }
+                                    } else {
+                                        ui.label(v);
+                                    }
+                                }
+                                ui.end_row();
+                            }
+                        });
+                    });
+                });
+                self.data_window &= open;
+            }
+        }
+        let Some((mut key, mut field)) = self.autolink.clone() else { return };
+        let Some((t, path)) = self.data_table.clone() else {
+            self.autolink = None;
+            return;
+        };
+        // the data fields on this page's shapes, by label
+        let labels: Vec<String> = self
+            .ed()
+            .and_then(|ed| ed.doc.pages.get(self.page_idx).map(|p| (ed, p)))
+            .map(|(ed, p)| {
+                let mut out: Vec<String> = Vec::new();
+                for sh in &p.shapes {
+                    let Ok(chain) = shape_chain(&ed.doc, p.id, sh.id) else { continue };
+                    for sec in ed.doc.effective_sheet(sh, &chain).sections_named("Prop") {
+                        for r in &sec.rows {
+                            let l = r.cell("Label").and_then(|c| c.v.clone()).or(r.n.clone()).unwrap_or_default();
+                            if !l.is_empty() && !out.contains(&l) {
+                                out.push(l);
+                            }
+                        }
+                    }
+                }
+                out
+            })
+            .unwrap_or_default();
+        let mut open = true;
+        let mut go = false;
+        egui::Window::new(s.msg_automatically_link()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            ui.label(s.msg_match_column());
+            ui.horizontal_wrapped(|ui| {
+                for (i, c) in t.columns.iter().enumerate() {
+                    if ui.selectable_label(key == i, c).clicked() {
+                        key = i;
+                    }
+                }
+            });
+            ui.label(s.msg_match_against());
+            if ui.selectable_label(field.is_none(), s.msg_match_shape_text()).clicked() {
+                field = None;
+            }
+            ui.horizontal_wrapped(|ui| {
+                ui.weak(s.msg_match_shape_field());
+                for l in &labels {
+                    if ui.selectable_label(field.as_deref() == Some(l.as_str()), l).clicked() {
+                        field = Some(l.clone());
+                    }
+                }
+            });
+            go = ui.button(s.msg_link_button()).clicked();
+        });
+        self.autolink = open.then(|| (key, field.clone()));
+        if go {
+            self.autolink = None;
+            let on = field.map_or(crate::datalink::MatchOn::Text, crate::datalink::MatchOn::Field);
+            let Some(ed) = self.ed() else { return };
+            let pages: Vec<i64> = ed.doc.pages.iter().map(|p| p.id).collect();
+            let (mut cmds, n) = crate::datalink::auto_link(&ed.doc, &pages, &t, key, &on);
+            if n > 0 {
+                cmds.extend(crate::datalink::store_link(&path.display().to_string(), &t.columns[key]));
+                self.apply(Macro::new(s.msg_automatically_link(), cmds));
+            }
+            self.status = s.msg_linked_n_shapes(n as i64);
+        }
+    }
+
     /// Insert ▸ Callout: a text box up and right of the selected shape,
     /// joined to it by a straight leader glued at both ends (it follows
     /// either shape); one undo step, the box opens for typing.
@@ -9630,6 +9789,25 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::DataImport => self.begin_dialog(PendingKind::DataOpen),
+            Action::DataWindow => self.data_window = !self.data_window,
+            Action::DataAutoLink => self.autolink = Some((0, None)),
+            Action::DataLinkRow => {
+                if let (Some((t, _)), Some(r), Some(page)) = (&self.data_table, self.data_row, self.page_id()) {
+                    if let Some(row) = t.rows.get(r) {
+                        let cmds: Vec<Box<dyn dc_core::Command>> = self
+                            .sel_set
+                            .iter()
+                            .filter(|(p, _)| *p == page)
+                            .flat_map(|(_, s)| crate::datalink::write_row(t, row, page, *s))
+                            .collect();
+                        let n = self.sel_set.len() as i64;
+                        self.apply(Macro::new(crate::i18n::strs().msg_link_data_to_shapes(), cmds));
+                        self.status = crate::i18n::strs().msg_linked_n_shapes(n);
+                    }
+                }
+            }
+            Action::DataRefresh => self.refresh_data(),
             Action::NewStencil => {
                 let n = self.stencils.iter().filter(|(_, s)| s.origin == crate::stencil::Origin::New).count() + 1;
                 let title = format!("{} {n}", crate::i18n::strs().msg_new_stencil());
@@ -10364,6 +10542,7 @@ impl App {
             show_comments: self.show_comments,
             show_guides: self.view.show_guides,
             stamp: self.stamp,
+            data_table: self.data_table.is_some(),
             stencil_editing: self.edit_stencil.is_some_and(|ix| self.stencils.get(ix).is_some()),
             autosize: self
                 .ed()
@@ -18573,6 +18752,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.data_windows(&ctx);
         self.symbol_window(&ctx);
         self.panes_lists_window(&ctx);
         self.sizepos_window(&ctx);

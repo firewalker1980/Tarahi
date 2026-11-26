@@ -211,7 +211,6 @@ dash-dot-dot = Dash-dot-dot
 data = Data
 data-graphics = Data Graphics
 data-graphics-m6 = Data graphics (M6)
-data-linking-m6 = Data linking (M6)
 date-time = Date & Time
 decrease-indent = Decrease Indent
 # $entry (String) - default stencil entry
@@ -349,7 +348,6 @@ exported-files =
 exporting = Exporting…
 external-data = External Data
 external-data-window = External Data Window
-external-data-window-m6 = External data window (M6)
 extracting-built-in-stencils-to = Extracting built-in stencils to My Shapes ({ $done }/{ $total })…
 file = File
 files-you-open-will-appear-here = Files you open will appear here.
@@ -1200,3 +1198,22 @@ symbol-tip = Insert a symbol into the shape's text
 add-to-stencil-tip = Add the selected shapes to the stencil you're editing as masters
 new-stencil-tip = Start an empty stencil in the Shapes pane
 save-stencil-tip = Save the stencil you're editing (a new one goes to My Shapes)
+data-import-tip = Import a CSV table (Excel: save as CSV) to link to shapes
+link-row-tip = Link the selected table row to the selected shapes
+refresh-all-tip = Read the table again and update the linked shapes
+auto-link-tip = Link rows to shapes whose text or data matches a column
+external-data-tip = Show the imported table
+match-column = Match column
+match-against = against
+match-shape-text = Shape text
+match-shape-field = Shape data field
+link-button = Link
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+        [one] linked one shape
+       *[other] linked { $n } shapes
+    }
+no-table-imported = No table imported yet
+# $path (String) - file path
+table-file-missing = The linked table file is missing: { $path }

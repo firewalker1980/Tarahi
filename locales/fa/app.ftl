@@ -189,7 +189,6 @@ dash-dot-dot = خط‌چین‌نقطه‌نقطه
 data = داده
 data-graphics = نمودارهای داده
 data-graphics-m6 = نمودارهای داده (M6)
-data-linking-m6 = پیوند داده (M6)
 date-time = تاریخ و ساعت
 decrease-indent = کاهش تودرتو
 # $entry - ورودی پیش‌فرض شابلون
@@ -323,7 +322,6 @@ exported-files =
 exporting = در حال برون‌بری…
 external-data = دادهٔ بیرونی
 external-data-window = پنجرهٔ دادهٔ بیرونی
-external-data-window-m6 = پنجرهٔ دادهٔ بیرونی (M6)
 extracting-built-in-stencils-to = استخراج شابلون‌های داخلی به My Shapes ({ $done }/{ $total })…
 file = پرونده
 files-you-open-will-appear-here = پرونده‌هایی که باز می‌کنید این‌جا ظاهر می‌شوند.
@@ -1125,3 +1123,22 @@ symbol-tip = درج نماد در متن شکل
 add-to-stencil-tip = افزودن شکل‌های انتخاب‌شده به‌عنوان مستر به استنسیلی که ویرایش می‌کنید
 new-stencil-tip = ایجاد استنسیل خالی در پنل شکل‌ها
 save-stencil-tip = ذخیرهٔ استنسیلِ در حال ویرایش (جدید در شکل‌های من)
+data-import-tip = وارد کردن جدول CSV (اکسل: ذخیره به‌صورت CSV) برای پیوند به شکل‌ها
+link-row-tip = پیوند سطر انتخاب‌شده به شکل‌های انتخاب‌شده
+refresh-all-tip = خواندن دوبارهٔ جدول و به‌روزرسانی شکل‌های پیوندی
+auto-link-tip = پیوند سطرها به شکل‌هایی که متن یا داده‌شان با یک ستون می‌خواند
+external-data-tip = نمایش جدول واردشده
+match-column = ستون
+match-against = مقایسه با
+match-shape-text = متن شکل
+match-shape-field = فیلد دادهٔ شکل
+link-button = پیوند
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+        [one] یک شکل پیوند خورد
+       *[other] { $n } شکل پیوند خوردند
+    }
+no-table-imported = هنوز جدولی وارد نشده
+# $path (String) - file path
+table-file-missing = پروندهٔ جدول پیوندی پیدا نشد: { $path }

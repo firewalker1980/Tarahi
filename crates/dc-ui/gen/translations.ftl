@@ -192,7 +192,6 @@ dash-dot-dot = Strich-Punkt-Punkt
 data = Daten
 data-graphics = Datengrafiken
 data-graphics-m6 = Datengrafiken (M6)
-data-linking-m6 = Datenverknüpfung (M6)
 date-time = Datum & Uhrzeit
 decrease-indent = Einzug verkleinern
 # $entry - Standardeintrag
@@ -326,7 +325,6 @@ exported-files =
 exporting = Wird exportiert …
 external-data = Externe Daten
 external-data-window = Fenster für externe Daten
-external-data-window-m6 = Fenster für externe Daten (M6)
 extracting-built-in-stencils-to = Mitgelieferte Schablonen werden nach „My Shapes" extrahiert ({ $done }/{ $total }) …
 file = Datei
 files-you-open-will-appear-here = Hier erscheinen die Dateien, die Sie öffnen.
@@ -1128,6 +1126,25 @@ symbol-tip = Ein Symbol in den Text der Form einfügen
 add-to-stencil-tip = Ausgewählte Formen als Master zur bearbeiteten Schablone hinzufügen
 new-stencil-tip = Eine leere Schablone im Formenbereich anlegen
 save-stencil-tip = Die bearbeitete Schablone speichern (eine neue in Eigene Formen)
+data-import-tip = CSV-Tabelle importieren (Excel: als CSV speichern) und mit Formen verknüpfen
+link-row-tip = Ausgewählte Tabellenzeile mit den ausgewählten Formen verknüpfen
+refresh-all-tip = Tabelle neu lesen und verknüpfte Formen aktualisieren
+auto-link-tip = Zeilen mit Formen verknüpfen, deren Text oder Daten einer Spalte entsprechen
+external-data-tip = Importierte Tabelle anzeigen
+match-column = Spalte
+match-against = vergleichen mit
+match-shape-text = Formtext
+match-shape-field = Formdatenfeld
+link-button = Verknüpfen
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+        [one] eine Form verknüpft
+       *[other] { $n } Formen verknüpft
+    }
+no-table-imported = Noch keine Tabelle importiert
+# $path (String) - file path
+table-file-missing = Verknüpfte Tabellendatei fehlt: { $path }
 
 
 ## ########## Resource: app ###############
@@ -1345,7 +1362,6 @@ dash-dot-dot = Dash-dot-dot
 data = Data
 data-graphics = Data Graphics
 data-graphics-m6 = Data graphics (M6)
-data-linking-m6 = Data linking (M6)
 date-time = Date & Time
 decrease-indent = Decrease Indent
 # $entry (String) - default stencil entry
@@ -1483,7 +1499,6 @@ exported-files =
 exporting = Exporting…
 external-data = External Data
 external-data-window = External Data Window
-external-data-window-m6 = External data window (M6)
 extracting-built-in-stencils-to = Extracting built-in stencils to My Shapes ({ $done }/{ $total })…
 file = File
 files-you-open-will-appear-here = Files you open will appear here.
@@ -2334,6 +2349,25 @@ symbol-tip = Insert a symbol into the shape's text
 add-to-stencil-tip = Add the selected shapes to the stencil you're editing as masters
 new-stencil-tip = Start an empty stencil in the Shapes pane
 save-stencil-tip = Save the stencil you're editing (a new one goes to My Shapes)
+data-import-tip = Import a CSV table (Excel: save as CSV) to link to shapes
+link-row-tip = Link the selected table row to the selected shapes
+refresh-all-tip = Read the table again and update the linked shapes
+auto-link-tip = Link rows to shapes whose text or data matches a column
+external-data-tip = Show the imported table
+match-column = Match column
+match-against = against
+match-shape-text = Shape text
+match-shape-field = Shape data field
+link-button = Link
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+        [one] linked one shape
+       *[other] linked { $n } shapes
+    }
+no-table-imported = No table imported yet
+# $path (String) - file path
+table-file-missing = The linked table file is missing: { $path }
 
 
 ## ########## Resource: app ###############
@@ -2549,7 +2583,6 @@ dash-dot-dot = Guion y dos puntos
 data = Datos
 data-graphics = Gráficos de datos
 data-graphics-m6 = Gráficos de datos (M6)
-data-linking-m6 = Vinculación de datos (M6)
 date-time = Fecha y hora
 decrease-indent = Disminuir sangría
 # $entry - entrada de galería predeterminada
@@ -2687,7 +2720,6 @@ exported-files =
 exporting = Exportando…
 external-data = Datos externos
 external-data-window = Ventana de datos externos
-external-data-window-m6 = Ventana de datos externos (M6)
 extracting-built-in-stencils-to = Extrayendo galerías integradas a My Shapes ({ $done }/{ $total })…
 file = Archivo
 files-you-open-will-appear-here = Los archivos que abra aparecerán aquí.
@@ -3535,6 +3567,25 @@ symbol-tip = Insertar un símbolo en el texto de la forma
 add-to-stencil-tip = Agregar las formas seleccionadas como patrones a la galería que edita
 new-stencil-tip = Crear una galería vacía en el panel Formas
 save-stencil-tip = Guardar la galería que edita (una nueva va a Mis formas)
+data-import-tip = Importar una tabla CSV (Excel: guardar como CSV) para vincular a formas
+link-row-tip = Vincular la fila seleccionada a las formas seleccionadas
+refresh-all-tip = Volver a leer la tabla y actualizar las formas vinculadas
+auto-link-tip = Vincular filas a formas cuyo texto o datos coinciden con una columna
+external-data-tip = Mostrar la tabla importada
+match-column = Columna
+match-against = comparar con
+match-shape-text = Texto de la forma
+match-shape-field = Campo de datos de forma
+link-button = Vincular
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+        [one] se vinculó una forma
+       *[other] se vincularon { $n } formas
+    }
+no-table-imported = Aún no se importó ninguna tabla
+# $path (String) - file path
+table-file-missing = Falta el archivo de la tabla vinculada: { $path }
 
 
 ## ########## Resource: app ###############
@@ -3730,7 +3781,6 @@ dash-dot-dot = خط‌چین‌نقطه‌نقطه
 data = داده
 data-graphics = نمودارهای داده
 data-graphics-m6 = نمودارهای داده (M6)
-data-linking-m6 = پیوند داده (M6)
 date-time = تاریخ و ساعت
 decrease-indent = کاهش تودرتو
 # $entry - ورودی پیش‌فرض شابلون
@@ -3864,7 +3914,6 @@ exported-files =
 exporting = در حال برون‌بری…
 external-data = دادهٔ بیرونی
 external-data-window = پنجرهٔ دادهٔ بیرونی
-external-data-window-m6 = پنجرهٔ دادهٔ بیرونی (M6)
 extracting-built-in-stencils-to = استخراج شابلون‌های داخلی به My Shapes ({ $done }/{ $total })…
 file = پرونده
 files-you-open-will-appear-here = پرونده‌هایی که باز می‌کنید این‌جا ظاهر می‌شوند.
@@ -4666,6 +4715,25 @@ symbol-tip = درج نماد در متن شکل
 add-to-stencil-tip = افزودن شکل‌های انتخاب‌شده به‌عنوان مستر به استنسیلی که ویرایش می‌کنید
 new-stencil-tip = ایجاد استنسیل خالی در پنل شکل‌ها
 save-stencil-tip = ذخیرهٔ استنسیلِ در حال ویرایش (جدید در شکل‌های من)
+data-import-tip = وارد کردن جدول CSV (اکسل: ذخیره به‌صورت CSV) برای پیوند به شکل‌ها
+link-row-tip = پیوند سطر انتخاب‌شده به شکل‌های انتخاب‌شده
+refresh-all-tip = خواندن دوبارهٔ جدول و به‌روزرسانی شکل‌های پیوندی
+auto-link-tip = پیوند سطرها به شکل‌هایی که متن یا داده‌شان با یک ستون می‌خواند
+external-data-tip = نمایش جدول واردشده
+match-column = ستون
+match-against = مقایسه با
+match-shape-text = متن شکل
+match-shape-field = فیلد دادهٔ شکل
+link-button = پیوند
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+        [one] یک شکل پیوند خورد
+       *[other] { $n } شکل پیوند خوردند
+    }
+no-table-imported = هنوز جدولی وارد نشده
+# $path (String) - file path
+table-file-missing = پروندهٔ جدول پیوندی پیدا نشد: { $path }
 
 
 ## ########## Resource: app ###############
@@ -4848,7 +4916,6 @@ dash-dot-dot = 二点鎖線
 data = データ
 data-graphics = データ グラフィック
 data-graphics-m6 = データ グラフィック（M6）
-data-linking-m6 = データ リンク（M6）
 date-time = 日付と時刻
 decrease-indent = インデントを減らす
 default-stencil-failed = 既定のステンシル { $entry } を読み込めませんでした: { $e }
@@ -4975,7 +5042,6 @@ exported-files =
 exporting = エクスポートしています…
 external-data = 外部データ
 external-data-window = 外部データ ウィンドウ
-external-data-window-m6 = 外部データ ウィンドウ（M6）
 extracting-built-in-stencils-to = 組み込みステンシルを My Shapes に展開しています（{ $done }/{ $total }）…
 file = ファイル
 files-you-open-will-appear-here = 開いたファイルがここに表示されます。
@@ -5694,6 +5760,24 @@ symbol-tip = 図形のテキストに記号を挿入
 add-to-stencil-tip = 選択した図形を編集中のステンシルにマスターとして追加
 new-stencil-tip = 図形ウィンドウに空のステンシルを作成
 save-stencil-tip = 編集中のステンシルを保存 (新規はマイ図形へ)
+data-import-tip = CSV 表をインポートして図形にリンク (Excel は CSV で保存)
+link-row-tip = 選択した行を選択した図形にリンク
+refresh-all-tip = 表を再読み込みしてリンクされた図形を更新
+auto-link-tip = テキストまたはデータが列と一致する図形に行をリンク
+external-data-tip = インポートした表を表示
+match-column = 列
+match-against = 照合対象
+match-shape-text = 図形のテキスト
+match-shape-field = シェイプ データ フィールド
+link-button = リンク
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+       *[other] { $n } 個の図形をリンクしました
+    }
+no-table-imported = まだ表がインポートされていません
+# $path (String) - file path
+table-file-missing = リンクされた表ファイルがありません: { $path }
 
 
 ## ########## Resource: app ###############
@@ -5877,7 +5961,6 @@ dash-dot-dot = 이점쇄선
 data = 데이터
 data-graphics = 데이터 그래픽
 data-graphics-m6 = 데이터 그래픽(M6)
-data-linking-m6 = 데이터 연결(M6)
 date-time = 날짜 및 시간
 decrease-indent = 내어쓰기
 default-stencil-failed = 기본 스텐실 { $entry }을(를) 로드하지 못했습니다: { $e }
@@ -6004,7 +6087,6 @@ exported-files =
 exporting = 내보내는 중…
 external-data = 외부 데이터
 external-data-window = 외부 데이터 창
-external-data-window-m6 = 외부 데이터 창(M6)
 extracting-built-in-stencils-to = 기본 제공 스텐실을 My Shapes에 추출하는 중({ $done }/{ $total })…
 file = 파일
 files-you-open-will-appear-here = 연 파일이 여기에 표시됩니다.
@@ -6723,6 +6805,24 @@ symbol-tip = 도형 텍스트에 기호 삽입
 add-to-stencil-tip = 선택한 도형을 편집 중인 스텐실에 마스터로 추가
 new-stencil-tip = 도형 창에 빈 스텐실 만들기
 save-stencil-tip = 편집 중인 스텐실 저장 (새 스텐실은 내 도형에)
+data-import-tip = CSV 표를 가져와 도형에 연결 (Excel: CSV로 저장)
+link-row-tip = 선택한 표 행을 선택한 도형에 연결
+refresh-all-tip = 표를 다시 읽고 연결된 도형 업데이트
+auto-link-tip = 텍스트나 데이터가 열과 일치하는 도형에 행 연결
+external-data-tip = 가져온 표 표시
+match-column = 열
+match-against = 비교 대상
+match-shape-text = 도형 텍스트
+match-shape-field = 도형 데이터 필드
+link-button = 연결
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+       *[other] 도형 { $n }개 연결됨
+    }
+no-table-imported = 가져온 표가 없습니다
+# $path (String) - file path
+table-file-missing = 연결된 표 파일이 없습니다: { $path }
 
 
 ## ########## Resource: app ###############
@@ -6904,7 +7004,6 @@ dash-dot-dot = 双点划线
 data = 数据
 data-graphics = 数据图形
 data-graphics-m6 = 数据图形（M6）
-data-linking-m6 = 数据链接（M6）
 date-time = 日期和时间
 decrease-indent = 减少缩进
 default-stencil-failed = 默认模具 { $entry } 加载失败：{ $e }
@@ -7032,7 +7131,6 @@ exported-files =
 exporting = 正在导出…
 external-data = 外部数据
 external-data-window = 外部数据窗口
-external-data-window-m6 = 外部数据窗口（M6）
 extracting-built-in-stencils-to = 正在将内置模具提取到“My Shapes”（{ $done }/{ $total }）…
 file = 文件
 files-you-open-will-appear-here = 在此处显示打开的文件。
@@ -7756,4 +7854,22 @@ symbol-tip = 在形状文本中插入符号
 add-to-stencil-tip = 将所选形状作为主控形状添加到正在编辑的模具
 new-stencil-tip = 在形状窗格中新建空模具
 save-stencil-tip = 保存正在编辑的模具 (新模具保存到“我的形状”)
+data-import-tip = 导入 CSV 表格并链接到形状 (Excel:另存为 CSV)
+link-row-tip = 将所选表格行链接到所选形状
+refresh-all-tip = 重新读取表格并更新已链接的形状
+auto-link-tip = 将行链接到文本或数据与某列匹配的形状
+external-data-tip = 显示已导入的表格
+match-column = 列
+match-against = 匹配
+match-shape-text = 形状文本
+match-shape-field = 形状数据字段
+link-button = 链接
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+       *[other] 已链接 { $n } 个形状
+    }
+no-table-imported = 尚未导入表格
+# $path (String) - file path
+table-file-missing = 找不到链接的表格文件:{ $path }
 

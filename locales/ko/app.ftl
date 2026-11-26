@@ -177,7 +177,6 @@ dash-dot-dot = 이점쇄선
 data = 데이터
 data-graphics = 데이터 그래픽
 data-graphics-m6 = 데이터 그래픽(M6)
-data-linking-m6 = 데이터 연결(M6)
 date-time = 날짜 및 시간
 decrease-indent = 내어쓰기
 default-stencil-failed = 기본 스텐실 { $entry }을(를) 로드하지 못했습니다: { $e }
@@ -304,7 +303,6 @@ exported-files =
 exporting = 내보내는 중…
 external-data = 외부 데이터
 external-data-window = 외부 데이터 창
-external-data-window-m6 = 외부 데이터 창(M6)
 extracting-built-in-stencils-to = 기본 제공 스텐실을 My Shapes에 추출하는 중({ $done }/{ $total })…
 file = 파일
 files-you-open-will-appear-here = 연 파일이 여기에 표시됩니다.
@@ -1023,3 +1021,21 @@ symbol-tip = 도형 텍스트에 기호 삽입
 add-to-stencil-tip = 선택한 도형을 편집 중인 스텐실에 마스터로 추가
 new-stencil-tip = 도형 창에 빈 스텐실 만들기
 save-stencil-tip = 편집 중인 스텐실 저장 (새 스텐실은 내 도형에)
+data-import-tip = CSV 표를 가져와 도형에 연결 (Excel: CSV로 저장)
+link-row-tip = 선택한 표 행을 선택한 도형에 연결
+refresh-all-tip = 표를 다시 읽고 연결된 도형 업데이트
+auto-link-tip = 텍스트나 데이터가 열과 일치하는 도형에 행 연결
+external-data-tip = 가져온 표 표시
+match-column = 열
+match-against = 비교 대상
+match-shape-text = 도형 텍스트
+match-shape-field = 도형 데이터 필드
+link-button = 연결
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+       *[other] 도형 { $n }개 연결됨
+    }
+no-table-imported = 가져온 표가 없습니다
+# $path (String) - file path
+table-file-missing = 연결된 표 파일이 없습니다: { $path }

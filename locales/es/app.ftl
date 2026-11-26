@@ -209,7 +209,6 @@ dash-dot-dot = Guion y dos puntos
 data = Datos
 data-graphics = Gráficos de datos
 data-graphics-m6 = Gráficos de datos (M6)
-data-linking-m6 = Vinculación de datos (M6)
 date-time = Fecha y hora
 decrease-indent = Disminuir sangría
 # $entry - entrada de galería predeterminada
@@ -347,7 +346,6 @@ exported-files =
 exporting = Exportando…
 external-data = Datos externos
 external-data-window = Ventana de datos externos
-external-data-window-m6 = Ventana de datos externos (M6)
 extracting-built-in-stencils-to = Extrayendo galerías integradas a My Shapes ({ $done }/{ $total })…
 file = Archivo
 files-you-open-will-appear-here = Los archivos que abra aparecerán aquí.
@@ -1195,3 +1193,22 @@ symbol-tip = Insertar un símbolo en el texto de la forma
 add-to-stencil-tip = Agregar las formas seleccionadas como patrones a la galería que edita
 new-stencil-tip = Crear una galería vacía en el panel Formas
 save-stencil-tip = Guardar la galería que edita (una nueva va a Mis formas)
+data-import-tip = Importar una tabla CSV (Excel: guardar como CSV) para vincular a formas
+link-row-tip = Vincular la fila seleccionada a las formas seleccionadas
+refresh-all-tip = Volver a leer la tabla y actualizar las formas vinculadas
+auto-link-tip = Vincular filas a formas cuyo texto o datos coinciden con una columna
+external-data-tip = Mostrar la tabla importada
+match-column = Columna
+match-against = comparar con
+match-shape-text = Texto de la forma
+match-shape-field = Campo de datos de forma
+link-button = Vincular
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+        [one] se vinculó una forma
+       *[other] se vincularon { $n } formas
+    }
+no-table-imported = Aún no se importó ninguna tabla
+# $path (String) - file path
+table-file-missing = Falta el archivo de la tabla vinculada: { $path }

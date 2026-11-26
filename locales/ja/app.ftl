@@ -176,7 +176,6 @@ dash-dot-dot = 二点鎖線
 data = データ
 data-graphics = データ グラフィック
 data-graphics-m6 = データ グラフィック（M6）
-data-linking-m6 = データ リンク（M6）
 date-time = 日付と時刻
 decrease-indent = インデントを減らす
 default-stencil-failed = 既定のステンシル { $entry } を読み込めませんでした: { $e }
@@ -303,7 +302,6 @@ exported-files =
 exporting = エクスポートしています…
 external-data = 外部データ
 external-data-window = 外部データ ウィンドウ
-external-data-window-m6 = 外部データ ウィンドウ（M6）
 extracting-built-in-stencils-to = 組み込みステンシルを My Shapes に展開しています（{ $done }/{ $total }）…
 file = ファイル
 files-you-open-will-appear-here = 開いたファイルがここに表示されます。
@@ -1022,3 +1020,21 @@ symbol-tip = 図形のテキストに記号を挿入
 add-to-stencil-tip = 選択した図形を編集中のステンシルにマスターとして追加
 new-stencil-tip = 図形ウィンドウに空のステンシルを作成
 save-stencil-tip = 編集中のステンシルを保存 (新規はマイ図形へ)
+data-import-tip = CSV 表をインポートして図形にリンク (Excel は CSV で保存)
+link-row-tip = 選択した行を選択した図形にリンク
+refresh-all-tip = 表を再読み込みしてリンクされた図形を更新
+auto-link-tip = テキストまたはデータが列と一致する図形に行をリンク
+external-data-tip = インポートした表を表示
+match-column = 列
+match-against = 照合対象
+match-shape-text = 図形のテキスト
+match-shape-field = シェイプ データ フィールド
+link-button = リンク
+# $n (Number) - shapes linked
+linked-n-shapes =
+    { $n ->
+       *[other] { $n } 個の図形をリンクしました
+    }
+no-table-imported = まだ表がインポートされていません
+# $path (String) - file path
+table-file-missing = リンクされた表ファイルがありません: { $path }

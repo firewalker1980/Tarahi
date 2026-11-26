@@ -11270,3 +11270,43 @@ fn stencil_from_shapes_saves_and_places() {
     h.run();
     assert_eq!(h.state().debug_shape_count(), n + 1, "placed from the new stencil");
 }
+
+/// Data tab: Quick Import a CSV, Automatically Link by shape text (the
+/// row's columns become Shape Data), then Refresh All picks up a change
+/// in the file.
+#[test]
+fn data_import_autolink_and_refresh() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, a) = place_master(&mut h, 2);
+    let (_, b) = place_master(&mut h, 2);
+    h.state_mut().debug_set_shape_text_for_test(a, "core");
+    h.state_mut().debug_set_shape_text_for_test(b, "edge");
+    h.run();
+    let csv = std::env::temp_dir().join(format!("tarahi-data-{}.csv", std::process::id()));
+    std::fs::write(&csv, "Name;IP address\ncore;10.0.0.1\nedge;10.0.0.2\n").unwrap();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Data);
+    h.run();
+    h.state_mut().preset_file_dialog_for_test(Some(csv.clone()));
+    h.get_by_label("Quick Import").click();
+    for _ in 0..20 {
+        h.run();
+        if h.query_by_label("10.0.0.1").is_some() {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert!(h.query_by_label("10.0.0.1").is_some(), "table shown");
+    h.get_by_label("Automatically Link").click();
+    h.run();
+    h.run();
+    h.get_by_label("Link").click();
+    h.run();
+    assert_eq!(h.state().debug_prop_value_for_test(a, "IP_address").as_deref(), Some("10.0.0.1"));
+    assert_eq!(h.state().debug_prop_value_for_test(b, "IP_address").as_deref(), Some("10.0.0.2"));
+
+    std::fs::write(&csv, "Name;IP address\ncore;10.9.9.9\nedge;10.0.0.2\n").unwrap();
+    h.get_by_label("Refresh All").click();
+    h.run();
+    assert_eq!(h.state().debug_prop_value_for_test(a, "IP_address").as_deref(), Some("10.9.9.9"));
+}
