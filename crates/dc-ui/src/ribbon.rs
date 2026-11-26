@@ -49,6 +49,9 @@ pub(crate) struct TabCtx {
     pub show_rulers: bool,
     pub show_grid: bool,
     pub show_comments: bool,
+    pub show_guides: bool,
+    pub show_conn_points: bool,
+    pub autoconnect: bool,
     pub dynamic_grid: bool,
     pub snap_dlg_open: bool,
     /// A shapesheet window is open for the selection.
@@ -147,6 +150,16 @@ pub(crate) fn anchor_labels(tab: Tab, ctx: &TabCtx) -> Vec<String> {
 /// Everything the ribbon can ask the app to do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
+    /// Data ▸ Shape Data Window: the selection's Shape Data.
+    ShapeDataWindow,
+    /// View tab: Guides / Connection Points / AutoConnect toggles,
+    /// Page Width, the Zoom dialog, Switch Windows.
+    ToggleGuides,
+    ToggleConnPoints,
+    ToggleAutoConnect,
+    PageWidth,
+    ZoomDialog,
+    SwitchWindows,
     /// Container Tools: Fit to Contents, the Margins (0) / Automatic
     /// Resize (1) menus, Lock Container, Select Contents.
     ContainerFit,

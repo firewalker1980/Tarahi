@@ -56,9 +56,9 @@ fn external_data_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Ve
 fn shape_data_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::ShapeSheet, s.msg_shape_data_window(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_shape_data_window_m6()),
+            RibbonButton::new(Icon::ShapeSheet, s.msg_shape_data_window(), Action::ShapeDataWindow)
+                .enabled(ctx.has_sel)
+                .tip(s.msg_shape_data_window()),
         ),
         stack(vec![RibbonButton::new(
             Icon::Field,

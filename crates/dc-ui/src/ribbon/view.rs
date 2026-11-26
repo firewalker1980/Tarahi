@@ -38,9 +38,10 @@ fn show_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::
                 .selected(ctx.show_grid),
         ],
         vec![
-            RibbonButton::new(Icon::Shapes, s.msg_guides(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_guides_planned_113_s_objects_exi()),
+            RibbonButton::new(Icon::Shapes, s.msg_guides(), Action::ToggleGuides)
+                .enabled(ctx.has_doc)
+                .selected(ctx.show_guides)
+                .tip(s.msg_view_guides_tip()),
             RibbonButton::new(Icon::Delete, s.msg_page_breaks(), Action::Macros)
                 .enabled(false)
                 .tip(s.msg_page_breaks_planned()),
@@ -63,17 +64,19 @@ fn visual_aids_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<
             RibbonButton::new(Icon::Grid, s.msg_dynamic_grid(), Action::ToggleDynamicGrid)
                 .selected(ctx.dynamic_grid)
                 .tip(s.msg_alignment_and_spacing_hints_whil()),
-            RibbonButton::new(Icon::Shapes, s.msg_conn_points(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_show_connection_points_planned_m()),
+            RibbonButton::new(Icon::Shapes, s.msg_conn_points(), Action::ToggleConnPoints)
+                .enabled(ctx.has_doc)
+                .selected(ctx.show_conn_points)
+                .tip(s.msg_view_conn_points_tip()),
         ]),
         stack(vec![
             RibbonButton::new(Icon::Magnet, s.msg_snap_glue(), Action::SnapGlue)
                 .selected(ctx.snap_dlg_open)
                 .tip(s.msg_configure_snap_and_glue_targets()),
-            RibbonButton::new(Icon::Connector, s.msg_autoconnect(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_autoconnect_arrows_the_108_remai()),
+            RibbonButton::new(Icon::Connector, s.msg_autoconnect(), Action::ToggleAutoConnect)
+                .enabled(ctx.has_doc)
+                .selected(ctx.autoconnect)
+                .tip(s.msg_view_autoconnect_tip()),
         ]),
     ]
 }
@@ -96,12 +99,12 @@ fn zoom_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::
                     .tip(s.msg_fit_the_whole_page_in_the_window()),
             ],
             vec![
-                RibbonButton::new(Icon::Fit, s.msg_page_width(), Action::Macros)
-                    .enabled(false)
-                    .tip(s.msg_fit_the_page_width_planned()),
-                RibbonButton::new(Icon::Shapes, s.msg_zoom_menu(), Action::Macros)
-                    .enabled(false)
-                    .tip(s.msg_zoom_dialog_planned()),
+                RibbonButton::new(Icon::Fit, s.msg_page_width(), Action::PageWidth)
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_page_width()),
+                RibbonButton::new(Icon::Shapes, s.msg_zoom_menu(), Action::ZoomDialog)
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_zoom_menu()),
             ],
         ]),
         stack(vec![
@@ -129,9 +132,9 @@ fn window_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super
             RibbonButton::new(Icon::Shapes, s.msg_split(), Action::Macros)
                 .enabled(false)
                 .tip(s.msg_split_view_planned()),
-            RibbonButton::new(Icon::Fit, s.msg_switch_windows(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_switch_documents_the_tab_strip_s()),
+            RibbonButton::new(Icon::Fit, s.msg_switch_windows(), Action::SwitchWindows)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_switch_windows()),
         ],
     ])]
 }

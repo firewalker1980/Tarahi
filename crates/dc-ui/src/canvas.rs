@@ -37,6 +37,11 @@ pub struct View {
     /// changing the content SIZE, and a fit-mode view must re-center
     /// or the page hides behind the new ruler (PR #269 review).
     pub last_origin: Vec2,
+    /// View ▸ Show: Guides, Connection Points (on every shape), and the
+    /// AutoConnect arrows.
+    pub show_guides: bool,
+    pub show_conn_points: bool,
+    pub autoconnect: bool,
 }
 
 impl Default for View {
@@ -51,6 +56,9 @@ impl Default for View {
             fit_mode: false,
             last_content: Vec2::ZERO,
             last_origin: Vec2::ZERO,
+            show_guides: true,
+            show_conn_points: false,
+            autoconnect: true,
         }
     }
 }
@@ -123,6 +131,26 @@ impl View {
         let cy = page.h_in as f32 - (y as f32 + h / 2.0);
         let ppi = self.px_per_in();
         self.pan = origin + content / 2.0 - Vec2::new(cx * ppi, cy * ppi);
+        self.fit_mode = false;
+        self.fit_pending = false;
+    }
+
+    /// Zoom ▸ Page Width: the page's width fills the content area, the
+    /// top of the page at the top.
+    pub fn zoom_to_width(&mut self, content: Vec2, origin: Vec2, page: &PageGeom) {
+        let w = (page.w_in as f32).max(0.25);
+        self.zoom = (((content.x - 16.0) / (w * 96.0) * 384.0).floor() / 384.0).clamp(0.1, 8.0);
+        self.pan = origin + Vec2::new((content.x - w * self.px_per_in()) / 2.0, 8.0);
+        self.fit_mode = false;
+        self.fit_pending = false;
+    }
+
+    /// Zoom to `zoom` keeping the content centre where it is.
+    pub fn zoom_centered(&mut self, zoom: f32, content: Vec2, origin: Vec2) {
+        let c = origin + content / 2.0;
+        let page_pt = (c - self.pan) / self.px_per_in();
+        self.zoom = zoom.clamp(0.1, 8.0);
+        self.pan = c - page_pt * self.px_per_in();
         self.fit_mode = false;
         self.fit_pending = false;
     }
@@ -947,7 +975,7 @@ pub fn show(
             ),
         )
     });
-    let autoc_arrows: Option<Vec<(Rect, (f64, f64))>> = sel_screen.map(|sr| {
+    let autoc_arrows: Option<Vec<(Rect, (f64, f64))>> = sel_screen.filter(|_| view.autoconnect).map(|sr| {
         let c = sr.center();
         [
             (Pos2::new(sr.right() + 9.0, c.y), (1.0, 0.0)),

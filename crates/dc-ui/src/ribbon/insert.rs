@@ -24,7 +24,7 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
             .enabled(has_sel)
             .tip(s.msg_edit_the_selected_shape_s_hyperl()))],
         ),
-        Group::new(s.msg_text(), text_cols(s, has_sel)),
+        Group::new(s.msg_text(), text_cols(s, ctx, has_sel)),
     ]
 }
 
@@ -111,12 +111,13 @@ fn diagram_parts_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Ve
     ]
 }
 
-fn text_cols(s: &'static crate::l10n::L10nLanguage, has_sel: bool) -> Vec<super::Col> {
+fn text_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, has_sel: bool) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::TextBox, s.msg_text_box(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_text_shapes_planned()),
+            RibbonButton::new(Icon::TextBox, s.msg_text_box(), Action::DrawTool(crate::drawtools::Kind::Text))
+                .enabled(ctx.has_doc)
+                .selected(ctx.tool == crate::app::Tool::Draw(crate::drawtools::Kind::Text))
+                .tip(s.msg_text_tool_tip()),
         ),
         grid(vec![
             vec![

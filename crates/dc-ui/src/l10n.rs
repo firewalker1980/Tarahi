@@ -415,13 +415,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "autoconnect-arrows-the-108-remai",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "autoconnect-needs-a-2d-shape",
         attribute: None,
         vars: &[],
@@ -2263,13 +2256,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "fit-the-page-width-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "fit-the-whole-page-in-the-window",
         attribute: None,
         vars: &[],
@@ -2607,13 +2593,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "guides",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "guides-planned-113-s-objects-exi",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -4986,13 +4965,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "shape-data-window-m6",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "shape-design",
         attribute: None,
         vars: &[],
@@ -5197,13 +5169,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "show",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "show-connection-points-planned-m",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -5749,13 +5714,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "switch-documents-the-tab-strip-s",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "switch-windows",
         attribute: None,
         vars: &[],
@@ -5890,13 +5848,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "text-formatting-arrives-with-a-l",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "text-shapes-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6554,13 +6505,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "zoom-dialog-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "zoom-in",
         attribute: None,
         vars: &[],
@@ -6889,6 +6833,27 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "view-guides-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "view-conn-points-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "view-autoconnect-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6988,13 +6953,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48910,
-            Self::En => 48910..96091,
-            Self::Es => 96091..148043,
-            Self::Fa => 148043..209505,
-            Self::Ja => 209505..261949,
-            Self::Ko => 261949..310272,
-            Self::ZhHans => 310272..352336,
+            Self::De => 0..48457,
+            Self::En => 48457..95221,
+            Self::Es => 95221..146705,
+            Self::Fa => 146705..207482,
+            Self::Ja => 207482..259406,
+            Self::Ko => 259406..307265,
+            Self::ZhHans => 307265..348869,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7261,11 +7226,6 @@ impl L10nLanguage {
     }
     pub fn msg_autoconnect(&self) -> String {
         self.0.msg("autoconnect", None).unwrap()
-    }
-    pub fn msg_autoconnect_arrows_the_108_remai(&self) -> String {
-        self.0
-            .msg("autoconnect-arrows-the-108-remai", None)
-            .unwrap()
     }
     pub fn msg_autoconnect_needs_a_2d_shape(&self) -> String {
         self.0.msg("autoconnect-needs-a-2d-shape", None).unwrap()
@@ -8280,9 +8240,6 @@ impl L10nLanguage {
     pub fn msg_first_page(&self) -> String {
         self.0.msg("first-page", None).unwrap()
     }
-    pub fn msg_fit_the_page_width_planned(&self) -> String {
-        self.0.msg("fit-the-page-width-planned", None).unwrap()
-    }
     pub fn msg_fit_the_whole_page_in_the_window(&self) -> String {
         self.0
             .msg("fit-the-whole-page-in-the-window", None)
@@ -8472,11 +8429,6 @@ impl L10nLanguage {
     }
     pub fn msg_guides(&self) -> String {
         self.0.msg("guides", None).unwrap()
-    }
-    pub fn msg_guides_planned_113_s_objects_exi(&self) -> String {
-        self.0
-            .msg("guides-planned-113-s-objects-exi", None)
-            .unwrap()
     }
     pub fn msg_heading_style(&self) -> String {
         self.0.msg("heading-style", None).unwrap()
@@ -9789,9 +9741,6 @@ impl L10nLanguage {
     pub fn msg_shape_data_window(&self) -> String {
         self.0.msg("shape-data-window", None).unwrap()
     }
-    pub fn msg_shape_data_window_m6(&self) -> String {
-        self.0.msg("shape-data-window-m6", None).unwrap()
-    }
     pub fn msg_shape_design(&self) -> String {
         self.0.msg("shape-design", None).unwrap()
     }
@@ -9917,11 +9866,6 @@ impl L10nLanguage {
     }
     pub fn msg_show(&self) -> String {
         self.0.msg("show", None).unwrap()
-    }
-    pub fn msg_show_connection_points_planned_m(&self) -> String {
-        self.0
-            .msg("show-connection-points-planned-m", None)
-            .unwrap()
     }
     pub fn msg_show_document_stencil(&self) -> String {
         self.0.msg("show-document-stencil", None).unwrap()
@@ -10201,11 +10145,6 @@ impl L10nLanguage {
             .msg("swap-portrait-landscape-swaps-wi", None)
             .unwrap()
     }
-    pub fn msg_switch_documents_the_tab_strip_s(&self) -> String {
-        self.0
-            .msg("switch-documents-the-tab-strip-s", None)
-            .unwrap()
-    }
     pub fn msg_switch_windows(&self) -> String {
         self.0.msg("switch-windows", None).unwrap()
     }
@@ -10283,9 +10222,6 @@ impl L10nLanguage {
         self.0
             .msg("text-formatting-arrives-with-a-l", None)
             .unwrap()
-    }
-    pub fn msg_text_shapes_planned(&self) -> String {
-        self.0.msg("text-shapes-planned", None).unwrap()
     }
     pub fn msg_text_tool(&self) -> String {
         self.0.msg("text-tool", None).unwrap()
@@ -10684,9 +10620,6 @@ impl L10nLanguage {
     pub fn msg_zoom(&self) -> String {
         self.0.msg("zoom", None).unwrap()
     }
-    pub fn msg_zoom_dialog_planned(&self) -> String {
-        self.0.msg("zoom-dialog-planned", None).unwrap()
-    }
     pub fn msg_zoom_in(&self) -> String {
         self.0.msg("zoom-in", None).unwrap()
     }
@@ -10848,5 +10781,14 @@ impl L10nLanguage {
     }
     pub fn msg_container_locked_status(&self) -> String {
         self.0.msg("container-locked-status", None).unwrap()
+    }
+    pub fn msg_view_guides_tip(&self) -> String {
+        self.0.msg("view-guides-tip", None).unwrap()
+    }
+    pub fn msg_view_conn_points_tip(&self) -> String {
+        self.0.msg("view-conn-points-tip", None).unwrap()
+    }
+    pub fn msg_view_autoconnect_tip(&self) -> String {
+        self.0.msg("view-autoconnect-tip", None).unwrap()
     }
 }

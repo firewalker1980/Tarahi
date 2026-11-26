@@ -186,6 +186,13 @@ pub struct App {
     /// — the canvas frame centers + fills the selection's union bounds
     /// on the next pass, on the same view ledger as Fit Page.
     zoom_selection_pending: bool,
+    /// View ▸ Page Width, deferred to the canvas frame like #237.
+    zoom_width_pending: bool,
+    /// View ▸ Zoom dialog and Switch Windows list.
+    zoom_dlg_open: bool,
+    zoom_dlg_pct: f32,
+    zoom_request: Option<f32>,
+    switch_open: bool,
     sel: Option<(i64, i64)>, // (page id, shape id) — primary selection
     /// Multi-selection (marquee / shift-click); includes the primary.
     sel_set: Vec<(i64, i64)>,
@@ -784,6 +791,11 @@ impl App {
             fmt_bufs: std::collections::HashMap::new(),
             tab: Tab::Home,
             zoom_selection_pending: false,
+            zoom_width_pending: false,
+            zoom_dlg_open: false,
+            zoom_dlg_pct: 100.0,
+            zoom_request: None,
+            switch_open: false,
             sel: None,
             sel_set: Vec::new(),
             drag: None,
@@ -4552,6 +4564,83 @@ impl App {
         self.apply(Macro::new(format!("container {row}"), cmds));
     }
 
+    /// View ▸ Zoom: Visio's Zoom dialog — presets, whole page, page
+    /// width, or a percentage.
+    fn zoom_window(&mut self, ctx: &egui::Context) {
+        if !self.zoom_dlg_open {
+            return;
+        }
+        let s = crate::i18n::strs();
+        let mut open = true;
+        let mut done = false;
+        egui::Window::new(s.msg_zoom_menu())
+            .open(&mut open)
+            .resizable(false)
+            .collapsible(false)
+            .show(ctx, |ui| {
+                for p in [400.0, 200.0, 150.0, 100.0, 75.0, 50.0] {
+                    if ui.selectable_label(self.zoom_dlg_pct == p, format!("{p}%")).clicked() {
+                        self.zoom_dlg_pct = p;
+                    }
+                }
+                if ui.selectable_label(false, s.msg_whole_page()).clicked() {
+                    self.view.fit_pending = true;
+                    self.zoom_dlg_open = false;
+                }
+                if ui.selectable_label(false, s.msg_page_width()).clicked() {
+                    self.zoom_width_pending = true;
+                    self.zoom_dlg_open = false;
+                }
+                ui.horizontal(|ui| {
+                    let r = ui.add(egui::DragValue::new(&mut self.zoom_dlg_pct).range(10.0..=800.0).suffix("%"));
+                    r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::SpinButton, true, s.msg_zoom_menu()));
+                });
+                row(ui, |ui| {
+                    if ui.button(s.msg_ok()).clicked() {
+                        done = true;
+                    }
+                });
+            });
+        if done {
+            self.zoom_request = Some(self.zoom_dlg_pct / 100.0);
+            self.zoom_dlg_open = false;
+        }
+        if !open {
+            self.zoom_dlg_open = false;
+        }
+    }
+
+    /// View ▸ Switch Windows: the open documents; a pick activates it.
+    fn switch_window(&mut self, ctx: &egui::Context) {
+        if !self.switch_open {
+            return;
+        }
+        let names = self.debug_open_doc_names();
+        let mut pick = None;
+        let mut open = true;
+        egui::Window::new(crate::i18n::strs().msg_switch_windows())
+            .open(&mut open)
+            .resizable(false)
+            .collapsible(false)
+            .show(ctx, |ui| {
+                for (i, n) in names.iter().enumerate() {
+                    if ui.selectable_label(i == 0, n).clicked() {
+                        pick = Some(i);
+                    }
+                }
+            });
+        if let Some(i) = pick {
+            // entry 0 is the active document; the rest are stashed
+            if i > 0 {
+                self.activate_doc(i - 1);
+            }
+            self.switch_open = false;
+        }
+        if !open {
+            self.switch_open = false;
+        }
+    }
+
     /// Container Tools ▸ Margins / Automatic Resize: the choices popup.
     fn container_menu_window(&mut self, ctx: &egui::Context) {
         let Some(which) = self.container_menu else { return };
@@ -7994,6 +8083,10 @@ impl App {
     /// The page's guides as UI info (#113), resolved through the
     /// inheritance chain.
     fn page_guides(&self) -> Vec<crate::guides::GuideInfo> {
+        // View ▸ Guides off: no guide draws or takes a click
+        if !self.view.show_guides {
+            return Vec::new();
+        }
         let Some(ed) = self.ed() else {
             return Vec::new();
         };
@@ -8669,6 +8762,22 @@ impl App {
                 }
             }
             Action::ContainerMenu(n) => self.container_menu = Some(n),
+            Action::ShapeDataWindow => {
+                if let Some((_, s)) = self.sel {
+                    self.shape_data_open = if self.shape_data_open == Some(s) { None } else { Some(s) };
+                    self.prop_bufs.clear();
+                    self.prop_add = None;
+                }
+            }
+            Action::ToggleGuides => self.view.show_guides = !self.view.show_guides,
+            Action::ToggleConnPoints => self.view.show_conn_points = !self.view.show_conn_points,
+            Action::ToggleAutoConnect => self.view.autoconnect = !self.view.autoconnect,
+            Action::PageWidth => self.zoom_width_pending = true,
+            Action::ZoomDialog => {
+                self.zoom_dlg_pct = (self.view.zoom * 100.0).round();
+                self.zoom_dlg_open = true;
+            }
+            Action::SwitchWindows => self.switch_open = !self.switch_open,
             Action::ContainerLock => {
                 if let Some((p, c)) = self.sel {
                     let on = self.container_is_locked(p, c);
@@ -9299,6 +9408,9 @@ impl App {
             show_rulers: self.view.show_rulers,
             show_grid: self.view.show_grid,
             show_comments: self.show_comments,
+            show_guides: self.view.show_guides,
+            show_conn_points: self.view.show_conn_points,
+            autoconnect: self.view.autoconnect,
             dynamic_grid: self.snap.dynamic_grid,
             snap_dlg_open: self.snap_dlg_open,
             shapesheet_open: self
@@ -10731,6 +10843,14 @@ impl App {
         // the Fit Page and #22 text-edit zoom paths live on. Runs
         // before the destructuring self-borrow and the canvas frame so
         // the wheel anchor and the paint agree.
+        if std::mem::take(&mut self.zoom_width_pending) {
+            let (origin, content) = canvas::content_area(self.canvas_rect, self.view.show_rulers);
+            self.view.zoom_to_width(content, origin.to_vec2(), &geom);
+        }
+        if let Some(z) = self.zoom_request.take() {
+            let (origin, content) = canvas::content_area(self.canvas_rect, self.view.show_rulers);
+            self.view.zoom_centered(z, content, origin.to_vec2());
+        }
         if self.zoom_selection_pending {
             self.zoom_selection_pending = false;
             if let Some(rect) = self.sel_union_page_rect() {
@@ -10770,8 +10890,13 @@ impl App {
         // #177: connection-point affordances for the frame — the
         // closure paints from inside `canvas::show` and its result is
         // kept as the test seam.
+        let show_all_cp = view.show_conn_points;
         let conn_fx = |live: Option<(f64, f64)>| -> crate::connectors::ConnPointFx {
             let mut fx = crate::connectors::ConnPointFx::default();
+            // View ▸ Connection Points: every shape's points
+            if show_all_cp {
+                fx.reveal.extend(conn_cands.iter().flat_map(|c| c.conn_rows.iter().map(|(_, p)| *p)));
+            }
             if let (Some(ed), Some(pg)) = (ed, page) {
                 if let Some((_, cid)) = conn_sel.filter(|(p, _)| *p == pg.id) {
                     fx.glued = crate::connectors::glued_sites(&ed.doc, pg, cid, &conn_cands);
@@ -17411,6 +17536,8 @@ impl App {
         self.layers_window(&ctx);
         self.find_window(&ctx);
         self.container_menu_window(&ctx);
+        self.zoom_window(&ctx);
+        self.switch_window(&ctx);
         self.snap_glue_window(&ctx);
         self.hyperlink_window(&ctx);
         self.fields_insert_window(&ctx);

@@ -10780,3 +10780,48 @@ fn container_tools_fit_margins_autoresize_select() {
     h.run();
     assert!(close(rect(&h, cont).0, rect(&h, m).0 - 0.5));
 }
+
+/// View tab: Page Width fills the content width with the page, the Zoom
+/// dialog sets an exact zoom, Connection Points shows every shape's
+/// points.
+#[test]
+fn view_page_width_zoom_dialog_and_connection_points() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (pg, sid) = place_master(&mut h, 2);
+    // give the shape a connection point (Home ▸ Tools ▸ Conn Point)
+    let asr = h.state().debug_shape_screen_rect_for_test(sid).unwrap();
+    h.get_by_label_contains("Conn Point").click();
+    h.run();
+    click_at(&mut h, egui::pos2(asr.right() - 4.0, asr.center().y), egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_conn_rows(pg, sid).len(), 1);
+    h.key_press(egui::Key::Escape);
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::View);
+    h.run();
+    let before = h.state().debug_zoom();
+    h.get_by_label("Page Width").click();
+    h.run();
+    h.run();
+    let canvas_w = h.state().debug_canvas_rect().width();
+    let page_w_px = h.state().debug_page_geom_for_test().0 as f32 * 96.0 * h.state().debug_zoom();
+    assert!(page_w_px > canvas_w * 0.85 && page_w_px <= canvas_w, "{page_w_px} vs {canvas_w} (zoom was {before})");
+
+    h.get_all_by_label("Zoom…").next().expect("Zoom… button").click();
+    h.run();
+    h.run();
+    h.get_by_label("200%").click();
+    h.run();
+    h.get_by_label("OK").click();
+    h.run();
+    h.run();
+    assert!((h.state().debug_zoom() - 2.0).abs() < 1e-3, "{}", h.state().debug_zoom());
+
+    assert!(h.state().debug_conn_fx().reveal.is_empty(), "no points by default");
+    h.get_by_label("Connection Points").click();
+    h.run();
+    h.hover_at(egui::pos2(640.0, 700.0));
+    h.run();
+    assert!(!h.state().debug_conn_fx().reveal.is_empty(), "points shown");
+}
