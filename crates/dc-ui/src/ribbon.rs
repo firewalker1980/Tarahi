@@ -238,6 +238,8 @@ pub enum Action {
     ContainerFit,
     ContainerMenu(u8),
     ContainerLock,
+    /// Container Tools ▸ Heading Style.
+    ContainerHeading,
     ContainerSelect,
     /// Review ▸ Comments: new on the selection, previous / next
     /// commented shape, delete the selection's comments.

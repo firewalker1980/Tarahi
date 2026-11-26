@@ -391,7 +391,6 @@ guide-added-vertical = vertikale Führungslinie bei { $v } hinzugefügt
 guide-id = Führungslinie { $id }
 guides = Führungslinien
 heading-style = Überschriftenstil
-heading-style-gallery-planned = Überschriftenstil-Galerie — geplant
 height = Höhe
 # $g - Schutzformel
 height-not-resized-guard = Höhe nicht geändert: { $g } (nur Breite)
@@ -1174,6 +1173,9 @@ re-layout-tip = Seite anhand der Verbindungen anordnen
 layout-options-tip = Layoutstil und Abstand zwischen Formen
 layout-size-tip = Seite an die Zeichnung anpassen
 page-breaks-tip = Zeigen, wo die Seite auf mehrere Blätter aufgeteilt wird
+# $n (Number) - style number
+heading-style-n = Überschriftenstil { $n }
+heading-style-tip = Wo der Container seine Überschrift zeigt
 
 
 ## ########## Resource: app ###############
@@ -1599,7 +1601,6 @@ guide-added-vertical = vertical guide at { $v } added
 guide-id = guide { $id }
 guides = Guides
 heading-style = Heading Style
-heading-style-gallery-planned = Heading style gallery — planned
 height = Height
 # $g (String) - guard formula
 height-not-resized-guard = height not resized: { $g } (width only)
@@ -2426,6 +2427,9 @@ re-layout-tip = Lay the page out from its connections
 layout-options-tip = Layout style and spacing between shapes
 layout-size-tip = Fit the page to the drawing
 page-breaks-tip = Show where the page splits across sheets of paper
+# $n (Number) - style number
+heading-style-n = Heading style { $n }
+heading-style-tip = Where the container shows its heading
 
 
 ## ########## Resource: app ###############
@@ -2849,7 +2853,6 @@ guide-added-vertical = guía vertical en { $v } agregada
 guide-id = guía { $id }
 guides = Guías
 heading-style = Estilo de título
-heading-style-gallery-planned = Galería de estilos de título — planeado
 height = Alto
 # $g - fórmula protectora
 height-not-resized-guard = alto sin cambiar de tamaño: { $g } (solo el ancho)
@@ -3673,6 +3676,9 @@ re-layout-tip = Redistribuir la página según sus conexiones
 layout-options-tip = Estilo de diseño y espacio entre formas
 layout-size-tip = Ajustar la página al dibujo
 page-breaks-tip = Mostrar dónde se divide la página en hojas de papel
+# $n (Number) - style number
+heading-style-n = Estilo de encabezado { $n }
+heading-style-tip = Dónde muestra el contenedor su encabezado
 
 
 ## ########## Resource: app ###############
@@ -4067,7 +4073,6 @@ guide-added-vertical = راهنمای عمودی در { $v } افزوده شد
 guide-id = راهنما { $id }
 guides = راهنماها
 heading-style = سبک عنوان
-heading-style-gallery-planned = گالری سبک عنوان — برنامه‌ریزی شده
 height = ارتفاع
 # $g - فرمول نگهبان
 height-not-resized-guard = ارتفاع تغییر نکرد: { $g } (فقط عرض)
@@ -4850,6 +4855,9 @@ re-layout-tip = چیدن صفحه بر پایهٔ اتصال‌ها
 layout-options-tip = سبک چیدمان و فاصلهٔ شکل‌ها
 layout-size-tip = تطبیق صفحه با نقشه
 page-breaks-tip = نمایش جایی که صفحه روی چند برگ کاغذ تقسیم می‌شود
+# $n (Number) - style number
+heading-style-n = سبک سرعنوان { $n }
+heading-style-tip = جایی که ظرف سرعنوانش را نشان می‌دهد
 
 
 ## ########## Resource: app ###############
@@ -5219,7 +5227,6 @@ guide-added-vertical = 垂直ガイドを { $v } に追加しました
 guide-id = ガイド { $id }
 guides = ガイド
 heading-style = 見出しスタイル
-heading-style-gallery-planned = 見出しスタイル ギャラリー — 予定
 height = 高さ
 height-not-resized-guard = 高さはサイズ変更されませんでした: { $g }（幅のみ）
 help-about = ヘルプ/バージョン情報
@@ -5923,6 +5930,9 @@ re-layout-tip = 接続に基づいてページを再レイアウト
 layout-options-tip = レイアウトのスタイルと図形の間隔
 layout-size-tip = ページを図面に合わせる
 page-breaks-tip = ページが用紙のどこで分かれるかを表示
+# $n (Number) - style number
+heading-style-n = 見出しスタイル { $n }
+heading-style-tip = コンテナーの見出しの位置
 
 
 ## ########## Resource: app ###############
@@ -6293,7 +6303,6 @@ guide-added-vertical = 세로 안내선을 { $v }에 추가했습니다
 guide-id = 안내선 { $id }
 guides = 안내선
 heading-style = 제목 스타일
-heading-style-gallery-planned = 제목 스타일 갤러리 — 예정
 height = 높이
 height-not-resized-guard = 높이는 크기 조정되지 않았습니다: { $g }(너비만)
 help-about = 도움말/정보
@@ -6997,6 +7006,9 @@ re-layout-tip = 연결을 기준으로 페이지 다시 배치
 layout-options-tip = 레이아웃 스타일 및 도형 간격
 layout-size-tip = 페이지를 그림에 맞춤
 page-breaks-tip = 페이지가 용지에서 나뉘는 위치 표시
+# $n (Number) - style number
+heading-style-n = 머리글 스타일 { $n }
+heading-style-tip = 컨테이너 머리글 위치
 
 
 ## ########## Resource: app ###############
@@ -7366,7 +7378,6 @@ guide-added-vertical = 已添加位于 { $v } 的垂直参考线
 guide-id = 参考线 { $id }
 guides = 参考线
 heading-style = 标题样式
-heading-style-gallery-planned = 标题样式库 — 计划中
 height = 高度
 height-not-resized-guard = 高度未调整：{ $g }（仅调整宽度）
 help-about = 帮助 / 关于
@@ -8075,4 +8086,7 @@ re-layout-tip = 根据连接重新布局页面
 layout-options-tip = 布局样式和形状间距
 layout-size-tip = 使页面适合绘图
 page-breaks-tip = 显示页面在纸张上的分页位置
+# $n (Number) - style number
+heading-style-n = 标题样式 { $n }
+heading-style-tip = 容器标题的显示位置
 

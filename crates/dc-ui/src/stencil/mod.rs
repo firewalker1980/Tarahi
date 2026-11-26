@@ -1096,7 +1096,7 @@ pub fn master_from_shape(
             a.1 = src.id.to_string();
         }
     }
-    renumber_from_5(&mut root);
+    vsdx::model::renumber_from_5(&mut root);
     let part = format!("visio/masters/master{id}.xml");
     // pictures: fresh rIds on the master part, bytes from where the
     // original lived (the page for a plain picture, else the master)
@@ -1200,63 +1200,6 @@ pub fn master_from_shape(
     Some((m, media))
 }
 
-/// Visio ignores master shapes with IDs 1-4 (its own masters number from
-/// 5; a master whose root is ID 1 opens with no shapes and can't be
-/// dropped). Shift the tree's IDs up when needed, `Sheet.N!` formula
-/// references included.
-fn renumber_from_5(root: &mut vsdx::Shape) {
-    fn ids(s: &vsdx::Shape, out: &mut Vec<i64>) {
-        out.push(s.id);
-        for c in &s.sub_shapes {
-            ids(c, out);
-        }
-    }
-    let mut all = Vec::new();
-    ids(root, &mut all);
-    let Some(&min) = all.iter().min() else { return };
-    if min >= 5 {
-        return;
-    }
-    let off = 5 - min;
-    fn fix_f(f: &mut Option<String>, map: &[i64], off: i64) {
-        if let Some(text) = f {
-            // longest ids first so Sheet.1! never rewrites Sheet.12!
-            let mut ids: Vec<i64> = map.to_vec();
-            ids.sort_by(|a, b| b.cmp(a));
-            for id in ids {
-                *text = text.replace(&format!("Sheet.{id}!"), &format!("Sheet.\u{0}{}!", id + off));
-            }
-            *text = text.replace("Sheet.\u{0}", "Sheet.");
-        }
-    }
-    fn walk(s: &mut vsdx::Shape, map: &[i64], off: i64) {
-        s.id += off;
-        if let Some(a) = s.attrs.iter_mut().find(|(k, _)| k == "ID") {
-            a.1 = s.id.to_string();
-        }
-        for ch in &mut s.sheet.children {
-            match ch {
-                vsdx::model::SheetChild::Cell(_, c) => fix_f(&mut c.f, map, off),
-                vsdx::model::SheetChild::Section(sec) => {
-                    for (_, c) in &mut sec.cells {
-                        fix_f(&mut c.f, map, off);
-                    }
-                    for r in &mut sec.rows {
-                        for (_, c) in &mut r.cells {
-                            fix_f(&mut c.f, map, off);
-                        }
-                    }
-                }
-                _ => {}
-            }
-        }
-        for c in &mut s.sub_shapes {
-            walk(c, map, off);
-        }
-    }
-    walk(root, &all, off);
-}
-
 #[cfg(test)]
 mod renumber_tests {
     #[test]
@@ -1264,7 +1207,7 @@ mod renumber_tests {
         let mut child = vsdx::Shape { id: 2, ..Default::default() };
         child.sheet.set_cell("Width", vsdx::Cell { v: Some("1".into()), f: Some("Sheet.1!Width*0.5+Sheet.12!Width".into()), ..Default::default() });
         let mut root = vsdx::Shape { id: 1, sub_shapes: vec![child], ..Default::default() };
-        super::renumber_from_5(&mut root);
+        vsdx::model::renumber_from_5(&mut root);
         assert_eq!((root.id, root.sub_shapes[0].id), (5, 6));
         assert_eq!(root.sub_shapes[0].sheet.cell("Width").unwrap().f.as_deref(), Some("Sheet.5!Width*0.5+Sheet.12!Width"));
     }

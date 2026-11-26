@@ -419,7 +419,6 @@ guide-added-vertical = vertical guide at { $v } added
 guide-id = guide { $id }
 guides = Guides
 heading-style = Heading Style
-heading-style-gallery-planned = Heading style gallery — planned
 height = Height
 # $g (String) - guard formula
 height-not-resized-guard = height not resized: { $g } (width only)
@@ -1246,3 +1245,6 @@ re-layout-tip = Lay the page out from its connections
 layout-options-tip = Layout style and spacing between shapes
 layout-size-tip = Fit the page to the drawing
 page-breaks-tip = Show where the page splits across sheets of paper
+# $n (Number) - style number
+heading-style-n = Heading style { $n }
+heading-style-tip = Where the container shows its heading

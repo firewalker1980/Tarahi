@@ -388,7 +388,6 @@ guide-added-vertical = vertikale Führungslinie bei { $v } hinzugefügt
 guide-id = Führungslinie { $id }
 guides = Führungslinien
 heading-style = Überschriftenstil
-heading-style-gallery-planned = Überschriftenstil-Galerie — geplant
 height = Höhe
 # $g - Schutzformel
 height-not-resized-guard = Höhe nicht geändert: { $g } (nur Breite)
@@ -1171,3 +1170,6 @@ re-layout-tip = Seite anhand der Verbindungen anordnen
 layout-options-tip = Layoutstil und Abstand zwischen Formen
 layout-size-tip = Seite an die Zeichnung anpassen
 page-breaks-tip = Zeigen, wo die Seite auf mehrere Blätter aufgeteilt wird
+# $n (Number) - style number
+heading-style-n = Überschriftenstil { $n }
+heading-style-tip = Wo der Container seine Überschrift zeigt

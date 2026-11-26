@@ -363,7 +363,6 @@ guide-added-vertical = 已添加位于 { $v } 的垂直参考线
 guide-id = 参考线 { $id }
 guides = 参考线
 heading-style = 标题样式
-heading-style-gallery-planned = 标题样式库 — 计划中
 height = 高度
 height-not-resized-guard = 高度未调整：{ $g }（仅调整宽度）
 help-about = 帮助 / 关于
@@ -1072,3 +1071,6 @@ re-layout-tip = 根据连接重新布局页面
 layout-options-tip = 布局样式和形状间距
 layout-size-tip = 使页面适合绘图
 page-breaks-tip = 显示页面在纸张上的分页位置
+# $n (Number) - style number
+heading-style-n = 标题样式 { $n }
+heading-style-tip = 容器标题的显示位置

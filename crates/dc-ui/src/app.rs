@@ -2295,6 +2295,10 @@ impl App {
     }
 
     fn save_to(&mut self, path: &Path) {
+        // Visio's container relationships follow the membership
+        if let Some(ed) = self.ed.as_mut() {
+            crate::containers::sync_relationships(&mut ed.doc);
+        }
         let Some(ed) = self.ed() else { return };
         match ed.save_as(path) {
             Ok(()) => {
@@ -4693,24 +4697,7 @@ impl App {
     /// Shapes whose `User.msvSDContainerShape` names `container_id`
     /// (Visio's membership convention, #27).
     fn container_member_ids(&self, page_id: i64, container_id: i64) -> Vec<i64> {
-        let Some(ed) = self.ed() else {
-            return Vec::new();
-        };
-        let Some(page) = ed.doc.pages.iter().find(|p| p.id == page_id) else {
-            return Vec::new();
-        };
-        page.shapes
-            .iter()
-            .filter(|s| {
-                s.sheet.sections_named("User").iter().any(|sec| {
-                    sec.named_row("msvSDContainerShape")
-                        .and_then(|r| r.cell("Value"))
-                        .and_then(|c| c.numeric())
-                        == Some(container_id as f64)
-                })
-            })
-            .map(|s| s.id)
-            .collect()
+        self.ed().map(|ed| crate::containers::members(&ed.doc, page_id, container_id)).unwrap_or_default()
     }
 
     /// #75: the topmost container under the selection's centroid —
@@ -4746,17 +4733,7 @@ impl App {
         };
         // Which ids some member references (container identity by
         // membership convention).
-        let referenced: std::collections::HashSet<i64> = page
-            .shapes
-            .iter()
-            .flat_map(|s| s.sheet.sections_named("User"))
-            .filter_map(|sec| {
-                sec.named_row("msvSDContainerShape")
-                    .and_then(|r| r.cell("Value"))
-                    .and_then(|c| c.numeric())
-                    .map(|v| v as i64)
-            })
-            .collect();
+        let referenced: std::collections::HashSet<i64> = page.shapes.iter().filter_map(crate::containers::container_of).collect();
         let mut found: Option<i64> = None;
         for s in &page.shapes {
             if members.contains(&s.id) {
@@ -4812,6 +4789,10 @@ impl App {
         };
         if refit {
             cmds.extend(crate::containers::fit_cmds(&probe, page_id, cid, false));
+        }
+        if row == "msvSDHeadingStyle" {
+            // the parts' formulas follow the new style
+            cmds.extend(crate::cmd::group_cache_refresh(&probe, page_id, cid, 1.0, 1.0));
         }
         self.apply(Macro::new(format!("container {row}"), cmds));
     }
@@ -5384,7 +5365,18 @@ impl App {
         };
         let s = crate::i18n::strs();
         let unit = self.view.unit;
-        let (title, cur, opts): (String, f64, Vec<(String, f64)>) = if which == 0 {
+        let user = |name: &str| {
+            let chain = shape_chain(&ed.doc, page_id, cid).ok()?;
+            ed.doc.effective_user_row(c, &chain, name).and_then(|r| r.cell("Value")).and_then(|v| v.numeric())
+        };
+        let (title, cur, opts): (String, f64, Vec<(String, f64)>) = if which == 2 {
+            let count = user("msvSDHeadingStyleCount").unwrap_or(1.0).max(1.0) as i64;
+            (
+                s.msg_heading_style(),
+                user("msvSDHeadingStyle").unwrap_or(1.0),
+                (1..=count).map(|i| (s.msg_heading_style_n(i), i as f64)).collect(),
+            )
+        } else if which == 0 {
             let m = crate::containers::margin(&ed.doc, page_id, c);
             (
                 s.msg_margins(),
@@ -5415,7 +5407,11 @@ impl App {
                 }
             });
         if let Some(v) = pick {
-            let row = if which == 0 { "msvSDContainerMargin" } else { "msvSDContainerResize" };
+            let row = match which {
+                0 => "msvSDContainerMargin",
+                1 => "msvSDContainerResize",
+                _ => "msvSDHeadingStyle",
+            };
             self.set_container_setting(row, v);
             self.container_menu = None;
         } else if !open {
@@ -10293,6 +10289,7 @@ impl App {
                 }
             }
             Action::ContainerMenu(n) => self.container_menu = Some(n),
+            Action::ContainerHeading => self.container_menu = Some(2),
             Action::TaskPanes => self.panes_menu = !self.panes_menu,
             Action::StampTool => {
                 self.stamp = !self.stamp;

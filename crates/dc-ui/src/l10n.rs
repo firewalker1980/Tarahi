@@ -2480,13 +2480,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "heading-style-gallery-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "height",
         attribute: None,
         vars: &[],
@@ -7176,6 +7169,20 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "heading-style-n",
+        attribute: None,
+        vars: &["n"],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "heading-style-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7275,13 +7282,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50603,
-            Self::En => 50603..99299,
-            Self::Es => 99299..152928,
-            Self::Fa => 152928..215785,
-            Self::Ja => 215785..270045,
-            Self::Ko => 270045..320019,
-            Self::ZhHans => 320019..363291,
+            Self::De => 0..50667,
+            Self::En => 50667..99423,
+            Self::Es => 99423..153114,
+            Self::Fa => 153114..216037,
+            Self::Ja => 216037..270349,
+            Self::Ko => 270349..320377,
+            Self::ZhHans => 320377..363702,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -8698,9 +8705,6 @@ impl L10nLanguage {
     }
     pub fn msg_heading_style(&self) -> String {
         self.0.msg("heading-style", None).unwrap()
-    }
-    pub fn msg_heading_style_gallery_planned(&self) -> String {
-        self.0.msg("heading-style-gallery-planned", None).unwrap()
     }
     pub fn msg_height(&self) -> String {
         self.0.msg("height", None).unwrap()
@@ -11251,5 +11255,14 @@ impl L10nLanguage {
     }
     pub fn msg_page_breaks_tip(&self) -> String {
         self.0.msg("page-breaks-tip", None).unwrap()
+    }
+    /// $n (Number) - style number
+    pub fn msg_heading_style_n<F0: Into<FluentNumber>>(&self, n: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("n", n.into());
+        self.0.msg("heading-style-n", Some(_args)).unwrap()
+    }
+    pub fn msg_heading_style_tip(&self) -> String {
+        self.0.msg("heading-style-tip", None).unwrap()
     }
 }

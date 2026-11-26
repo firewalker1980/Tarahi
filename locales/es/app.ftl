@@ -417,7 +417,6 @@ guide-added-vertical = guía vertical en { $v } agregada
 guide-id = guía { $id }
 guides = Guías
 heading-style = Estilo de título
-heading-style-gallery-planned = Galería de estilos de título — planeado
 height = Alto
 # $g - fórmula protectora
 height-not-resized-guard = alto sin cambiar de tamaño: { $g } (solo el ancho)
@@ -1241,3 +1240,6 @@ re-layout-tip = Redistribuir la página según sus conexiones
 layout-options-tip = Estilo de diseño y espacio entre formas
 layout-size-tip = Ajustar la página al dibujo
 page-breaks-tip = Mostrar dónde se divide la página en hojas de papel
+# $n (Number) - style number
+heading-style-n = Estilo de encabezado { $n }
+heading-style-tip = Dónde muestra el contenedor su encabezado

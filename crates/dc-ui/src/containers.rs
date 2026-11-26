@@ -17,19 +17,129 @@ fn user(doc: &Document, page: i64, s: &Shape, name: &str) -> Option<f64> {
         .and_then(|c| c.numeric())
 }
 
-/// Top-level members of `container` on `page`.
+/// The sheet ids a `Relationships` formula lists under `DEPENDSON(kind,
+/// Sheet.N!SheetRef(), …)` (Visio: 1 = a container's members, 4 = the
+/// containers a shape belongs to).
+pub fn dependson(f: &str, kind: u32) -> Vec<i64> {
+    let mut out = Vec::new();
+    let mut rest = f;
+    while let Some(i) = rest.find("DEPENDSON(") {
+        rest = &rest[i + 10..];
+        let end = rest.find(')').map_or(rest.len(), |e| {
+            // the term ends at the bracket closing DEPENDSON(
+            let mut depth = 0;
+            for (j, c) in rest.char_indices() {
+                match c {
+                    '(' => depth += 1,
+                    ')' if depth == 0 => return j,
+                    ')' => depth -= 1,
+                    _ => {}
+                }
+            }
+            e
+        });
+        let term = &rest[..end];
+        let mut parts = term.split(',');
+        if parts.next().and_then(|k| k.trim().parse::<u32>().ok()) == Some(kind) {
+            for p in parts {
+                if let Some(n) = p.trim().strip_prefix("Sheet.").and_then(|x| x.split('!').next()).and_then(|x| x.parse().ok()) {
+                    out.push(n);
+                }
+            }
+        }
+        rest = &rest[end..];
+    }
+    out
+}
+
+fn relationships(s: &Shape) -> Option<&str> {
+    s.sheet.cell("Relationships").and_then(|c| c.f.as_deref())
+}
+
+/// The container a top-level shape belongs to: Tarahi's
+/// `User.msvSDContainerShape`, else Visio's `DEPENDSON(4, …)`.
+pub fn container_of(s: &Shape) -> Option<i64> {
+    s.sheet
+        .sections_named("User")
+        .iter()
+        .find_map(|sec| sec.named_row("msvSDContainerShape"))
+        .and_then(|r| r.cell("Value"))
+        .and_then(|c| c.numeric())
+        .map(|v| v as i64)
+        .or_else(|| relationships(s).and_then(|f| dependson(f, 4).first().copied()))
+}
+
+/// Top-level members of `container` on `page`: shapes naming it (either
+/// convention) and the shapes its own `DEPENDSON(1, …)` lists.
 pub fn members(doc: &Document, page: i64, container: i64) -> Vec<i64> {
     let Some(p) = doc.pages.iter().find(|p| p.id == page) else { return vec![] };
+    let listed: Vec<i64> = p
+        .shapes
+        .iter()
+        .find(|s| s.id == container)
+        .and_then(relationships)
+        .map(|f| dependson(f, 1))
+        .unwrap_or_default();
     p.shapes
         .iter()
-        .filter(|s| {
-            s.sheet.sections_named("User").iter().any(|sec| {
-                sec.named_row("msvSDContainerShape").and_then(|r| r.cell("Value")).and_then(|c| c.numeric())
-                    == Some(container as f64)
-            })
-        })
+        .filter(|s| s.id != container && (container_of(s) == Some(container) || listed.contains(&s.id)))
         .map(|s| s.id)
         .collect()
+}
+
+/// Before a save: Visio's `Relationships` cells (container ↔ members)
+/// made to match the membership, so Visio sees Tarahi's containers.
+/// Cells holding other relationship kinds (callouts, lists) are left
+/// alone. Derived data, written straight into the model.
+pub fn sync_relationships(doc: &mut Document) {
+    for pi in 0..doc.pages.len() {
+        let page = doc.pages[pi].id;
+        let p = &doc.pages[pi];
+        let containers: Vec<i64> = {
+            let mut v: Vec<i64> = p.shapes.iter().filter_map(container_of).collect();
+            v.extend(p.shapes.iter().filter(|s| relationships(s).is_some_and(|f| !dependson(f, 1).is_empty())).map(|s| s.id));
+            v.sort();
+            v.dedup();
+            v.retain(|c| p.shapes.iter().any(|s| s.id == *c));
+            v
+        };
+        let mut want: Vec<(i64, Option<String>)> = Vec::new();
+        for s in &p.shapes {
+            let own: Vec<i64> = if containers.contains(&s.id) { members(doc, page, s.id) } else { vec![] };
+            let of = container_of(s).filter(|c| containers.contains(c));
+            let mut terms = Vec::new();
+            if !own.is_empty() {
+                terms.push(format!("DEPENDSON(1,{})", own.iter().map(|m| format!("Sheet.{m}!SheetRef()")).collect::<Vec<_>>().join(",")));
+            }
+            if let Some(c) = of {
+                terms.push(format!("DEPENDSON(4,Sheet.{c}!SheetRef())"));
+            }
+            let cur = relationships(s);
+            // only cells that are ours to manage: absent or containers-only
+            let managed = cur.is_none_or(|f| {
+                let all = f.matches("DEPENDSON(").count();
+                let ours = (!dependson(f, 1).is_empty()) as usize + (!dependson(f, 4).is_empty()) as usize;
+                all == ours
+            });
+            if !managed {
+                continue;
+            }
+            let new = (!terms.is_empty()).then(|| format!("SUM({})", terms.join(",")));
+            if new.as_deref() != cur {
+                want.push((s.id, new));
+            }
+        }
+        let p = &mut doc.pages[pi];
+        for (id, f) in want {
+            let Some(s) = p.shapes.iter_mut().find(|s| s.id == id) else { continue };
+            match f {
+                Some(f) => s.sheet.set_cell("Relationships", Cell { v: Some("0".into()), f: Some(f), ..Cell::default() }),
+                None => {
+                    dc_core::commands::remove_cell(&mut s.sheet, "Relationships");
+                }
+            }
+        }
+    }
 }
 
 fn rect(doc: &Document, page: i64, s: &Shape) -> Option<(f64, f64, f64, f64)> {
@@ -109,14 +219,7 @@ pub fn auto_resizing(doc: &Document, page: i64, moved: &[i64]) -> Vec<i64> {
     let Some(p) = doc.pages.iter().find(|p| p.id == page) else { return vec![] };
     let mut out: Vec<i64> = Vec::new();
     for s in p.shapes.iter().filter(|s| moved.contains(&s.id)) {
-        let cont = s
-            .sheet
-            .sections_named("User")
-            .iter()
-            .find_map(|sec| sec.named_row("msvSDContainerShape"))
-            .and_then(|r| r.cell("Value"))
-            .and_then(|c| c.numeric())
-            .map(|v| v as i64);
+        let cont = container_of(s);
         if let Some(cid) = cont {
             if out.contains(&cid) || moved.contains(&cid) {
                 continue;
@@ -205,6 +308,26 @@ mod tests {
             }));
         }
         s
+    }
+
+    #[test]
+    fn visio_relationships_read_and_written() {
+        assert_eq!(dependson("SUM(DEPENDSON(1,Sheet.2!SheetRef(),Sheet.1!SheetRef()))", 1), vec![2, 1]);
+        assert_eq!(dependson("SUM(DEPENDSON(4,Sheet.3!SheetRef()))", 4), vec![3]);
+        assert!(dependson("SUM(DEPENDSON(4,Sheet.3!SheetRef()))", 1).is_empty());
+        let mut doc = Document {
+            pages: vec![vsdx::model::Page { id: 0, shapes: vec![shape(1, 0.0, 0.0, 10.0, 10.0, None), shape(2, 1.0, 1.0, 1.0, 1.0, Some(1))], ..Default::default() }],
+            ..Document::default()
+        };
+        sync_relationships(&mut doc);
+        let f = |id: usize| doc.pages[0].shapes[id].sheet.cell("Relationships").and_then(|c| c.f.clone());
+        assert_eq!(f(0).as_deref(), Some("SUM(DEPENDSON(1,Sheet.2!SheetRef()))"));
+        assert_eq!(f(1).as_deref(), Some("SUM(DEPENDSON(4,Sheet.1!SheetRef()))"));
+        // Visio-only membership is understood
+        let mut v = Shape { id: 3, ..Shape::default() };
+        v.sheet.set_cell("Relationships", Cell { v: Some("0".into()), f: Some("SUM(DEPENDSON(4,Sheet.1!SheetRef()))".into()), ..Cell::default() });
+        doc.pages[0].shapes.push(v);
+        assert_eq!(members(&doc, 0, 1), vec![2, 3]);
     }
 
     #[test]

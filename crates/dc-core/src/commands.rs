@@ -2288,20 +2288,30 @@ impl crate::Command for AddMasterInstance {
             cache("LocPinY", locpiny_v);
             cache("Angle", 0.0);
         }
+        // the instance takes its master root's type (a Group master
+        // makes a Group instance: Visio mis-reads a "Shape" over a
+        // group master) and style ids
+        let root = doc.master(self.master).and_then(|m| m.shapes.first());
+        let ty = root.and_then(|r| r.type_.clone()).unwrap_or_else(|| "Shape".to_string());
+        let (ls, fs, ts) = (
+            root.and_then(|r| r.line_style).unwrap_or(0),
+            root.and_then(|r| r.fill_style).unwrap_or(0),
+            root.and_then(|r| r.text_style).unwrap_or(0),
+        );
         let shape = Shape {
             id,
-            type_: Some("Shape".to_string()),
+            type_: Some(ty.clone()),
             master: Some(self.master),
-            line_style: Some(0),
-            fill_style: Some(0),
-            text_style: Some(0),
+            line_style: Some(ls),
+            fill_style: Some(fs),
+            text_style: Some(ts),
             attrs: vec![
                 ("ID".to_string(), id.to_string()),
-                ("Type".to_string(), "Shape".to_string()),
+                ("Type".to_string(), ty),
                 ("Master".to_string(), self.master.to_string()),
-                ("LineStyle".to_string(), "0".to_string()),
-                ("FillStyle".to_string(), "0".to_string()),
-                ("TextStyle".to_string(), "0".to_string()),
+                ("LineStyle".to_string(), ls.to_string()),
+                ("FillStyle".to_string(), fs.to_string()),
+                ("TextStyle".to_string(), ts.to_string()),
             ],
             sheet,
             ..Shape::default()

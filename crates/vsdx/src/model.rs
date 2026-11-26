@@ -1933,3 +1933,136 @@ mod flatten_tests {
         assert_eq!(f.sheet.text.as_deref(), Some("Router"));
     }
 }
+
+/// Visio ignores master shapes with IDs 1-3 (checked with Visio 2016: a
+/// master whose root is ID 1, 2 or 3 opens with no shapes and can't be
+/// dropped; 4 works, its own masters usually start at 5). Shift the
+/// tree's IDs to start at 5 when needed, `Sheet.N!` formula references
+/// included. Returns the offset applied (0 when none).
+pub fn renumber_from_5(root: &mut Shape) -> i64 {
+    let mut all = Vec::new();
+    tree_ids(root, &mut all);
+    let Some(&min) = all.iter().min() else { return 0 };
+    if min >= 4 {
+        return 0;
+    }
+    shift_ids(root, 5 - min, &all);
+    5 - min
+}
+
+fn tree_ids(s: &Shape, out: &mut Vec<i64>) {
+    out.push(s.id);
+    for c in &s.sub_shapes {
+        tree_ids(c, out);
+    }
+}
+
+/// Add `off` to every ID in the tree and to `Sheet.N!` references to
+/// any of `ids` in its formulas.
+fn shift_ids(s: &mut Shape, off: i64, ids: &[i64]) {
+    fn fix_f(f: &mut Option<String>, ids: &[i64], off: i64) {
+        if let Some(text) = f {
+            // longest ids first so Sheet.1! never rewrites Sheet.12!
+            let mut sorted: Vec<i64> = ids.to_vec();
+            sorted.sort_by(|a, b| b.cmp(a));
+            for id in sorted {
+                *text = text.replace(&format!("Sheet.{id}!"), &format!("Sheet.\u{0}{}!", id + off));
+            }
+            *text = text.replace("Sheet.\u{0}", "Sheet.");
+        }
+    }
+    s.id += off;
+    if let Some(a) = s.attrs.iter_mut().find(|(k, _)| k == "ID") {
+        a.1 = s.id.to_string();
+    }
+    for ch in &mut s.sheet.children {
+        match ch {
+            SheetChild::Cell(_, c) => fix_f(&mut c.f, ids, off),
+            SheetChild::Section(sec) => {
+                for (_, c) in &mut sec.cells {
+                    fix_f(&mut c.f, ids, off);
+                }
+                for r in &mut sec.rows {
+                    for (_, c) in &mut r.cells {
+                        fix_f(&mut c.f, ids, off);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    for c in &mut s.sub_shapes {
+        shift_ids(c, off, ids);
+    }
+}
+
+impl Document {
+    /// Masters whose shapes use IDs 1-3 (files written by older Tarahi
+    /// builds; Visio drops such masters' instances) get their IDs
+    /// shifted to start at 5, with the instances' MasterShape references
+    /// following. Masters Visio wrote are never touched.
+    pub fn repair_low_master_ids(&mut self) {
+        let mut shifted: Vec<(i64, i64)> = Vec::new();
+        for m in &mut self.masters {
+            let mut ids = Vec::new();
+            for s in &m.shapes {
+                tree_ids(s, &mut ids);
+            }
+            let Some(&min) = ids.iter().min() else { continue };
+            if min >= 4 {
+                continue;
+            }
+            let off = 5 - min;
+            for s in &mut m.shapes {
+                shift_ids(s, off, &ids);
+            }
+            shifted.push((m.id, off));
+        }
+        if shifted.is_empty() {
+            return;
+        }
+        fn fix(s: &mut Shape, master: Option<i64>, shifted: &[(i64, i64)]) {
+            let m = s.master.or(master);
+            if let (Some(mid), Some(ms)) = (m, s.master_shape) {
+                if let Some((_, off)) = shifted.iter().find(|(id, _)| *id == mid) {
+                    s.master_shape = Some(ms + off);
+                    if let Some(a) = s.attrs.iter_mut().find(|(k, _)| k == "MasterShape") {
+                        a.1 = (ms + off).to_string();
+                    }
+                }
+            }
+            for c in &mut s.sub_shapes {
+                fix(c, m, shifted);
+            }
+        }
+        for p in &mut self.pages {
+            for s in &mut p.shapes {
+                fix(s, None, &shifted);
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod repair_tests {
+    use super::*;
+
+    #[test]
+    fn low_master_ids_shift_with_their_instances() {
+        let mut group = Shape { id: 1, sub_shapes: vec![Shape { id: 2, ..Shape::default() }], ..Shape::default() };
+        group.sub_shapes[0].sheet.set_cell("PinX", Cell { v: Some("1".into()), f: Some("Sheet.1!Width/2".into()), ..Cell::default() });
+        let fine = Shape { id: 4, ..Shape::default() };
+        let inst = Shape { id: 7, master: Some(3), sub_shapes: vec![Shape { id: 8, master_shape: Some(2), ..Shape::default() }], ..Shape::default() };
+        let mut doc = Document {
+            masters: vec![Master { id: 3, shapes: vec![group], ..Master::default() }, Master { id: 9, shapes: vec![fine], ..Master::default() }],
+            pages: vec![Page { shapes: vec![inst], ..Page::default() }],
+            ..Document::default()
+        };
+        doc.repair_low_master_ids();
+        let m = &doc.masters[0].shapes[0];
+        assert_eq!((m.id, m.sub_shapes[0].id), (5, 6));
+        assert_eq!(m.sub_shapes[0].sheet.cell("PinX").unwrap().f.as_deref(), Some("Sheet.5!Width/2"));
+        assert_eq!(doc.masters[1].shapes[0].id, 4, "ID 4 is fine (Visio's own masters use it)");
+        assert_eq!(doc.pages[0].shapes[0].sub_shapes[0].master_shape, Some(6));
+    }
+}

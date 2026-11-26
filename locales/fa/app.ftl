@@ -388,7 +388,6 @@ guide-added-vertical = راهنمای عمودی در { $v } افزوده شد
 guide-id = راهنما { $id }
 guides = راهنماها
 heading-style = سبک عنوان
-heading-style-gallery-planned = گالری سبک عنوان — برنامه‌ریزی شده
 height = ارتفاع
 # $g - فرمول نگهبان
 height-not-resized-guard = ارتفاع تغییر نکرد: { $g } (فقط عرض)
@@ -1171,3 +1170,6 @@ re-layout-tip = چیدن صفحه بر پایهٔ اتصال‌ها
 layout-options-tip = سبک چیدمان و فاصلهٔ شکل‌ها
 layout-size-tip = تطبیق صفحه با نقشه
 page-breaks-tip = نمایش جایی که صفحه روی چند برگ کاغذ تقسیم می‌شود
+# $n (Number) - style number
+heading-style-n = سبک سرعنوان { $n }
+heading-style-tip = جایی که ظرف سرعنوانش را نشان می‌دهد

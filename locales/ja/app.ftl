@@ -363,7 +363,6 @@ guide-added-vertical = 垂直ガイドを { $v } に追加しました
 guide-id = ガイド { $id }
 guides = ガイド
 heading-style = 見出しスタイル
-heading-style-gallery-planned = 見出しスタイル ギャラリー — 予定
 height = 高さ
 height-not-resized-guard = 高さはサイズ変更されませんでした: { $g }（幅のみ）
 help-about = ヘルプ/バージョン情報
@@ -1067,3 +1066,6 @@ re-layout-tip = 接続に基づいてページを再レイアウト
 layout-options-tip = レイアウトのスタイルと図形の間隔
 layout-size-tip = ページを図面に合わせる
 page-breaks-tip = ページが用紙のどこで分かれるかを表示
+# $n (Number) - style number
+heading-style-n = 見出しスタイル { $n }
+heading-style-tip = コンテナーの見出しの位置

@@ -172,6 +172,9 @@ fn parse_package(pkg: Package) -> Result<Document> {
     }
 
     doc.package = Some(pkg);
+    // masters older Tarahi builds wrote with shape IDs < 5 (Visio drops
+    // them): renumber on load so the next save repairs the file
+    doc.repair_low_master_ids();
     Ok(doc)
 }
 

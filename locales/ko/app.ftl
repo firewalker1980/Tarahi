@@ -364,7 +364,6 @@ guide-added-vertical = 세로 안내선을 { $v }에 추가했습니다
 guide-id = 안내선 { $id }
 guides = 안내선
 heading-style = 제목 스타일
-heading-style-gallery-planned = 제목 스타일 갤러리 — 예정
 height = 높이
 height-not-resized-guard = 높이는 크기 조정되지 않았습니다: { $g }(너비만)
 help-about = 도움말/정보
@@ -1068,3 +1067,6 @@ re-layout-tip = 연결을 기준으로 페이지 다시 배치
 layout-options-tip = 레이아웃 스타일 및 도형 간격
 layout-size-tip = 페이지를 그림에 맞춤
 page-breaks-tip = 페이지가 용지에서 나뉘는 위치 표시
+# $n (Number) - style number
+heading-style-n = 머리글 스타일 { $n }
+heading-style-tip = 컨테이너 머리글 위치

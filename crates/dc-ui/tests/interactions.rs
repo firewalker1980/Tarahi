@@ -11570,3 +11570,40 @@ fn features_sample_for_visio() {
         std::thread::sleep(std::time::Duration::from_millis(30));
     }
 }
+
+/// Container Tools ▸ Heading Style: the gallery lists the container's
+/// styles; a pick sets msvSDHeadingStyle (HEADING_OUT saves the result
+/// for a Visio comparison).
+#[test]
+fn container_heading_style() {
+    let mut h = harness_with_blank();
+    h.run();
+    let _ = place_master(&mut h, 2);
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    h.get_all_by_label("Container").next().unwrap().click();
+    h.run();
+    h.run();
+    h.get_all_by_label("Plain").last().unwrap().click();
+    h.run();
+    h.run();
+    let (_, cont) = h.state().debug_sel().unwrap();
+    h.get_by_label("Heading Style").click();
+    h.run();
+    h.run();
+    h.get_by_label("Heading style \u{2068}2\u{2069}").click();
+    h.run();
+    h.run();
+    assert_eq!(h.state().debug_user_value_for_test(cont, "msvSDHeadingStyle"), Some(2.0));
+    if let Some(out) = std::env::var_os("HEADING_OUT") {
+        h.state_mut().preset_save_as_for_test(Some(std::path::PathBuf::from(out.clone())));
+        h.key_press_modifiers(egui::Modifiers::COMMAND | egui::Modifiers::SHIFT, egui::Key::S);
+        for _ in 0..30 {
+            h.run();
+            if std::path::Path::new(&out).exists() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(30));
+        }
+    }
+}

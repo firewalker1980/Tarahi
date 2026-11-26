@@ -122,7 +122,7 @@ const MASTERS_RELS: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="y
 const MASTER1: &str = r#"<?xml version="1.0" encoding="utf-8"?>
 <MasterContents xmlns='http://schemas.microsoft.com/office/visio/2012/main' xmlns:r='http://schemas.openxmlformats.org/officeDocument/2006/relationships'>
 <Shapes>
-<Shape ID='1' Type='Shape' LineStyle='0' FillStyle='0' TextStyle='0'>
+<Shape ID='5' Type='Shape' LineStyle='0' FillStyle='0' TextStyle='0'>
   <Cell N='Width' V='1'/><Cell N='Height' V='1'/>
   <Cell N='LineWeight' V='0.015625'/>
   <Section N='Geometry' IX='0'>
@@ -1458,7 +1458,7 @@ fn scopes_parse_and_resolve() {
         "page:0/shape:2",
         "style:0",
         "master:7",
-        "master:7/shape:1",
+        "master:7/shape:5",
     ] {
         let scope = Scope::parse(s).unwrap();
         assert!(scope_sheet(&ed.doc, &scope).is_ok(), "{s} should resolve");

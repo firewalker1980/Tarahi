@@ -78,10 +78,10 @@ fn styles_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super
 
 fn heading_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![big(
-        RibbonButton::new(Icon::FontA, s.msg_heading_style(), Action::Macros)
-            .enabled(false)
+        RibbonButton::new(Icon::FontA, s.msg_heading_style(), Action::ContainerHeading)
+            .enabled(ctx.sel_container)
             .split()
-            .tip(s.msg_heading_style_gallery_planned()),
+            .tip(s.msg_heading_style_tip()),
     )]
 }
 
