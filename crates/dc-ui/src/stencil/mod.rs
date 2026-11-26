@@ -290,7 +290,7 @@ impl Stencil {
                     // #266: user stencils from My Shapes — rescan while
                     // the menu is open (cheap; a dropped-in stencil
                     // shows the next time it opens), root `.vssx`
-                    // files plus one level of subfolders as submenus
+                    // files plus subfolders as nested submenus
                     // (observed Visio 2016 folder→submenu mapping). An
                     // empty My Shapes hides the entry entirely; the
                     // app-managed Built-ins directory is skipped (the
@@ -305,24 +305,7 @@ impl Stencil {
                                 egui::ScrollArea::vertical().max_height(420.0).show(ui, |ui| {
                                     my_shapes_files(ui, set, &mut self.request, &mine.root);
                                     for folder in &mine.folders {
-                                        ui.menu_button(folder.name.as_str(), |ui| {
-                                            // The folder popup scrolls on its own
-                                            // (CodeRabbit PR #277): the parent area
-                                            // scrolls the folder BUTTONS, not the
-                                            // contents of this separate popup — a
-                                            // deep folder would run past the screen
-                                            // with its tail unreachable.
-                                            egui::ScrollArea::vertical()
-                                                .max_height(420.0)
-                                                .show(ui, |ui| {
-                                                    my_shapes_files(
-                                                        ui,
-                                                        set,
-                                                        &mut self.request,
-                                                        &folder.files,
-                                                    );
-                                                });
-                                        });
+                                        my_shapes_folder(ui, set, &mut self.request, folder);
                                     }
                                 });
                             },
@@ -801,6 +784,27 @@ fn my_shapes_files(
             ui.close();
         }
     }
+}
+
+/// One My Shapes folder as a submenu: its own subfolders first (nested
+/// submenus), then its stencils. Every popup scrolls on its own
+/// (CodeRabbit PR #277): the parent area scrolls the folder BUTTONS,
+/// not the contents of this separate popup, so a deep folder would run
+/// past the screen with its tail unreachable.
+fn my_shapes_folder(
+    ui: &mut Ui,
+    set: &StencilSet,
+    request: &mut Option<Request>,
+    folder: &crate::stencil::disk::MyShapesFolder,
+) {
+    ui.menu_button(folder.name.as_str(), |ui| {
+        egui::ScrollArea::vertical().max_height(420.0).show(ui, |ui| {
+            for sub in &folder.folders {
+                my_shapes_folder(ui, set, request, sub);
+            }
+            my_shapes_files(ui, set, request, &folder.files);
+        });
+    });
 }
 
 /// The document-masters entry's cells (search-filtered, id order).

@@ -42,15 +42,51 @@ fn variant_path(my_shapes: &Path, b: &BuiltinStencil, metric: bool) -> PathBuf {
 }
 
 /// One subfolder of My Shapes (#266): its display name (the submenu
-/// label) and the `.vssx` files directly inside it.
+/// label), the stencils directly inside it and its own subfolders
+/// (nested submenus, so a vendor tree like `Vendor/Line/x.vss` linked
+/// into My Shapes browses the way Visio's stencil paths do).
 pub struct MyShapesFolder {
     pub name: String,
     pub files: Vec<PathBuf>,
+    pub folders: Vec<MyShapesFolder>,
 }
 
-/// What [`scan_my_shapes`] found (#266): the `.vssx` files in the My
-/// Shapes root plus one level of subfolders (folder → submenu,
-/// observed Visio 2016), both name-sorted. The app-managed
+/// Folder nesting walked below My Shapes (guards symlink loops).
+const MAX_DEPTH: usize = 6;
+
+/// Folders that never hold user stencils: dot folders and macOS
+/// archive metadata (`__MACOSX`, whose `._x.vss` files are not stencils).
+fn skip_dir(name: &std::ffi::OsStr) -> bool {
+    let n = name.to_string_lossy();
+    n.starts_with('.') || n == "__MACOSX"
+}
+
+/// The stencils and stencil-holding subfolders of `dir`, sorted; None
+/// when nothing below it is a stencil.
+fn scan_folder(name: String, dir: &Path, depth: usize) -> Option<MyShapesFolder> {
+    let mut files = vec![];
+    let mut folders = vec![];
+    for e in std::fs::read_dir(dir).ok()?.flatten() {
+        let (n, p) = (e.file_name(), e.path());
+        if n.to_string_lossy().starts_with('.') {
+            continue;
+        }
+        if p.is_dir() {
+            if depth < MAX_DEPTH && !skip_dir(&n) {
+                folders.extend(scan_folder(n.to_string_lossy().into_owned(), &p, depth + 1));
+            }
+        } else if p.is_file() && is_vssx(&p) {
+            files.push(p);
+        }
+    }
+    files.sort_by_key(|p| p.file_name().map_or_default(name_sort_key));
+    folders.sort_by_key(|f| f.name.to_lowercase());
+    (!files.is_empty() || !folders.is_empty()).then_some(MyShapesFolder { name, files, folders })
+}
+
+/// What [`scan_my_shapes`] found (#266): the stencils in the My
+/// Shapes root plus its subfolders as nested submenus (folder →
+/// submenu, observed Visio 2016), all name-sorted. The app-managed
 /// `Built-ins` directory is skipped — the built-in categories already
 /// represent it — and folders with no stencil inside are dropped.
 #[derive(Default)]
@@ -76,8 +112,8 @@ fn is_vssx(path: &Path) -> bool {
         .is_some_and(|e| e.eq_ignore_ascii_case("vssx") || e.eq_ignore_ascii_case("vss"))
 }
 
-/// Scan My Shapes for user stencils (#266): root `.vssx` files plus
-/// one level of subfolders, mirroring Visio's folder→submenu mapping.
+/// Scan My Shapes for user stencils (#266): root stencils plus nested
+/// subfolders, mirroring Visio's folder→submenu mapping.
 /// The scan is cheap and per-menu-open by design — never cached, so a
 /// stencil dropped into the folder shows the next time More Shapes
 /// opens. An absent or unreadable My Shapes yields an empty scan (the
@@ -119,23 +155,8 @@ pub fn scan_my_shapes(my_shapes: Option<&Path>) -> MyShapesScan {
     folders.sort_by_key(|(name, _)| name_sort_key(name));
     scan.folders = folders
         .into_iter()
-        .filter_map(|(name, dir)| {
-            // One level only: subfolders of subfolders are not
-            // walked (Visio maps one nesting level to submenus).
-            let mut files: Vec<PathBuf> = std::fs::read_dir(&dir)
-                .map(|rd| {
-                    rd.flatten()
-                        .map(|e| e.path())
-                        .filter(|p| p.is_file() && is_vssx(p))
-                        .collect()
-                })
-                .unwrap_or_default();
-            files.sort_by_key(|p| p.file_name().map_or_default(name_sort_key));
-            (!files.is_empty()).then_some(MyShapesFolder {
-                name: name.to_string_lossy().into_owned(),
-                files,
-            })
-        })
+        .filter(|(name, _)| !skip_dir(name))
+        .filter_map(|(name, dir)| scan_folder(name.to_string_lossy().into_owned(), &dir, 1))
         .collect();
     scan
 }
@@ -410,10 +431,10 @@ mod tests {
         assert_eq!(e, Extraction::default());
     }
 
-    /// #266: the My Shapes scan lists root `.vssx` files and one
-    /// level of subfolders (as submenus), skips the app-managed
-    /// `Built-ins` directory and dot entries, ignores non-stencil
-    /// files and deeper nesting, and hides empty folders. Sorting is
+    /// #266: the My Shapes scan lists root stencils and nested
+    /// subfolders (as submenus), skips the app-managed `Built-ins`
+    /// directory, dot entries and `__MACOSX`, ignores non-stencil
+    /// files, and hides empty folders. Sorting is
     /// name-based and case-insensitive.
     #[test]
     fn my_shapes_scan_lists_root_files_and_subfolders() {
@@ -443,9 +464,12 @@ mod tests {
         std::fs::write(root.join("Built-ins").join("basic.vssx"), b"synthetic").unwrap();
         std::fs::create_dir(root.join(".cache")).unwrap();
         std::fs::write(root.join(".cache").join("h.vssx"), b"synthetic").unwrap();
-        // Deeper nesting is NOT walked (one submenu level only).
+        // Nested folders become nested submenus; archive metadata
+        // folders are skipped.
         std::fs::create_dir_all(root.join("community").join("nested")).unwrap();
-        std::fs::write(root.join("community").join("nested").join("deep.vssx"), b"x").unwrap();
+        std::fs::write(root.join("community").join("nested").join("deep.vss"), b"x").unwrap();
+        std::fs::create_dir_all(root.join("community").join("__MACOSX")).unwrap();
+        std::fs::write(root.join("community").join("__MACOSX").join("._c1.vss"), b"x").unwrap();
 
         let scan = scan_my_shapes(Some(root));
         let stems = |files: &[PathBuf]| {
@@ -467,8 +491,12 @@ mod tests {
         assert_eq!(
             stems(&scan.folders[0].files),
             vec!["c1.vssx", "c2.vssx"],
-            "folder stencils sorted; nested subfolders not walked"
+            "folder stencils sorted"
         );
+        let nested = &scan.folders[0].folders;
+        assert_eq!(nested.len(), 1, "nested folder walked, __MACOSX skipped");
+        assert_eq!(nested[0].name, "nested");
+        assert_eq!(stems(&nested[0].files), vec!["deep.vss"]);
         assert!(!scan.is_empty());
     }
 
