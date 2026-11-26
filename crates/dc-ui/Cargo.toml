@@ -78,6 +78,8 @@ assets = [
 ]
 
 [dependencies]
+# Developer ▸ Operations: polygon booleans (union/intersect/subtract/fragment)
+i_overlay = "9"
 image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
 craft-ui = { path = "../../third_party/craft-ui" }
 anyhow.workspace = true

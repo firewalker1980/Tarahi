@@ -492,13 +492,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "boolean-shape-operations-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "border-title",
         attribute: None,
         vars: &[],
@@ -7099,6 +7092,55 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "op-union",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "op-combine",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "op-fragment",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "op-intersect",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "op-subtract",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "op-needs-filled-shapes",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "operations-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7198,13 +7240,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50084,
-            Self::En => 50084..98333,
-            Self::Es => 98333..151515,
-            Self::Fa => 151515..213993,
-            Self::Ja => 213993..267760,
-            Self::Ko => 267760..317262,
-            Self::ZhHans => 317262..360175,
+            Self::De => 0..50306,
+            Self::En => 50306..98736,
+            Self::Es => 98736..152116,
+            Self::Fa => 152116..214853,
+            Self::Ja => 214853..268863,
+            Self::Ko => 268863..318573,
+            Self::ZhHans => 318573..361654,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7506,11 +7548,6 @@ impl L10nLanguage {
     }
     pub fn msg_bold(&self) -> String {
         self.0.msg("bold", None).unwrap()
-    }
-    pub fn msg_boolean_shape_operations_planned(&self) -> String {
-        self.0
-            .msg("boolean-shape-operations-planned", None)
-            .unwrap()
     }
     pub fn msg_border_title(&self) -> String {
         self.0.msg("border-title", None).unwrap()
@@ -11140,5 +11177,26 @@ impl L10nLanguage {
     }
     pub fn msg_behavior_tip(&self) -> String {
         self.0.msg("behavior-tip", None).unwrap()
+    }
+    pub fn msg_op_union(&self) -> String {
+        self.0.msg("op-union", None).unwrap()
+    }
+    pub fn msg_op_combine(&self) -> String {
+        self.0.msg("op-combine", None).unwrap()
+    }
+    pub fn msg_op_fragment(&self) -> String {
+        self.0.msg("op-fragment", None).unwrap()
+    }
+    pub fn msg_op_intersect(&self) -> String {
+        self.0.msg("op-intersect", None).unwrap()
+    }
+    pub fn msg_op_subtract(&self) -> String {
+        self.0.msg("op-subtract", None).unwrap()
+    }
+    pub fn msg_op_needs_filled_shapes(&self) -> String {
+        self.0.msg("op-needs-filled-shapes", None).unwrap()
+    }
+    pub fn msg_operations_tip(&self) -> String {
+        self.0.msg("operations-tip", None).unwrap()
     }
 }

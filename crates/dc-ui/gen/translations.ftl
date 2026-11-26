@@ -78,7 +78,6 @@ backgrounds = Hintergründe
 behavior = Verhalten
 blank-drawing = Leere Zeichnung
 bold = Fett
-boolean-shape-operations-planned = Boolesche Formoperationen — geplant
 border-title = Rahmen & Titel
 bring-forward = Nach vorn
 bring-to-front = In den Vordergrund
@@ -1162,6 +1161,13 @@ resize-use-group-setting = Gruppeneinstellung verwenden
 resize-reposition-only = Nur neu positionieren
 resize-scale-with-group = Mit Gruppe skalieren
 behavior-tip = Wie die Form auf Doppelklick, Auswahl und Größenänderung reagiert
+op-union = Vereinigen
+op-combine = Kombinieren
+op-fragment = Fragmentieren
+op-intersect = Schneiden
+op-subtract = Subtrahieren
+op-needs-filled-shapes = Operationen brauchen zwei oder mehr gefüllte Formen
+operations-tip = Ausgewählte Formen zu neuen Formen vereinen, schneiden oder überlagern
 
 
 ## ########## Resource: app ###############
@@ -1250,7 +1256,6 @@ backgrounds = Backgrounds
 behavior = Behavior
 blank-drawing = Blank drawing
 bold = Bold
-boolean-shape-operations-planned = Boolean shape operations — planned
 border-title = Border & Title
 bring-forward = Bring Forward
 bring-to-front = Bring to Front
@@ -2402,6 +2407,13 @@ resize-use-group-setting = Use group setting
 resize-reposition-only = Reposition only
 resize-scale-with-group = Scale with group
 behavior-tip = How the shape reacts to double-clicks, selection and resizing
+op-union = Union
+op-combine = Combine
+op-fragment = Fragment
+op-intersect = Intersect
+op-subtract = Subtract
+op-needs-filled-shapes = Operations work on two or more filled shapes
+operations-tip = Join, cut or overlap the selected shapes into new shapes
 
 
 ## ########## Resource: app ###############
@@ -2488,7 +2500,6 @@ backgrounds = Fondos
 behavior = Comportamiento
 blank-drawing = Dibujo en blanco
 bold = Negrita
-boolean-shape-operations-planned = Operaciones booleanas de formas — planeado
 border-title = Bordes y títulos
 bring-forward = Traer adelante
 bring-to-front = Traer al frente
@@ -3637,6 +3648,13 @@ resize-use-group-setting = Usar la configuración del grupo
 resize-reposition-only = Solo reposicionar
 resize-scale-with-group = Escalar con el grupo
 behavior-tip = Cómo reacciona la forma al doble clic, la selección y el cambio de tamaño
+op-union = Unión
+op-combine = Combinar
+op-fragment = Fragmentar
+op-intersect = Intersecar
+op-subtract = Restar
+op-needs-filled-shapes = Las operaciones necesitan dos o más formas con relleno
+operations-tip = Unir, cortar o superponer las formas seleccionadas en formas nuevas
 
 
 ## ########## Resource: app ###############
@@ -3718,7 +3736,6 @@ backgrounds = پس‌زمینه‌ها
 behavior = رفتار
 blank-drawing = نقاشی خالی
 bold = درشت
-boolean-shape-operations-planned = عملیات بولی شکل‌ها — برنامه‌ریزی شده
 border-title = کادر و عنوان
 bring-forward = آوردن به جلو
 bring-to-front = آوردن به رو
@@ -4802,6 +4819,13 @@ resize-use-group-setting = استفاده از تنظیم گروه
 resize-reposition-only = فقط جابه‌جایی
 resize-scale-with-group = مقیاس همراه گروه
 behavior-tip = واکنش شکل به دوبار کلیک، انتخاب و تغییر اندازه
+op-union = اجتماع
+op-combine = ترکیب
+op-fragment = تکه‌کردن
+op-intersect = اشتراک
+op-subtract = تفریق
+op-needs-filled-shapes = عملیات به دو یا چند شکل پرشده نیاز دارد
+operations-tip = پیوستن، بریدن یا هم‌پوشانی شکل‌های انتخاب‌شده به شکل‌های تازه
 
 
 ## ########## Resource: app ###############
@@ -4881,7 +4905,6 @@ backgrounds = 背景
 behavior = 動作
 blank-drawing = 空の図面
 bold = 太字
-boolean-shape-operations-planned = 図形のブール演算 — 予定
 border-title = 罫線とタイトル
 bring-forward = 前面へ
 bring-to-front = 最前面へ移動
@@ -5863,6 +5886,13 @@ resize-use-group-setting = グループの設定を使用
 resize-reposition-only = 位置のみ変更
 resize-scale-with-group = グループと一緒に拡大縮小
 behavior-tip = ダブルクリック、選択、サイズ変更に対する図形の動作
+op-union = 結合
+op-combine = 組み合わせ
+op-fragment = 分割
+op-intersect = 交差
+op-subtract = 型抜き
+op-needs-filled-shapes = 図形の操作には塗りつぶされた図形が 2 つ以上必要です
+operations-tip = 選択した図形を結合・切り抜き・重ね合わせて新しい図形に
 
 
 ## ########## Resource: app ###############
@@ -5943,7 +5973,6 @@ backgrounds = 배경
 behavior = 동작
 blank-drawing = 빈 드로잉
 bold = 굵게
-boolean-shape-operations-planned = 셰이프 부울 연산 — 예정
 border-title = 테두리 & 제목
 bring-forward = 한 칸 앞으로
 bring-to-front = 맨 앞으로
@@ -6925,6 +6954,13 @@ resize-use-group-setting = 그룹 설정 사용
 resize-reposition-only = 위치만 변경
 resize-scale-with-group = 그룹과 함께 크기 조정
 behavior-tip = 두 번 클릭, 선택, 크기 조정에 대한 도형의 반응
+op-union = 통합
+op-combine = 결합
+op-fragment = 조각
+op-intersect = 교차
+op-subtract = 빼기
+op-needs-filled-shapes = 작업에는 채워진 도형이 두 개 이상 필요합니다
+operations-tip = 선택한 도형을 합치거나 자르거나 겹쳐 새 도형으로
 
 
 ## ########## Resource: app ###############
@@ -7003,7 +7039,6 @@ backgrounds = 背景
 behavior = 行为
 blank-drawing = 空白绘图
 bold = 加粗
-boolean-shape-operations-planned = 布尔形状运算 — 计划中
 border-title = 边框和标题
 bring-forward = 上移一层
 bring-to-front = 置于顶层
@@ -7991,4 +8026,11 @@ resize-use-group-setting = 使用组合设置
 resize-reposition-only = 仅重新定位
 resize-scale-with-group = 随组合缩放
 behavior-tip = 形状对双击、选择和调整大小的反应
+op-union = 联合
+op-combine = 组合
+op-fragment = 拆分
+op-intersect = 相交
+op-subtract = 剪除
+op-needs-filled-shapes = 操作需要两个或更多填充形状
+operations-tip = 将所选形状合并、剪切或重叠为新形状
 

@@ -63,9 +63,9 @@ fn controls_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<sup
 fn shape_design_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![grid(vec![
         vec![
-            RibbonButton::new(Icon::Shapes, s.msg_operations(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_boolean_shape_operations_planned()),
+            RibbonButton::new(Icon::Shapes, s.msg_operations(), Action::Operations)
+                .enabled(ctx.multi_sel)
+                .tip(s.msg_operations_tip()),
             RibbonButton::new(Icon::Group, s.msg_behavior(), Action::Behavior)
                 .enabled(ctx.has_sel)
                 .tip(s.msg_behavior_tip()),

@@ -286,6 +286,8 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Developer ▸ Operations menu.
+    ops_menu: bool,
     /// Developer ▸ Behavior dialog.
     behavior_open: bool,
     /// Developer ▸ Drawing Explorer window.
@@ -882,6 +884,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            ops_menu: false,
             behavior_open: false,
             explorer_open: false,
             data_table: None,
@@ -6166,6 +6169,75 @@ impl App {
         }
     }
 
+    /// Developer ▸ Operations: Union / Combine / Fragment / Intersect /
+    /// Subtract on the selected shapes (selection order; the first one
+    /// gives the formatting and is what Subtract cuts from). The results
+    /// replace the shapes, one undo step.
+    fn operations_window(&mut self, ctx: &egui::Context) {
+        if !self.ops_menu {
+            return;
+        }
+        use crate::operations::Op;
+        let s = crate::i18n::strs();
+        let mut pick = None;
+        let mut open = true;
+        let n = self.sel_set.len();
+        egui::Window::new(s.msg_operations()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            for (op, label) in [
+                (Op::Union, s.msg_op_union()),
+                (Op::Combine, s.msg_op_combine()),
+                (Op::Fragment, s.msg_op_fragment()),
+                (Op::Intersect, s.msg_op_intersect()),
+                (Op::Subtract, s.msg_op_subtract()),
+            ] {
+                if ui.add_enabled(n >= 2, egui::Button::new(label)).clicked() {
+                    pick = Some(op);
+                }
+            }
+        });
+        self.ops_menu &= open;
+        let Some(op) = pick else { return };
+        self.ops_menu = false;
+        let Some(page_id) = self.page_id() else { return };
+        let Some(ed) = self.ed() else { return };
+        let Some(page) = ed.doc.pages.iter().find(|p| p.id == page_id) else { return };
+        let ids: Vec<i64> = self
+            .sel_set
+            .iter()
+            .filter(|(p, s)| *p == page_id && page.shapes.iter().any(|x| x.id == *s))
+            .map(|(_, s)| *s)
+            .collect();
+        let outlines: Vec<_> = ids.iter().map(|id| crate::operations::outline(&ed.doc, page, *id)).collect();
+        if ids.len() < 2 || outlines.iter().any(|o| o.is_empty()) {
+            self.status = s.msg_op_needs_filled_shapes();
+            return;
+        }
+        let regions = crate::operations::run(op, &outlines);
+        let Some(first) = page.shapes.iter().find(|x| x.id == ids[0]) else { return };
+        let chain = shape_chain(&ed.doc, page_id, ids[0]).unwrap_or_default();
+        let style = ed.doc.flatten_instance(first, &chain[..chain.len().saturating_sub(1)]);
+        let mut next = dc_core::commands::next_shape_id(&ed.doc, page_id);
+        let mut new_ids = Vec::new();
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
+        for r in &regions {
+            if let Some(shape) = crate::operations::region_shape(next, r, &style) {
+                cmds.push(Box::new(dc_core::AddShape { page: page_id, parent: None, shape }));
+                new_ids.push(next);
+                next += 1;
+            }
+        }
+        for id in &ids {
+            cmds.push(Box::new(RemoveShape::new(page_id, *id)));
+        }
+        if let Some(ed) = self.ed() {
+            cmds.extend(dc_core::container_membership_cleanup(&ed.doc, page_id, &ids));
+        }
+        cmds.extend(self.connect_cleanup_cmds(page_id, &ids));
+        self.apply(Macro::new(s.msg_operations(), cmds));
+        self.sel_set = new_ids.iter().map(|&i| (page_id, i)).collect();
+        self.sel = self.sel_set.first().copied();
+    }
+
     /// Developer ▸ Behavior: the primary selection's double-click action
     /// (EventDblClick), and for groups the selection order (SelectMode),
     /// whether dropped shapes join it (IsDropTarget), text edits go to
@@ -9960,6 +10032,7 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::Operations => self.ops_menu = !self.ops_menu,
             Action::Behavior => self.behavior_open = !self.behavior_open,
             Action::DrawingExplorer => self.explorer_open = !self.explorer_open,
             Action::DataImport => self.begin_dialog(PendingKind::DataOpen),
@@ -18925,6 +18998,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.operations_window(&ctx);
         self.behavior_window(&ctx);
         self.explorer_window(&ctx);
         self.data_windows(&ctx);

@@ -11375,3 +11375,35 @@ fn behavior_sets_the_double_click_action() {
     h.run();
     assert!(h.state().debug_shapesheet_open(), "ShapeSheet opened");
 }
+
+/// Developer ▸ Operations ▸ Union: two overlapping rectangles become one
+/// shape spanning both; one undo brings them back.
+#[test]
+fn operations_union_two_rectangles() {
+    let mut h = harness_with_blank();
+    h.run();
+    let c = h.state().debug_canvas_rect().center();
+    h.get_by_label("Rectangle Tool").click();
+    h.run();
+    drag_on_canvas(&mut h, c + egui::vec2(-100.0, -60.0), c + egui::vec2(20.0, 40.0));
+    drag_on_canvas(&mut h, c + egui::vec2(-20.0, -20.0), c + egui::vec2(100.0, 80.0));
+    h.key_press(egui::Key::Escape);
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), 2);
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::A);
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Developer);
+    h.run();
+    h.get_by_label("Operations").click();
+    h.run();
+    h.run();
+    h.get_by_label("Union").click();
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), 1, "one united shape: {}", h.state().debug_status());
+    let (_, u) = h.state().debug_sel().unwrap();
+    let r = h.state().debug_shape_screen_rect(u).unwrap();
+    assert!((r.width() - 200.0).abs() < 4.0 && (r.height() - 140.0).abs() < 4.0, "{r:?}");
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), 2, "undo");
+}

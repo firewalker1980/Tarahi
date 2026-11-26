@@ -165,6 +165,8 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Developer ▸ Operations (shape booleans).
+    Operations,
     /// Developer ▸ Behavior.
     Behavior,
     /// Developer ▸ Drawing Explorer.

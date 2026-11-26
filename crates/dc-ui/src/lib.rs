@@ -29,6 +29,7 @@ mod l10n;
 mod layers;
 pub mod loading;
 pub mod mini_toolbar;
+pub mod operations;
 pub mod options;
 pub mod os_theme;
 pub mod perf;
