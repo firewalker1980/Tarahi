@@ -881,7 +881,6 @@ swap-portrait-landscape-swaps-wi = Hoch-/Querformat tauschen (tauscht Breite und
 switch-windows = Fenster wechseln
 switched-to-name = gewechselt zu { $name }
 symbol = Symbol
-symbol-planned = Symbol — geplant
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — Visio-kompatibles Diagramming im Cleanroom-Verfahren
 task-panes = Aufgabenbereiche
 tell-me = Tell Me
@@ -1128,6 +1127,7 @@ presentation-mode-tip = Seiten im Vollbild zeigen; Pfeile blättern, Esc beendet
 callout-tip = Ein Textfeld mit Verbindungslinie zur ausgewählten Form
 title-tip = Ein großer Titel oben auf der Seite
 border-title-tip = Ein Rahmen um die Seite mit Titel
+symbol-tip = Ein Symbol in den Text der Form einfügen
 
 
 ## ########## Resource: app ###############
@@ -2085,7 +2085,6 @@ switch-windows = Switch Windows
 # $name (String) - argument
 switched-to-name = switched to { $name }
 symbol = Symbol
-symbol-planned = Symbol — planned
 # $version (String) - argument
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — cleanroom Visio-compatible diagramming
 task-panes = Task Panes
@@ -2334,6 +2333,7 @@ presentation-mode-tip = Show the pages full screen; arrows change page, Esc ends
 callout-tip = A text box with a leader line to the selected shape
 title-tip = A large title at the top of the page
 border-title-tip = A frame around the page with a title
+symbol-tip = Insert a symbol into the shape's text
 
 
 ## ########## Resource: app ###############
@@ -3286,7 +3286,6 @@ switch-windows = Cambiar de ventanas
 # $name - argumento
 switched-to-name = se cambió a { $name }
 symbol = Símbolo
-symbol-planned = Símbolo — planeado
 # $version - argumento
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — diagramación compatible con Visio sin copias de Microsoft
 task-panes = Paneles de tareas
@@ -3535,6 +3534,7 @@ presentation-mode-tip = Mostrar las páginas a pantalla completa; las flechas ca
 callout-tip = Un cuadro de texto con una línea guía a la forma seleccionada
 title-tip = Un título grande en la parte superior de la página
 border-title-tip = Un marco alrededor de la página con título
+symbol-tip = Insertar un símbolo en el texto de la forma
 
 
 ## ########## Resource: app ###############
@@ -4419,7 +4419,6 @@ swap-portrait-landscape-swaps-wi = جابه‌جایی عمودی/افقی (جا
 switch-windows = جابه‌جایی پنجره‌ها
 switched-to-name = به { $name } تغییر یافت
 symbol = نماد
-symbol-planned = نماد — برنامه‌ریزی شده
 tarahi-v-cargo-pkg-version-clean = طارحی نسخهٔ { $version } — نقاشیِ سازگار با Visio به روش Cleanroom
 task-panes = قاب‌های کاری
 tell-me = Tell Me
@@ -4666,6 +4665,7 @@ presentation-mode-tip = نمایش صفحه‌ها در تمام‌صفحه؛ پ
 callout-tip = کادر متن با خط راهنما به شکل انتخاب‌شده
 title-tip = عنوانی بزرگ در بالای صفحه
 border-title-tip = قابی دور صفحه همراه با عنوان
+symbol-tip = درج نماد در متن شکل
 
 
 ## ########## Resource: app ###############
@@ -5482,7 +5482,6 @@ swap-portrait-landscape-swaps-wi = 縦横を切り替えます（幅と高さを
 switch-windows = ウィンドウの切り替え
 switched-to-name = { $name } に切り替えました
 symbol = 記号
-symbol-planned = 記号 — 予定
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — クリーンルーム実装の Visio 互換図面ツール
 task-panes = 作業ウィンドウ
 tell-me = 操作の検索
@@ -5694,6 +5693,7 @@ presentation-mode-tip = ページを全画面表示。矢印でページ切り�
 callout-tip = 選択した図形への引き出し線付きテキスト ボックス
 title-tip = ページ上部の大きなタイトル
 border-title-tip = タイトル付きのページ枠
+symbol-tip = 図形のテキストに記号を挿入
 
 
 ## ########## Resource: app ###############
@@ -6511,7 +6511,6 @@ swap-portrait-landscape-swaps-wi = 세로/가로 전환(너비와 높이를 맞�
 switch-windows = 창 전환
 switched-to-name = { $name }(으)로 전환했습니다
 symbol = 기호
-symbol-planned = 기호 — 예정
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — 클린룸 Visio 호환 드로잉 도구
 task-panes = 작업 창
 tell-me = 수행할 작업 검색
@@ -6723,6 +6722,7 @@ presentation-mode-tip = 페이지를 전체 화면으로 표시; 화살표로 �
 callout-tip = 선택한 도형으로 지시선이 있는 텍스트 상자
 title-tip = 페이지 위쪽의 큰 제목
 border-title-tip = 제목이 있는 페이지 테두리
+symbol-tip = 도형 텍스트에 기호 삽입
 
 
 ## ########## Resource: app ###############
@@ -7544,7 +7544,6 @@ swap-portrait-landscape-swaps-wi = 纵向/横向互换（宽度和高度互换�
 switch-windows = 切换窗口
 switched-to-name = 已切换到 { $name }
 symbol = 符号
-symbol-planned = 符号 — 计划中
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version }——净室开发的 Visio 兼容绘图工具
 task-panes = 任务窗格
 tell-me = 告诉我
@@ -7756,4 +7755,5 @@ presentation-mode-tip = 全屏显示页面;方向键翻页,按 Esc 结束 (F5)
 callout-tip = 带有指向所选形状的引线的文本框
 title-tip = 页面顶部的大标题
 border-title-tip = 带标题的页面边框
+symbol-tip = 在形状文本中插入符号
 

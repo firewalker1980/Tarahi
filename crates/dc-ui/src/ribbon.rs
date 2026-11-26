@@ -163,6 +163,8 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Insert ▸ Symbol.
+    InsertSymbol,
     /// Insert ▸ Callout, Title (false) / Border & Title (true).
     InsertCallout,
     InsertTitle(bool),

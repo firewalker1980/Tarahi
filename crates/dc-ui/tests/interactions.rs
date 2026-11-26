@@ -11191,3 +11191,29 @@ fn insert_callout_and_border_title() {
     let (_, title) = h.state().debug_sel().unwrap();
     assert_eq!(h.state().debug_cell_for_test(title, "Char.Style").as_deref(), Some("1"));
 }
+
+/// Insert ▸ Symbol puts the picked character into the selected shape's
+/// text (here at the end); the U+ field inserts any code point.
+#[test]
+fn insert_symbol_into_shape_text() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().debug_set_shape_text_for_test(sid, "core");
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    h.get_by_label("Symbol").click();
+    h.run();
+    h.run();
+    h.get_by_label("U+2192").click();
+    h.run();
+    assert_eq!(h.state().debug_shape_plain_text(sid).as_deref(), Some("core→"));
+    h.get_by_label("U+ hex").focus();
+    h.run();
+    h.get_by_label("U+ hex").type_text("2603");
+    h.run();
+    h.get_by_label("Add").click();
+    h.run();
+    assert_eq!(h.state().debug_shape_plain_text(sid).as_deref(), Some("core→☃"));
+}

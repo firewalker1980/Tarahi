@@ -5588,13 +5588,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "symbol-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "tarahi-v-cargo-pkg-version-clean",
         attribute: None,
         vars: &["version"],
@@ -6903,6 +6896,13 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "symbol-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7002,13 +7002,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48645,
-            Self::En => 48645..95592,
-            Self::Es => 95592..147352,
-            Self::Fa => 147352..208097,
-            Self::Ja => 208097..260270,
-            Self::Ko => 260270..308403,
-            Self::ZhHans => 308403..350096,
+            Self::De => 0..48664,
+            Self::En => 48664..95626,
+            Self::Es => 95626..147405,
+            Self::Fa => 147405..208137,
+            Self::Ja => 208137..260328,
+            Self::Ko => 260328..308473,
+            Self::ZhHans => 308473..350172,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -10141,9 +10141,6 @@ impl L10nLanguage {
     pub fn msg_symbol(&self) -> String {
         self.0.msg("symbol", None).unwrap()
     }
-    pub fn msg_symbol_planned(&self) -> String {
-        self.0.msg("symbol-planned", None).unwrap()
-    }
     /// $version (String) - argument
     pub fn msg_tarahi_v_cargo_pkg_version_clean<F0: AsRef<str>>(&self, version: F0) -> String {
         let mut _args = FluentArgs::new();
@@ -10856,5 +10853,8 @@ impl L10nLanguage {
     }
     pub fn msg_border_title_tip(&self) -> String {
         self.0.msg("border-title-tip", None).unwrap()
+    }
+    pub fn msg_symbol_tip(&self) -> String {
+        self.0.msg("symbol-tip", None).unwrap()
     }
 }

@@ -951,7 +951,6 @@ switch-windows = Switch Windows
 # $name (String) - argument
 switched-to-name = switched to { $name }
 symbol = Symbol
-symbol-planned = Symbol — planned
 # $version (String) - argument
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — cleanroom Visio-compatible diagramming
 task-panes = Task Panes
@@ -1200,3 +1199,4 @@ presentation-mode-tip = Show the pages full screen; arrows change page, Esc ends
 callout-tip = A text box with a leader line to the selected shape
 title-tip = A large title at the top of the page
 border-title-tip = A frame around the page with a title
+symbol-tip = Insert a symbol into the shape's text

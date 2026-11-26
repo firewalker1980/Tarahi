@@ -110,6 +110,24 @@ impl TextEditSession {
         }
     }
 
+    /// Insert plain text at the caret (Insert ▸ Symbol): parked fields
+    /// after it shift along, the caret lands after the insertion.
+    pub fn insert_text(&mut self, s: &str) {
+        let at = self.caret.min(self.draft.chars().count());
+        let n = s.chars().count();
+        let prefix: String = self.draft.chars().take(at).collect();
+        let suffix: String = self.draft.chars().skip(at).collect();
+        self.draft = format!("{prefix}{s}{suffix}");
+        for m in &mut self.field_marks {
+            if m.offset >= at {
+                m.offset += n;
+            }
+        }
+        self.last_draft = self.draft.clone();
+        self.caret = at + n;
+        self.pending_caret = Some(at + n);
+    }
+
     /// Park a field insertion at the caret: the display value lands
     /// in the draft (the editor shows it where Visio would) and the
     /// mark remembers where the marker goes at commit.

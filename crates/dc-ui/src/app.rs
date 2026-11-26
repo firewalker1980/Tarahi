@@ -286,6 +286,9 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Insert ▸ Symbol dialog: open, and the hex code field.
+    symbol_open: bool,
+    symbol_hex: String,
     /// View ▸ Presentation Mode: Some(rulers, grid) to restore on exit.
     present: Option<(bool, bool)>,
     present_toggle_pending: bool,
@@ -860,6 +863,8 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            symbol_open: false,
+            symbol_hex: String::new(),
             present: None,
             present_toggle_pending: false,
             protection_open: false,
@@ -4831,6 +4836,74 @@ impl App {
                 }
             }
             self.reviewpane_open &= open;
+        }
+    }
+
+    /// Insert ▸ Symbol: common symbols and a Unicode code field; a pick
+    /// goes in at the text caret (editor open), else at the selected
+    /// shape's last caret or the end of its text (one undo step).
+    fn symbol_window(&mut self, ctx: &egui::Context) {
+        if !self.symbol_open {
+            return;
+        }
+        const SYMBOLS: &str = "©®™°±×÷µ€£¥§¶•…–—‰′″←→↑↓↔↕⇐⇒⇔≤≥≠≈≡∞√∑∏∫∂∆∇ΩαβγδεθλμπσφωΔΣΦΨ½¼¾¹²³✓✗★☆♦♥♠♣☎✉⚠⚡⌘⏻⇧⌫␣";
+        let s = crate::i18n::strs();
+        let mut pick: Option<String> = None;
+        let mut open = true;
+        egui::Window::new(s.msg_symbol()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            // only what the UI fonts can draw
+            let fid = egui::FontId::proportional(16.0);
+            let syms: Vec<char> = ui.ctx().fonts_mut(|f| SYMBOLS.chars().filter(|c| f.has_glyph(&fid, *c)).collect());
+            egui::Grid::new("dc-symbols").spacing(egui::vec2(2.0, 2.0)).show(ui, |ui| {
+                for (i, c) in syms.into_iter().enumerate() {
+                    let r = ui.add(egui::Button::new(egui::RichText::new(c.to_string()).size(16.0)).min_size(egui::vec2(28.0, 28.0)));
+                    let name = format!("U+{:04X}", c as u32);
+                    r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, &name));
+                    if r.on_hover_text(format!("{c}  {name}")).clicked() {
+                        pick = Some(c.to_string());
+                    }
+                    if i % 12 == 11 {
+                        ui.end_row();
+                    }
+                }
+            });
+            ui.separator();
+            ui.horizontal(|ui| {
+                ui.label("U+");
+                let r = ui.add(egui::TextEdit::singleline(&mut self.symbol_hex).desired_width(70.0));
+                r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, "U+ hex"));
+                let c = u32::from_str_radix(self.symbol_hex.trim(), 16).ok().and_then(char::from_u32);
+                // the preview button shows the character only when drawable
+                let drawable = c.is_some_and(|c| ui.ctx().fonts_mut(|f| f.has_glyph(&egui::FontId::proportional(14.0), c)));
+                let face = match c {
+                    Some(c) if drawable => c.to_string(),
+                    Some(c) => format!("U+{:04X}", c as u32),
+                    None => "—".into(),
+                };
+                let r = ui.add_enabled(c.is_some(), egui::Button::new(face));
+                r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, c.is_some(), s.msg_add()));
+                if r.clicked() {
+                    pick = c.map(|c| c.to_string());
+                }
+            });
+        });
+        self.symbol_open &= open;
+        let Some(sym) = pick else { return };
+        if let Some(sess) = self.text_edit.as_mut() {
+            sess.insert_text(&sym);
+            return;
+        }
+        let (Some((page, shape)), Some(ed)) = (self.sel, self.ed()) else { return };
+        let len = dc::spellcheck::effective_raw(&ed.doc, page, shape)
+            .map_or(0, |raw| vsdx::text::text_pieces(&raw).iter().map(|p| p.plain().chars().count()).sum());
+        let at = match self.last_edit_caret {
+            Some((p, s, c)) if (p, s) == (page, shape) => c.min(len),
+            _ => len,
+        };
+        let hit = crate::find::Hit { page, shape, start: at, end: at };
+        if let Some(m) = crate::find::replace_macro(&ed.doc, &[hit], &sym) {
+            self.apply(m);
+            self.last_edit_caret = Some((page, shape, at + sym.chars().count()));
         }
     }
 
@@ -9470,6 +9543,7 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::InsertSymbol => self.symbol_open = !self.symbol_open,
             Action::InsertTitle(border) => self.insert_title(border),
             Action::PresentationMode => self.present_toggle_pending = true,
             Action::AutoSize => {
@@ -18387,6 +18461,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.symbol_window(&ctx);
         self.panes_lists_window(&ctx);
         self.sizepos_window(&ctx);
         self.switch_window(&ctx);

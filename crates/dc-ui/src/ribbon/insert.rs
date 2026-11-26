@@ -135,10 +135,10 @@ fn text_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, has_sel: bool)
                     .alt(s.msg_page_number())
                     .enabled(has_sel)
                     .tip(s.msg_page_number()),
-                RibbonButton::new(Icon::FontA, "", Action::Macros)
+                RibbonButton::new(Icon::FontA, "", Action::InsertSymbol)
                     .alt(s.msg_symbol())
-                    .enabled(false)
-                    .tip(s.msg_symbol_planned()),
+                    .enabled(has_sel)
+                    .tip(s.msg_symbol_tip()),
             ],
         ]),
     ]

@@ -946,7 +946,6 @@ switch-windows = Cambiar de ventanas
 # $name - argumento
 switched-to-name = se cambió a { $name }
 symbol = Símbolo
-symbol-planned = Símbolo — planeado
 # $version - argumento
 tarahi-v-cargo-pkg-version-clean = Tarahi v{ $version } — diagramación compatible con Visio sin copias de Microsoft
 task-panes = Paneles de tareas
@@ -1195,3 +1194,4 @@ presentation-mode-tip = Mostrar las páginas a pantalla completa; las flechas ca
 callout-tip = Un cuadro de texto con una línea guía a la forma seleccionada
 title-tip = Un título grande en la parte superior de la página
 border-title-tip = Un marco alrededor de la página con título
+symbol-tip = Insertar un símbolo en el texto de la forma
