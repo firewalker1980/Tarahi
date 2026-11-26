@@ -284,6 +284,10 @@ pub struct App {
     /// View ▸ Task Panes: the menu, the Shapes pane switch, and the
     /// Size & Position window with its edit buffers.
     panes_menu: bool,
+    /// Review ▸ Shape Report (all pages or this one) and Word Count.
+    report_open: bool,
+    report_all: bool,
+    wordcount_open: bool,
     hide_shapes_pane: bool,
     sizepos_open: bool,
     sizepos_bufs: std::collections::HashMap<&'static str, String>,
@@ -526,6 +530,7 @@ enum PendingDialog {
     HyperlinkAddress(Receiver<Option<PathBuf>>),
     /// Backstage Export Browse… (#35): the picked output file.
     ExportSave(Receiver<Option<PathBuf>>),
+    ReportSave(Receiver<Option<PathBuf>>),
 }
 
 #[derive(Clone, Copy)]
@@ -542,6 +547,8 @@ enum PendingKind {
     /// Backstage Export page's Browse… (#35): the save dialog carries
     /// the pane's format so the extension filter matches.
     ExportSave(dc::export::Format),
+    /// Review ▸ Shape Report's Save as CSV….
+    ReportSave,
 }
 
 /// Backstage rail command.
@@ -843,6 +850,9 @@ impl App {
             container_menu: None,
             font_menu: None,
             panes_menu: false,
+            report_open: false,
+            report_all: true,
+            wordcount_open: false,
             hide_shapes_pane: false,
             sizepos_open: false,
             sizepos_bufs: std::collections::HashMap::new(),
@@ -2039,6 +2049,10 @@ impl App {
                     }
                     .set_file_name(&default_export_name)
                     .save_file(),
+                    PendingKind::ReportSave => rfd::FileDialog::new()
+                        .add_filter("CSV", &["csv"])
+                        .set_file_name("shape-report.csv")
+                        .save_file(),
                 },
             };
             let _ = tx.send(picked);
@@ -2050,6 +2064,7 @@ impl App {
             PendingKind::OpenPicture => PendingDialog::OpenPicture(rx),
             PendingKind::HyperlinkAddress => PendingDialog::HyperlinkAddress(rx),
             PendingKind::ExportSave(_) => PendingDialog::ExportSave(rx),
+            PendingKind::ReportSave => PendingDialog::ReportSave(rx),
         });
     }
 
@@ -2098,6 +2113,7 @@ impl App {
             | PendingDialog::OpenStencil(rx)
             | PendingDialog::OpenPicture(rx)
             | PendingDialog::ExportSave(rx)
+            | PendingDialog::ReportSave(rx)
             | PendingDialog::HyperlinkAddress(rx) => match rx.try_recv() {
                 Ok(picked) => (picked, false),
                 Err(mpsc::TryRecvError::Empty) => (None, true),
@@ -2126,6 +2142,18 @@ impl App {
             // The picked export target lands in the pane's path field
             // (#35); a typed/picked extension re-targets the format.
             PendingDialog::ExportSave(_) => self.export_pane.set_path(path.clone()),
+            PendingDialog::ReportSave(_) => {
+                if let Some(ed) = self.ed() {
+                    let pages: Vec<i64> = if self.report_all { vec![] } else { self.page_id().into_iter().collect() };
+                    let r = crate::report::build(&ed.doc, &pages);
+                    let s = crate::i18n::strs();
+                    let csv = crate::report::to_csv(&r, &s.msg_report_page(), &s.msg_report_shape());
+                    self.status = match std::fs::write(&path, csv) {
+                        Ok(()) => s.msg_saved_path(path.display().to_string()),
+                        Err(e) => e.to_string(),
+                    };
+                }
+            }
             // The picked target lands in the open draft's Address
             // field (#71), stored the way the document's toggle wants
             // it (a path inside the document's directory shows as its
@@ -4611,6 +4639,70 @@ impl App {
             cmds.extend(crate::containers::fit_cmds(&probe, page_id, cid, false));
         }
         self.apply(Macro::new(format!("container {row}"), cmds));
+    }
+
+    /// Review ▸ Shape Report (the shapes' data as a table, Save as CSV)
+    /// and Word Count.
+    fn report_window(&mut self, ctx: &egui::Context) {
+        let s = crate::i18n::strs();
+        if self.wordcount_open {
+            let (w, c) = self.ed().map_or((0, 0), |ed| crate::report::word_count(&ed.doc, &[]));
+            let mut open = true;
+            egui::Window::new(s.msg_word_count()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+                egui::Grid::new("dc-wc").show(ui, |ui| {
+                    ui.label(s.msg_words());
+                    ui.label(w.to_string());
+                    ui.end_row();
+                    ui.label(s.msg_characters_no_spaces());
+                    ui.label(c.to_string());
+                    ui.end_row();
+                });
+            });
+            self.wordcount_open &= open;
+        }
+        if !self.report_open {
+            return;
+        }
+        let Some(ed) = self.ed() else { return };
+        let pages: Vec<i64> = if self.report_all { vec![] } else { self.page_id().into_iter().collect() };
+        let r = crate::report::build(&ed.doc, &pages);
+        let mut open = true;
+        let mut save = false;
+        egui::Window::new(s.msg_shape_report()).open(&mut open).collapsible(false).default_width(560.0).show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                ui.radio_value(&mut self.report_all, true, s.msg_all_pages());
+                ui.radio_value(&mut self.report_all, false, s.msg_current_page());
+            });
+            ui.separator();
+            if r.rows.is_empty() {
+                ui.weak(s.msg_report_empty());
+            } else {
+                egui::ScrollArea::both().max_height(360.0).show(ui, |ui| {
+                    egui::Grid::new("dc-report").striped(true).show(ui, |ui| {
+                        ui.strong(s.msg_report_page());
+                        ui.strong(s.msg_report_shape());
+                        for c in &r.columns {
+                            ui.strong(c);
+                        }
+                        ui.end_row();
+                        for (pg, n, cells) in &r.rows {
+                            ui.label(pg);
+                            ui.label(n);
+                            for c in cells {
+                                ui.label(c);
+                            }
+                            ui.end_row();
+                        }
+                    });
+                });
+            }
+            ui.add_space(6.0);
+            save = ui.add_enabled(!r.rows.is_empty(), egui::Button::new(s.msg_save_as_csv())).clicked();
+        });
+        if save {
+            self.begin_dialog(PendingKind::ReportSave);
+        }
+        self.report_open &= open;
     }
 
     /// View ▸ Task Panes: switch the Shapes pane, Shape Data and Size &
@@ -8992,6 +9084,8 @@ impl App {
             }
             Action::ContainerMenu(n) => self.container_menu = Some(n),
             Action::TaskPanes => self.panes_menu = !self.panes_menu,
+            Action::ShapeReport => self.report_open = !self.report_open,
+            Action::WordCount => self.wordcount_open = !self.wordcount_open,
             Action::ToggleDocStencil => {
                 self.stencil.doc_stencil_visible = !self.stencil.doc_stencil_visible;
                 self.hide_shapes_pane = false;
@@ -9222,6 +9316,19 @@ impl App {
                     None => {
                         self.status = crate::i18n::strs().msg_select_a_shape_to_edit_its_hyper()
                     }
+                }
+            }
+            Action::InsertDateTime | Action::InsertPageNumber => {
+                // Insert ▸ Date/Time and Page Number: the Insert Field
+                // dialog, preset to that field
+                self.dispatch(Action::InsertField);
+                if self.fields_open.is_some() {
+                    let mut d = crate::fields_dlg::FieldsDraft::default();
+                    if a == Action::InsertPageNumber {
+                        d.cat = crate::fields_dlg::FieldsCategory::PageInfo;
+                        d.item = 1;
+                    }
+                    self.fields_draft = Some(d);
                 }
             }
             Action::InsertField => {
@@ -17797,6 +17904,7 @@ impl App {
         self.zoom_window(&ctx);
         self.font_menu_window(&ctx);
         self.panes_menu_window(&ctx);
+        self.report_window(&ctx);
         self.sizepos_window(&ctx);
         self.switch_window(&ctx);
         self.snap_glue_window(&ctx);

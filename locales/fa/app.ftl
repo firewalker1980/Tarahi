@@ -196,7 +196,6 @@ data-graphics = نمودارهای داده
 data-graphics-m6 = نمودارهای داده (M6)
 data-linking-m6 = پیوند داده (M6)
 date-time = تاریخ و ساعت
-date-time-field-planned = فیلد تاریخ و ساعت — برنامه‌ریزی شده
 decrease-indent = کاهش تودرتو
 # $entry - ورودی پیش‌فرض شابلون
 # $e - متن خطا
@@ -622,7 +621,6 @@ page-name-marked-as-a-background = صفحهٔ { $name } به‌عنوان پس�
 # $sub - نام صفحهٔ زیرنشانی
 page-not-found = صفحهٔ { $sub } پیدا نشد
 page-number = شمارهٔ صفحه
-page-number-field-planned = فیلد شمارهٔ صفحه — برنامه‌ریزی شده
 page-setup = تنظیم صفحه
 page-setup-menu = تنظیم صفحه…
 page-size = اندازهٔ صفحه
@@ -793,7 +791,6 @@ shape-id-s-vertex = رأس شکل { $id }
 shape-intersections = تقاطع‌های شکل‌ها
 shape-protection-planned = حفاظت شکل — برنامه‌ریزی شده
 shape-report = گزارش شکل
-shape-reports-planned = گزارش‌های شکل — برنامه‌ریزی شده
 shape-sid = شکل { $sid }
 shape-styles = سبک‌های شکل
 shape-text = متن شکل
@@ -1043,7 +1040,6 @@ window = پنجره
 # $n - تعداد پنجره‌ها
 window-n = پنجرهٔ { $n }
 word-count = شمارش واژه‌ها
-word-count-planned = شمارش واژه‌ها — برنامه‌ریزی شده
 worker-lost = کارگر گم شد
 wrap-the-selection-in-this-conta = پیچاندن گزینش در این سبک ظرف
 x-cancel-placement = لغو جای‌گذاری
@@ -1111,3 +1107,11 @@ view-autoconnect-tip = نمایش پیکان‌های اتصال خودکار پ
 size-position = اندازه و موقعیت
 angle = زاویه
 task-panes-tip = نمایش یا پنهان‌کردن پنل‌های کار
+report-page = صفحه
+report-shape = شکل
+words = واژه‌ها
+characters-no-spaces = نویسه‌ها (بدون فاصله)
+save-as-csv = ذخیره به‌صورت CSV…
+report-empty = هیچ شکلی در این صفحه‌ها دادهٔ شکل ندارد
+shape-report-tip = دادهٔ همهٔ شکل‌ها در یک جدول، قابل ذخیره به‌صورت CSV
+word-count-tip = شمارش واژه‌های متن شکل‌ها

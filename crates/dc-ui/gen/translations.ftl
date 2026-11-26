@@ -199,7 +199,6 @@ data-graphics = Datengrafiken
 data-graphics-m6 = Datengrafiken (M6)
 data-linking-m6 = Datenverknüpfung (M6)
 date-time = Datum & Uhrzeit
-date-time-field-planned = Datum-/Uhrzeitfeld — geplant
 decrease-indent = Einzug verkleinern
 # $entry - Standardeintrag
 # $e - Fehlertext
@@ -625,7 +624,6 @@ page-name-marked-as-a-background = Seite { $name } als Hintergrund markiert
 # $sub - Seitenname der Sub-Adresse
 page-not-found = Seite { $sub } nicht gefunden
 page-number = Seitenzahl
-page-number-field-planned = Seitenzahlfeld — geplant
 page-setup = Seite einrichten
 page-setup-menu = Seite einrichten …
 page-size = Seitengröße
@@ -796,7 +794,6 @@ shape-id-s-vertex = der Scheitelpunkt von Form { $id }
 shape-intersections = Formüberschneidungen
 shape-protection-planned = Formschutz — geplant
 shape-report = Formbericht
-shape-reports-planned = Formberichte — geplant
 shape-sid = Form { $sid }
 shape-styles = Formformatvorlagen
 shape-text = Formtext
@@ -1046,7 +1043,6 @@ window = Fenster
 # $n - Fensteranzahl
 window-n = Fenster { $n }
 word-count = Wortzahl
-word-count-planned = Wortzahl — geplant
 worker-lost = Arbeitsprozess verloren
 wrap-the-selection-in-this-conta = Die Auswahl in diesen Containerstil einhüllen
 x-cancel-placement = x Platzierung abbrechen
@@ -1114,6 +1110,14 @@ view-autoconnect-tip = AutoConnect-Pfeile um die Auswahl anzeigen
 size-position = Größe und Position
 angle = Winkel
 task-panes-tip = Aufgabenbereiche ein- oder ausblenden
+report-page = Seite
+report-shape = Form
+words = Wörter
+characters-no-spaces = Zeichen (ohne Leerzeichen)
+save-as-csv = Als CSV speichern…
+report-empty = Keine Form auf diesen Seiten hat Formdaten
+shape-report-tip = Die Formdaten aller Formen in einer Tabelle, als CSV speicherbar
+word-count-tip = Wörter im Text der Formen zählen
 
 
 ## ########## Resource: app ###############
@@ -1338,7 +1342,6 @@ data-graphics = Data Graphics
 data-graphics-m6 = Data graphics (M6)
 data-linking-m6 = Data linking (M6)
 date-time = Date & Time
-date-time-field-planned = Date & time field — planned
 decrease-indent = Decrease Indent
 # $entry (String) - default stencil entry
 # $e (String) - error text
@@ -1789,7 +1792,6 @@ page-name-marked-as-a-background = page { $name } marked as a background
 # $sub (String) - sub-address page name
 page-not-found = page { $sub } not found
 page-number = Page Number
-page-number-field-planned = Page-number field — planned
 page-setup = Page Setup
 page-setup-menu = Page Setup…
 page-size = Page Size
@@ -1979,7 +1981,6 @@ shape-id-s-vertex = shape { $id }'s vertex
 shape-intersections = Shape intersections
 shape-protection-planned = Shape protection — planned
 shape-report = Shape Report
-shape-reports-planned = Shape reports — planned
 # $sid (Number) - argument
 shape-sid = shape { $sid }
 shape-styles = Shape Styles
@@ -2238,7 +2239,6 @@ window = Window
 # $n (Number) - window count
 window-n = Window { $n }
 word-count = Word Count
-word-count-planned = Word count — planned
 worker-lost = worker lost
 wrap-the-selection-in-this-conta = Wrap the selection in this container style
 x-cancel-placement = x cancel placement
@@ -2306,6 +2306,14 @@ view-autoconnect-tip = Show the AutoConnect arrows around the selection
 size-position = Size & Position
 angle = Angle
 task-panes-tip = Show or hide the task panes
+report-page = Page
+report-shape = Shape
+words = Words
+characters-no-spaces = Characters (no spaces)
+save-as-csv = Save as CSV…
+report-empty = No shape on these pages has Shape Data
+shape-report-tip = Every shape's Shape Data in one table, saved as CSV
+word-count-tip = Count the words in the shapes' text
 
 
 ## ########## Resource: app ###############
@@ -2528,7 +2536,6 @@ data-graphics = Gráficos de datos
 data-graphics-m6 = Gráficos de datos (M6)
 data-linking-m6 = Vinculación de datos (M6)
 date-time = Fecha y hora
-date-time-field-planned = Campo de fecha y hora — planeado
 decrease-indent = Disminuir sangría
 # $entry - entrada de galería predeterminada
 # $e - texto del error
@@ -2979,7 +2986,6 @@ page-name-marked-as-a-background = la página { $name } se marcó como fondo
 # $sub - nombre de la página de subdirección
 page-not-found = no se encontró la página { $sub }
 page-number = Número de página
-page-number-field-planned = Campo de número de página — planeado
 page-setup = Configurar página
 page-setup-menu = Configurar página…
 page-size = Tamaño de página
@@ -3168,7 +3174,6 @@ shape-id-s-vertex = vértice de la forma { $id }
 shape-intersections = Intersecciones de formas
 shape-protection-planned = Protección de forma — planeado
 shape-report = Informe de formas
-shape-reports-planned = Informes de formas — planeado
 # $sid - argumento
 shape-sid = forma { $sid }
 shape-styles = Estilos de forma
@@ -3425,7 +3430,6 @@ window = Ventana
 # $n - número de ventanas
 window-n = Ventana { $n }
 word-count = Recuento de palabras
-word-count-planned = Recuento de palabras — planeado
 worker-lost = se perdió el trabajo en segundo plano
 wrap-the-selection-in-this-conta = Ajustar la selección en este estilo de contenedor
 x-cancel-placement = x cancelar la colocación
@@ -3493,6 +3497,14 @@ view-autoconnect-tip = Mostrar las flechas de AutoConectar alrededor de la selec
 size-position = Tamaño y posición
 angle = Ángulo
 task-panes-tip = Mostrar u ocultar los paneles de tareas
+report-page = Página
+report-shape = Forma
+words = Palabras
+characters-no-spaces = Caracteres (sin espacios)
+save-as-csv = Guardar como CSV…
+report-empty = Ninguna forma de estas páginas tiene datos de forma
+shape-report-tip = Los datos de forma de todas las formas en una tabla, guardable como CSV
+word-count-tip = Contar las palabras del texto de las formas
 
 
 ## ########## Resource: app ###############
@@ -3695,7 +3707,6 @@ data-graphics = نمودارهای داده
 data-graphics-m6 = نمودارهای داده (M6)
 data-linking-m6 = پیوند داده (M6)
 date-time = تاریخ و ساعت
-date-time-field-planned = فیلد تاریخ و ساعت — برنامه‌ریزی شده
 decrease-indent = کاهش تودرتو
 # $entry - ورودی پیش‌فرض شابلون
 # $e - متن خطا
@@ -4121,7 +4132,6 @@ page-name-marked-as-a-background = صفحهٔ { $name } به‌عنوان پس�
 # $sub - نام صفحهٔ زیرنشانی
 page-not-found = صفحهٔ { $sub } پیدا نشد
 page-number = شمارهٔ صفحه
-page-number-field-planned = فیلد شمارهٔ صفحه — برنامه‌ریزی شده
 page-setup = تنظیم صفحه
 page-setup-menu = تنظیم صفحه…
 page-size = اندازهٔ صفحه
@@ -4292,7 +4302,6 @@ shape-id-s-vertex = رأس شکل { $id }
 shape-intersections = تقاطع‌های شکل‌ها
 shape-protection-planned = حفاظت شکل — برنامه‌ریزی شده
 shape-report = گزارش شکل
-shape-reports-planned = گزارش‌های شکل — برنامه‌ریزی شده
 shape-sid = شکل { $sid }
 shape-styles = سبک‌های شکل
 shape-text = متن شکل
@@ -4542,7 +4551,6 @@ window = پنجره
 # $n - تعداد پنجره‌ها
 window-n = پنجرهٔ { $n }
 word-count = شمارش واژه‌ها
-word-count-planned = شمارش واژه‌ها — برنامه‌ریزی شده
 worker-lost = کارگر گم شد
 wrap-the-selection-in-this-conta = پیچاندن گزینش در این سبک ظرف
 x-cancel-placement = لغو جای‌گذاری
@@ -4610,6 +4618,14 @@ view-autoconnect-tip = نمایش پیکان‌های اتصال خودکار پ
 size-position = اندازه و موقعیت
 angle = زاویه
 task-panes-tip = نمایش یا پنهان‌کردن پنل‌های کار
+report-page = صفحه
+report-shape = شکل
+words = واژه‌ها
+characters-no-spaces = نویسه‌ها (بدون فاصله)
+save-as-csv = ذخیره به‌صورت CSV…
+report-empty = هیچ شکلی در این صفحه‌ها دادهٔ شکل ندارد
+shape-report-tip = دادهٔ همهٔ شکل‌ها در یک جدول، قابل ذخیره به‌صورت CSV
+word-count-tip = شمارش واژه‌های متن شکل‌ها
 
 
 ## ########## Resource: app ###############
@@ -4799,7 +4815,6 @@ data-graphics = データ グラフィック
 data-graphics-m6 = データ グラフィック（M6）
 data-linking-m6 = データ リンク（M6）
 date-time = 日付と時刻
-date-time-field-planned = 日付と時刻のフィールド — 予定
 decrease-indent = インデントを減らす
 default-stencil-failed = 既定のステンシル { $entry } を読み込めませんでした: { $e }
 define-shape-data = 図形データの定義
@@ -5196,7 +5211,6 @@ page-name-is-a-foreground-page-a = ページ { $name } を前面ページに戻�
 page-name-marked-as-a-background = ページ { $name } を背景として設定しました
 page-not-found = ページ { $sub } が見つかりません
 page-number = ページ番号
-page-number-field-planned = ページ番号フィールド — 予定
 page-setup = ページ設定
 page-setup-menu = ページ設定…
 page-size = ページ サイズ
@@ -5342,7 +5356,6 @@ shape-id-s-vertex = 図形 { $id } の頂点
 shape-intersections = 図形の交点
 shape-protection-planned = 図形の保護 — 予定
 shape-report = 図形レポート
-shape-reports-planned = 図形レポート — 予定
 shape-sid = 図形 { $sid }
 shape-styles = 図形スタイル
 shape-text = 図形の文字
@@ -5557,7 +5570,6 @@ width-not-resized-guard = 幅はサイズ変更されませんでした: { $g }�
 window = ウィンドウ
 window-n = ウィンドウ { $n }
 word-count = 文字カウント
-word-count-planned = 文字カウント — 予定
 worker-lost = ワーカーが失われました
 wrap-the-selection-in-this-conta = 選択範囲をこのコンテナー スタイルで囲みます
 x-cancel-placement = x 配置を取り消す
@@ -5624,6 +5636,14 @@ view-autoconnect-tip = 選択範囲の周りにオートコネクト矢印を表
 size-position = サイズと位置
 angle = 角度
 task-panes-tip = 作業ウィンドウの表示/非表示
+report-page = ページ
+report-shape = 図形
+words = 単語数
+characters-no-spaces = 文字数 (スペースを除く)
+save-as-csv = CSV として保存…
+report-empty = これらのページにはシェイプ データを持つ図形がありません
+shape-report-tip = すべての図形のシェイプ データを 1 つの表にまとめ、CSV で保存
+word-count-tip = 図形のテキストの単語数を数える
 
 
 ## ########## Resource: app ###############
@@ -5814,7 +5834,6 @@ data-graphics = 데이터 그래픽
 data-graphics-m6 = 데이터 그래픽(M6)
 data-linking-m6 = 데이터 연결(M6)
 date-time = 날짜 및 시간
-date-time-field-planned = 날짜 및 시간 필드 — 예정
 decrease-indent = 내어쓰기
 default-stencil-failed = 기본 스텐실 { $entry }을(를) 로드하지 못했습니다: { $e }
 define-shape-data = 셰이프 데이터 정의
@@ -6211,7 +6230,6 @@ page-name-is-a-foreground-page-a = 페이지 { $name }을(를) 다시 전경 페
 page-name-marked-as-a-background = 페이지 { $name }을(를) 배경으로 설정했습니다
 page-not-found = 페이지 { $sub }을(를) 찾을 수 없습니다
 page-number = 페이지 번호
-page-number-field-planned = 페이지 번호 필드 — 예정
 page-setup = 페이지 설정
 page-setup-menu = 페이지 설정…
 page-size = 페이지 크기
@@ -6357,7 +6375,6 @@ shape-id-s-vertex = 셰이프 { $id }의 꼭짓점
 shape-intersections = 셰이프 교점
 shape-protection-planned = 셰이프 보호 — 예정
 shape-report = 셰이프 보고서
-shape-reports-planned = 셰이프 보고서 — 예정
 shape-sid = 셰이프 { $sid }
 shape-styles = 셰이프 스타일
 shape-text = 셰이프 텍스트
@@ -6572,7 +6589,6 @@ width-not-resized-guard = 너비는 크기 조정되지 않았습니다: { $g }(
 window = 창
 window-n = 창 { $n }
 word-count = 단어 수
-word-count-planned = 단어 수 — 예정
 worker-lost = 작업자가 사라졌습니다
 wrap-the-selection-in-this-conta = 선택 영역을 이 컨테이너 스타일로 감쌉니다
 x-cancel-placement = x 배치 취소
@@ -6639,6 +6655,14 @@ view-autoconnect-tip = 선택 영역 주위에 자동 연결 화살표 표시
 size-position = 크기 및 위치
 angle = 각도
 task-panes-tip = 작업 창 표시 또는 숨기기
+report-page = 페이지
+report-shape = 도형
+words = 단어 수
+characters-no-spaces = 문자 수(공백 제외)
+save-as-csv = CSV로 저장…
+report-empty = 이 페이지에는 도형 데이터가 있는 도형이 없습니다
+shape-report-tip = 모든 도형의 도형 데이터를 하나의 표로, CSV로 저장
+word-count-tip = 도형 텍스트의 단어 수 세기
 
 
 ## ########## Resource: app ###############
@@ -6827,7 +6851,6 @@ data-graphics = 数据图形
 data-graphics-m6 = 数据图形（M6）
 data-linking-m6 = 数据链接（M6）
 date-time = 日期和时间
-date-time-field-planned = 日期和时间域 — 计划中
 decrease-indent = 减少缩进
 default-stencil-failed = 默认模具 { $entry } 加载失败：{ $e }
 define-shape-data = 定义形状数据
@@ -7225,7 +7248,6 @@ page-name-is-a-foreground-page-a = 页面 { $name } 现在重新成为前景页
 page-name-marked-as-a-background = 页面 { $name } 已标记为背景
 page-not-found = 未找到页面 { $sub }
 page-number = 页码
-page-number-field-planned = 页码域 — 计划中
 page-setup = 页面设置
 page-setup-menu = 页面设置…
 page-size = 页面大小
@@ -7376,7 +7398,6 @@ shape-id-s-vertex = 形状 { $id } 的顶点
 shape-intersections = 形状交点
 shape-protection-planned = 形状保护 — 计划中
 shape-report = 形状报表
-shape-reports-planned = 形状报表 — 计划中
 shape-sid = 形状 { $sid }
 shape-styles = 形状样式
 shape-text = 形状文本
@@ -7591,7 +7612,6 @@ width-not-resized-guard = 宽度未调整：{ $g }（仅调整高度）
 window = 窗口
 window-n = 窗口 { $n }
 word-count = 字数统计
-word-count-planned = 字数统计 — 计划中
 worker-lost = 工作线程丢失
 wrap-the-selection-in-this-conta = 用此容器样式包裹选定内容
 x-cancel-placement = × 取消放置
@@ -7658,4 +7678,12 @@ view-autoconnect-tip = 在所选内容周围显示自动连接箭头
 size-position = 大小和位置
 angle = 角度
 task-panes-tip = 显示或隐藏任务窗格
+report-page = 页面
+report-shape = 形状
+words = 字数
+characters-no-spaces = 字符数(不计空格)
+save-as-csv = 另存为 CSV…
+report-empty = 这些页面上没有带形状数据的形状
+shape-report-tip = 所有形状的形状数据汇总为一张表,可保存为 CSV
+word-count-tip = 统计形状文本中的字数
 

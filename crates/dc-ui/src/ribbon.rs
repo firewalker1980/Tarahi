@@ -161,6 +161,12 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Review ▸ Word Count and Shape Report.
+    WordCount,
+    ShapeReport,
+    /// Insert ▸ Date/Time, Page Number: Insert Field preset.
+    InsertDateTime,
+    InsertPageNumber,
     /// Developer ▸ Show Document Stencil.
     ToggleDocStencil,
     /// View ▸ Task Panes menu (Shapes, Shape Data, Size & Position).

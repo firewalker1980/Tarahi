@@ -403,6 +403,9 @@ fn litscan_flags_unrouted_chrome_literals() {
         "Background".to_string(),
         // the Angle ShapeSheet cell, also the Size & Position label
         "Angle".to_string(),
+        // shape Type / page vocabulary, also Shape Report headers
+        "Page".to_string(),
+        "Shape".to_string(),
         "Calibri".to_string(),
         // The My Shapes FOLDER NAME on disk (Visio convention; never
         // translated — `my_shapes_path` joins it literally). The

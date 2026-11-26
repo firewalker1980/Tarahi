@@ -10941,3 +10941,59 @@ fn rotation_handle_rotates_about_the_pin() {
     let a = h.state().debug_cell_for_test(sid, "Angle").and_then(|v| v.parse::<f64>().ok()).unwrap_or(0.0);
     assert!(a.abs() < 1e-9, "undo");
 }
+
+/// Insert ▸ Page Number: the Insert Field dialog preset to the page
+/// number; OK puts the field in the shape's text.
+#[test]
+fn insert_page_number_field() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    h.get_by_label("Page Number").click();
+    h.run();
+    h.run();
+    h.get_all_by_label("OK").last().unwrap().click();
+    h.run();
+    h.run();
+    assert_eq!(h.state().debug_shape_plain_text(sid).as_deref(), Some("1"));
+}
+
+/// Review ▸ Shape Report lists the shapes' data and saves it as CSV;
+/// Word Count counts the shapes' words.
+#[test]
+fn shape_report_csv_and_word_count() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().debug_add_prop_row_for_test(sid, "IP", "0", "", "10.0.0.1");
+    h.state_mut().debug_set_shape_text_for_test(sid, "core switch one");
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Review);
+    h.run();
+    h.get_by_label("Shape Report").click();
+    h.run();
+    h.run();
+    assert!(h.query_by_label("10.0.0.1").is_some(), "value in the table");
+    let out = std::env::temp_dir().join(format!("tarahi-report-{}.csv", std::process::id()));
+    h.state_mut().preset_file_dialog_for_test(Some(out.clone()));
+    h.get_by_label("Save as CSV…").click();
+    for _ in 0..20 {
+        h.run();
+        if out.exists() {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    let csv = std::fs::read_to_string(&out).expect("csv written");
+    let head = csv.lines().next().unwrap();
+    assert!(head.starts_with("Page,Shape,") && head.ends_with(",IP"), "{csv}");
+    assert!(!head.contains("Internal"), "invisible fields stay out: {csv}");
+    assert!(csv.contains(",10.0.0.1\r\n"), "{csv}");
+
+    h.get_by_label("Word Count").click();
+    h.run();
+    h.run();
+    assert!(h.query_by_label("3").is_some(), "three words");
+}

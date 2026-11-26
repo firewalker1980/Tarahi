@@ -1262,13 +1262,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "date-time-field-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "decrease-indent",
         attribute: None,
         vars: &[],
@@ -3978,13 +3971,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "page-number-field-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "page-setup",
         attribute: None,
         vars: &[],
@@ -4994,13 +4980,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "shape-report",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "shape-reports-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6400,13 +6379,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "word-count-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "worker-lost",
         attribute: None,
         vars: &[],
@@ -6805,6 +6777,62 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "report-page",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "report-shape",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "words",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "characters-no-spaces",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "save-as-csv",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "report-empty",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "shape-report-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "word-count-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6904,13 +6932,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48059,
-            Self::En => 48059..94460,
-            Self::Es => 94460..145545,
-            Self::Fa => 145545..205712,
-            Self::Ja => 205712..257190,
-            Self::Ko => 257190..304662,
-            Self::ZhHans => 304662..345888,
+            Self::De => 0..48191,
+            Self::En => 48191..94691,
+            Self::Es => 94691..145898,
+            Self::Fa => 145898..206158,
+            Self::Ja => 206158..257815,
+            Self::Ko => 257815..305437,
+            Self::ZhHans => 305437..346780,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7692,9 +7720,6 @@ impl L10nLanguage {
     }
     pub fn msg_date_time(&self) -> String {
         self.0.msg("date-time", None).unwrap()
-    }
-    pub fn msg_date_time_field_planned(&self) -> String {
-        self.0.msg("date-time-field-planned", None).unwrap()
     }
     pub fn msg_decrease_indent(&self) -> String {
         self.0.msg("decrease-indent", None).unwrap()
@@ -9131,9 +9156,6 @@ impl L10nLanguage {
     pub fn msg_page_number(&self) -> String {
         self.0.msg("page-number", None).unwrap()
     }
-    pub fn msg_page_number_field_planned(&self) -> String {
-        self.0.msg("page-number-field-planned", None).unwrap()
-    }
     pub fn msg_page_setup(&self) -> String {
         self.0.msg("page-setup", None).unwrap()
     }
@@ -9734,9 +9756,6 @@ impl L10nLanguage {
     }
     pub fn msg_shape_report(&self) -> String {
         self.0.msg("shape-report", None).unwrap()
-    }
-    pub fn msg_shape_reports_planned(&self) -> String {
-        self.0.msg("shape-reports-planned", None).unwrap()
     }
     /// $sid (Number) - argument
     pub fn msg_shape_sid<F0: Into<FluentNumber>>(&self, sid: F0) -> String {
@@ -10522,9 +10541,6 @@ impl L10nLanguage {
     pub fn msg_word_count(&self) -> String {
         self.0.msg("word-count", None).unwrap()
     }
-    pub fn msg_word_count_planned(&self) -> String {
-        self.0.msg("word-count-planned", None).unwrap()
-    }
     pub fn msg_worker_lost(&self) -> String {
         self.0.msg("worker-lost", None).unwrap()
     }
@@ -10718,5 +10734,29 @@ impl L10nLanguage {
     }
     pub fn msg_task_panes_tip(&self) -> String {
         self.0.msg("task-panes-tip", None).unwrap()
+    }
+    pub fn msg_report_page(&self) -> String {
+        self.0.msg("report-page", None).unwrap()
+    }
+    pub fn msg_report_shape(&self) -> String {
+        self.0.msg("report-shape", None).unwrap()
+    }
+    pub fn msg_words(&self) -> String {
+        self.0.msg("words", None).unwrap()
+    }
+    pub fn msg_characters_no_spaces(&self) -> String {
+        self.0.msg("characters-no-spaces", None).unwrap()
+    }
+    pub fn msg_save_as_csv(&self) -> String {
+        self.0.msg("save-as-csv", None).unwrap()
+    }
+    pub fn msg_report_empty(&self) -> String {
+        self.0.msg("report-empty", None).unwrap()
+    }
+    pub fn msg_shape_report_tip(&self) -> String {
+        self.0.msg("shape-report-tip", None).unwrap()
+    }
+    pub fn msg_word_count_tip(&self) -> String {
+        self.0.msg("word-count-tip", None).unwrap()
     }
 }

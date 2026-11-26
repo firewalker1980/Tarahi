@@ -218,7 +218,6 @@ data-graphics = Data Graphics
 data-graphics-m6 = Data graphics (M6)
 data-linking-m6 = Data linking (M6)
 date-time = Date & Time
-date-time-field-planned = Date & time field — planned
 decrease-indent = Decrease Indent
 # $entry (String) - default stencil entry
 # $e (String) - error text
@@ -669,7 +668,6 @@ page-name-marked-as-a-background = page { $name } marked as a background
 # $sub (String) - sub-address page name
 page-not-found = page { $sub } not found
 page-number = Page Number
-page-number-field-planned = Page-number field — planned
 page-setup = Page Setup
 page-setup-menu = Page Setup…
 page-size = Page Size
@@ -859,7 +857,6 @@ shape-id-s-vertex = shape { $id }'s vertex
 shape-intersections = Shape intersections
 shape-protection-planned = Shape protection — planned
 shape-report = Shape Report
-shape-reports-planned = Shape reports — planned
 # $sid (Number) - argument
 shape-sid = shape { $sid }
 shape-styles = Shape Styles
@@ -1118,7 +1115,6 @@ window = Window
 # $n (Number) - window count
 window-n = Window { $n }
 word-count = Word Count
-word-count-planned = Word count — planned
 worker-lost = worker lost
 wrap-the-selection-in-this-conta = Wrap the selection in this container style
 x-cancel-placement = x cancel placement
@@ -1186,3 +1182,11 @@ view-autoconnect-tip = Show the AutoConnect arrows around the selection
 size-position = Size & Position
 angle = Angle
 task-panes-tip = Show or hide the task panes
+report-page = Page
+report-shape = Shape
+words = Words
+characters-no-spaces = Characters (no spaces)
+save-as-csv = Save as CSV…
+report-empty = No shape on these pages has Shape Data
+shape-report-tip = Every shape's Shape Data in one table, saved as CSV
+word-count-tip = Count the words in the shapes' text

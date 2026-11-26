@@ -28,10 +28,10 @@ fn proofing_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<sup
                     .alt(s.msg_thesaurus())
                     .enabled(false)
                     .tip(s.msg_thesaurus_planned()),
-                RibbonButton::new(Icon::Find, "", Action::Macros)
+                RibbonButton::new(Icon::Find, "", Action::WordCount)
                     .alt(s.msg_word_count())
-                    .enabled(false)
-                    .tip(s.msg_word_count_planned()),
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_word_count_tip()),
             ],
             vec![
                 RibbonButton::new(Icon::Check, "", Action::Macros)
@@ -106,9 +106,9 @@ fn markup_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super
 fn reports_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::DataGraphic, s.msg_shape_report(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_shape_reports_planned()),
+            RibbonButton::new(Icon::DataGraphic, s.msg_shape_report(), Action::ShapeReport)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_shape_report_tip()),
         ),
         stack(vec![RibbonButton::new(
             Icon::Field,

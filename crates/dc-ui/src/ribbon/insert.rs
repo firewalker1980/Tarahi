@@ -125,16 +125,16 @@ fn text_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, has_sel: bool)
                     .alt(s.msg_text_field())
                     .enabled(has_sel)
                     .tip(s.msg_insert_a_text_field()),
-                RibbonButton::new(Icon::DateTime, "", Action::Macros)
+                RibbonButton::new(Icon::DateTime, "", Action::InsertDateTime)
                     .alt(s.msg_date_time())
-                    .enabled(false)
-                    .tip(s.msg_date_time_field_planned()),
+                    .enabled(has_sel)
+                    .tip(s.msg_date_time()),
             ],
             vec![
-                RibbonButton::new(Icon::NewPage, "", Action::Macros)
+                RibbonButton::new(Icon::NewPage, "", Action::InsertPageNumber)
                     .alt(s.msg_page_number())
-                    .enabled(false)
-                    .tip(s.msg_page_number_field_planned()),
+                    .enabled(has_sel)
+                    .tip(s.msg_page_number()),
                 RibbonButton::new(Icon::FontA, "", Action::Macros)
                     .alt(s.msg_symbol())
                     .enabled(false)

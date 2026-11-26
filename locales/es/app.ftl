@@ -216,7 +216,6 @@ data-graphics = Gráficos de datos
 data-graphics-m6 = Gráficos de datos (M6)
 data-linking-m6 = Vinculación de datos (M6)
 date-time = Fecha y hora
-date-time-field-planned = Campo de fecha y hora — planeado
 decrease-indent = Disminuir sangría
 # $entry - entrada de galería predeterminada
 # $e - texto del error
@@ -667,7 +666,6 @@ page-name-marked-as-a-background = la página { $name } se marcó como fondo
 # $sub - nombre de la página de subdirección
 page-not-found = no se encontró la página { $sub }
 page-number = Número de página
-page-number-field-planned = Campo de número de página — planeado
 page-setup = Configurar página
 page-setup-menu = Configurar página…
 page-size = Tamaño de página
@@ -856,7 +854,6 @@ shape-id-s-vertex = vértice de la forma { $id }
 shape-intersections = Intersecciones de formas
 shape-protection-planned = Protección de forma — planeado
 shape-report = Informe de formas
-shape-reports-planned = Informes de formas — planeado
 # $sid - argumento
 shape-sid = forma { $sid }
 shape-styles = Estilos de forma
@@ -1113,7 +1110,6 @@ window = Ventana
 # $n - número de ventanas
 window-n = Ventana { $n }
 word-count = Recuento de palabras
-word-count-planned = Recuento de palabras — planeado
 worker-lost = se perdió el trabajo en segundo plano
 wrap-the-selection-in-this-conta = Ajustar la selección en este estilo de contenedor
 x-cancel-placement = x cancelar la colocación
@@ -1181,3 +1177,11 @@ view-autoconnect-tip = Mostrar las flechas de AutoConectar alrededor de la selec
 size-position = Tamaño y posición
 angle = Ángulo
 task-panes-tip = Mostrar u ocultar los paneles de tareas
+report-page = Página
+report-shape = Forma
+words = Palabras
+characters-no-spaces = Caracteres (sin espacios)
+save-as-csv = Guardar como CSV…
+report-empty = Ninguna forma de estas páginas tiene datos de forma
+shape-report-tip = Los datos de forma de todas las formas en una tabla, guardable como CSV
+word-count-tip = Contar las palabras del texto de las formas

@@ -196,7 +196,6 @@ data-graphics = Datengrafiken
 data-graphics-m6 = Datengrafiken (M6)
 data-linking-m6 = Datenverknüpfung (M6)
 date-time = Datum & Uhrzeit
-date-time-field-planned = Datum-/Uhrzeitfeld — geplant
 decrease-indent = Einzug verkleinern
 # $entry - Standardeintrag
 # $e - Fehlertext
@@ -622,7 +621,6 @@ page-name-marked-as-a-background = Seite { $name } als Hintergrund markiert
 # $sub - Seitenname der Sub-Adresse
 page-not-found = Seite { $sub } nicht gefunden
 page-number = Seitenzahl
-page-number-field-planned = Seitenzahlfeld — geplant
 page-setup = Seite einrichten
 page-setup-menu = Seite einrichten …
 page-size = Seitengröße
@@ -793,7 +791,6 @@ shape-id-s-vertex = der Scheitelpunkt von Form { $id }
 shape-intersections = Formüberschneidungen
 shape-protection-planned = Formschutz — geplant
 shape-report = Formbericht
-shape-reports-planned = Formberichte — geplant
 shape-sid = Form { $sid }
 shape-styles = Formformatvorlagen
 shape-text = Formtext
@@ -1043,7 +1040,6 @@ window = Fenster
 # $n - Fensteranzahl
 window-n = Fenster { $n }
 word-count = Wortzahl
-word-count-planned = Wortzahl — geplant
 worker-lost = Arbeitsprozess verloren
 wrap-the-selection-in-this-conta = Die Auswahl in diesen Containerstil einhüllen
 x-cancel-placement = x Platzierung abbrechen
@@ -1111,3 +1107,11 @@ view-autoconnect-tip = AutoConnect-Pfeile um die Auswahl anzeigen
 size-position = Größe und Position
 angle = Winkel
 task-panes-tip = Aufgabenbereiche ein- oder ausblenden
+report-page = Seite
+report-shape = Form
+words = Wörter
+characters-no-spaces = Zeichen (ohne Leerzeichen)
+save-as-csv = Als CSV speichern…
+report-empty = Keine Form auf diesen Seiten hat Formdaten
+shape-report-tip = Die Formdaten aller Formen in einer Tabelle, als CSV speicherbar
+word-count-tip = Wörter im Text der Formen zählen

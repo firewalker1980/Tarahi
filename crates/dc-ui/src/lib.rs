@@ -36,6 +36,7 @@ pub mod props;
 pub mod quickshapes;
 mod rasterpool;
 pub mod recent;
+pub mod report;
 pub mod ribbon;
 pub mod shapesheet;
 pub mod snap;
