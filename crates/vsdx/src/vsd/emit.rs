@@ -82,6 +82,12 @@ struct Ctx<'a> {
     faces: HashMap<u32, String>,
     /// id of the sheet being written (self references drop `Sheet.N!`)
     cur: u32,
+    /// master being written (its shapes' formula cells are remembered)
+    cur_master: Option<u32>,
+    /// (master id, master shape id) → shape-level cells with a formula
+    master_f: HashMap<(u32, u32), std::collections::HashSet<String>>,
+    /// formula cells of the master shape the current instance inherits
+    inh: Option<std::collections::HashSet<String>>,
     pool: Vec<String>,
     media: Vec<(String, Vec<u8>)>,
 }
@@ -113,6 +119,9 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
         palette: vec![],
         faces: HashMap::new(),
         cur: u32::MAX,
+        cur_master: None,
+        master_f: HashMap::new(),
+        inh: None,
         pool: vec![],
         media: vec![],
     };
@@ -196,8 +205,10 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
                 .find(|k| k.typ == 0x0a)
                 .map(|k| utf16(&rec_data(&doc, k)))
                 .unwrap_or_default();
+            cx.cur_master = Some(id);
             let (sheet, shapes) =
                 contents(&mut cx, m, &format!("master{}", master_parts.len() + 1));
+            cx.cur_master = None;
             let n = master_parts.len() + 1;
             let _ = write!(
                 masters_xml,
@@ -368,10 +379,23 @@ fn contents(cx: &mut Ctx, container: &Ptr, part: &str) -> (String, String) {
 /// Child shape ids of a page sheet or group: the 0x83 rows (u32 id,
 /// u32 type) of its shape list, in z-order.
 fn child_ids(recs: &[Rec]) -> Vec<u32> {
-    recs.iter()
-        .filter(|r| r.typ == 0x83)
-        .map(|r| u32_at(&r.data, 0))
-        .collect()
+    let mut rows: Vec<&Rec> = recs.iter().filter(|r| r.typ == 0x83).collect();
+    sort_rows(recs, &mut rows);
+    rows.iter().map(|r| u32_at(&r.data, 0)).collect()
+}
+
+/// Put a section's rows in the order its list record gives (rows the
+/// order omits keep their place after the listed ones).
+fn sort_rows(recs: &[Rec], rows: &mut [&Rec]) {
+    let Some(l) = rows.first().and_then(|r| r.list) else { return };
+    let Some(order) = recs
+        .iter()
+        .find(|r| r.list.is_none() && r.typ == l.0 && r.id == l.1)
+        .and_then(|r| super::list_order(&r.data))
+    else {
+        return;
+    };
+    rows.sort_by_key(|r| order.iter().position(|&o| o == r.id).unwrap_or(usize::MAX));
 }
 
 fn shape_type(t: u32) -> &'static str {
@@ -427,7 +451,14 @@ fn shape_xml(
         let _ = write!(attrs, " MasterShape='{ms}'");
     }
     cx.cur = id;
-    let _ = write!(out, "<Shape {attrs}>{}", sheet_body(cx, recs, Some(part)));
+    // an instance inherits its master shape's formulas: cells without
+    // a local one are written F='Inh' so they recalculate from it
+    cx.inh = (m != u32::MAX && ms != u32::MAX)
+        .then(|| cx.master_f.get(&(m, ms)).cloned())
+        .flatten();
+    let body = sheet_body(cx, recs, Some(part));
+    cx.inh = None;
+    let _ = write!(out, "<Shape {attrs}>{body}");
     let kids = child_ids(recs);
     if !kids.is_empty() {
         out.push_str("<Shapes>");
@@ -644,7 +675,16 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
             .filter(|c| c.t == r.typ)
             .map(|c| (c.name, c.off, c.enc))
             .collect();
-        let cells = record_cells(cx, r, &defs, None);
+        let mut cells = record_cells(cx, r, &defs, None);
+        if let Some(inh) = &cx.inh {
+            for c in cells.iter_mut().filter(|c| c.2.is_none() && inh.contains(&c.0)) {
+                c.2 = Some("Inh".into());
+            }
+        }
+        if let Some(mid) = cx.cur_master {
+            let set = cx.master_f.entry((mid, cx.cur)).or_default();
+            set.extend(cells.iter().filter(|c| c.2.is_some()).map(|c| c.0.clone()));
+        }
         write_cells(&mut out, &cells);
     }
     // sections: group rows by their list
@@ -685,6 +725,7 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
         if *sec != "Geometry" {
             sec_rows.sort_by_key(|r| r.id);
         }
+        sort_rows(recs, &mut sec_rows);
         let mut ord = 0;
         for r in sec_rows {
             let Some(rd) = ROWS.iter().find(|d| d.t == r.typ) else {

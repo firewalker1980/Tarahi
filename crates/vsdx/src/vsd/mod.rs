@@ -225,6 +225,9 @@ pub fn chunks(s: &[u8]) -> Vec<Chunk<'_>> {
         let len = u32_at(s, p + 12) as usize;
         let (list, level, unk) = (u32_at(s, p + 8), u16_at(s, p + 16), s[p + 18]);
         let end = (p + 19 + len).min(s.len());
+        // a list chunk's 8-byte "trailer" is the tail of its row-order
+        // array, so it belongs to the record data (see [`list_order`])
+        let data_end = if list != 0 { (end + 8).min(s.len()) } else { end };
         out.push(Chunk {
             pos: p,
             typ,
@@ -232,7 +235,7 @@ pub fn chunks(s: &[u8]) -> Vec<Chunk<'_>> {
             list,
             level,
             unk,
-            data: &s[p + 19..end],
+            data: &s[p + 19..data_end],
         });
         p = end;
         if list != 0 || trail8(typ) {
@@ -262,6 +265,16 @@ pub struct Rec {
     pub data: Vec<u8>,
 }
 
+/// The row order of a section list record: `u32` offset (+8) of the
+/// order array, `u32` its size in bytes, … `u32` count at 20, then the
+/// row ids in display order from byte 32 (z-order for shape lists).
+/// None when the record has none.
+pub fn list_order(d: &[u8]) -> Option<Vec<u32>> {
+    let off = u32_at(d, 0) as usize + 8;
+    let n = u32_at(d, 20) as usize;
+    (n > 0 && off + 4 * n <= d.len()).then(|| (0..n).map(|k| u32_at(d, off + 4 * k)).collect())
+}
+
 /// Section list streams (0x64 Scratch … 0x76): always hold a child list,
 /// whatever their format flags say (later v11 writers leave the flag off).
 pub fn is_list_type(t: u32) -> bool {
@@ -289,6 +302,13 @@ pub fn tree_records(ch: &[Chunk], base: u16) -> Vec<Rec> {
                 cur = if c.typ == 0x68 {
                     None
                 } else {
+                    // keep the list record: it carries the rows' order
+                    out.push(Rec {
+                        typ: c.typ,
+                        id: c.id,
+                        list: None,
+                        data: c.data.to_vec(),
+                    });
                     Some((c.typ, c.id))
                 };
             } else {
@@ -366,7 +386,19 @@ fn collect(doc: &[u8], p: &Ptr, slot: u32, list: Option<(u32, u32)>, out: &mut V
             });
         }
     } else if p.has_children() || is_list_type(p.typ) {
-        for (i, c) in children(p, &s).iter().enumerate() {
+        let (kids, order) = children_ordered(p, &s);
+        if p.typ != 0x68 {
+            // the same layout as an inline list record (see [`list_order`])
+            let mut d = vec![0u8; 32];
+            d[0..4].copy_from_slice(&24u32.to_le_bytes());
+            d[4..8].copy_from_slice(&((4 * order.len()) as u32).to_le_bytes());
+            d[20..24].copy_from_slice(&(order.len() as u32).to_le_bytes());
+            for o in &order {
+                d.extend_from_slice(&o.to_le_bytes());
+            }
+            out.push(Rec { typ: p.typ, id: slot, list: None, data: d });
+        }
+        for (i, c) in kids.iter().enumerate() {
             collect(doc, c, i as u32, sect, out);
         }
     } else {
