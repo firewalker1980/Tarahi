@@ -351,7 +351,6 @@ filter-pdf = PDF (Dokument)
 filter-png = PNG (Rasterbild)
 filter-svg = SVG (Vektorgrafik)
 find = Suchen
-find-planned-later-milestone = Suchen — geplant (späterer Meilenstein)
 fine-dash = Feiner Strich
 fine-dot = Feiner Punkt
 first-page = Erste Seite
@@ -716,7 +715,6 @@ rendering-scrim = Rendern …
 reorder-pages = Seiten neu anordnen
 reorder-pages-menu = Seiten neu anordnen …
 replace = Ersetzen
-replace-planned-later-milestone = Ersetzen — geplant (späterer Meilenstein)
 reply = Antworten
 report-definitions-planned = Berichtsdefinitionen — geplant
 reports = Berichte
@@ -1100,3 +1098,19 @@ field-type-variable-list = Variable Liste
 field-type-yes-no = Ja/Nein
 field-type-date = Datum
 field-choices = Auswahlwerte, durch ; getrennt
+find-what = Suchen nach
+replace-with = Ersetzen durch
+match-case = Groß-/Kleinschreibung
+whole-words-only = Nur ganze Wörter
+all-pages = Alle Seiten
+find-next = Weitersuchen
+replace-all = Alle ersetzen
+# $text (String) - the search text
+find-no-matches = Keine Treffer für „{ $text }“
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+        [one] ein Treffer ersetzt
+       *[other] { $n } Treffer ersetzt
+    }
+find-replace-tip = Text in Formen suchen und ersetzen (Strg+F)

@@ -332,7 +332,6 @@ filter-pdf = PDF(문서)
 filter-png = PNG(래스터 이미지)
 filter-svg = SVG(벡터 그래픽)
 find = 찾기
-find-planned-later-milestone = 찾기 — 예정(이후 마일스톤)
 fine-dash = 가는 파선
 fine-dot = 가는 점선
 first-page = 첫 페이지
@@ -663,7 +662,6 @@ rendering-scrim = 렌더링 중…
 reorder-pages = 페이지 다시 정렬
 reorder-pages-menu = 페이지 다시 정렬…
 replace = 바꾸기
-replace-planned-later-milestone = 바꾸기 — 예정(이후 마일스톤)
 reply = 회신
 report-definitions-planned = 보고서 정의 — 예정
 reports = 보고서
@@ -999,3 +997,18 @@ field-type-variable-list = 가변 목록
 field-type-yes-no = 예/아니요
 field-type-date = 날짜
 field-choices = 선택 항목, ;로 구분
+find-what = 찾을 내용
+replace-with = 바꿀 내용
+match-case = 대/소문자 구분
+whole-words-only = 전체 단어만
+all-pages = 모든 페이지
+find-next = 다음 찾기
+replace-all = 모두 바꾸기
+# $text (String) - the search text
+find-no-matches = “{ $text }”에 대한 결과 없음
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+       *[other] { $n }개 바꿈
+    }
+find-replace-tip = 도형의 텍스트 찾기 및 바꾸기 (Ctrl+F)

@@ -147,6 +147,9 @@ pub(crate) fn anchor_labels(tab: Tab, ctx: &TabCtx) -> Vec<String> {
 pub enum Action {
     /// Home ▸ Editing ▸ Layers: the Layer Properties dialog.
     Layers,
+    /// Home ▸ Editing ▸ Find / Replace (Ctrl+F / Ctrl+H).
+    Find,
+    Replace,
     /// Clipboard group (the same paths as Ctrl+X / Ctrl+C / Ctrl+V).
     Cut,
     Copy,

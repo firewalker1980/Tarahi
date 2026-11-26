@@ -331,7 +331,6 @@ filter-pdf = PDF（文档）
 filter-png = PNG（位图图像）
 filter-svg = SVG（矢量图形）
 find = 查找
-find-planned-later-milestone = 查找 — 计划中（后期里程碑）
 fine-dash = 细虚线
 fine-dot = 细点
 first-page = 第一页
@@ -662,7 +661,6 @@ rendering-scrim = 正在渲染…
 reorder-pages = 重新排序页面
 reorder-pages-menu = 重新排序页面…
 replace = 替换
-replace-planned-later-milestone = 替换 — 计划中（后期里程碑）
 reply = 答复
 report-definitions-planned = 报表定义 — 计划中
 reports = 报表
@@ -1003,3 +1001,18 @@ field-type-variable-list = 可变列表
 field-type-yes-no = 是/否
 field-type-date = 日期
 field-choices = 选项,以 ; 分隔
+find-what = 查找内容
+replace-with = 替换为
+match-case = 区分大小写
+whole-words-only = 全字匹配
+all-pages = 所有页面
+find-next = 查找下一个
+replace-all = 全部替换
+# $text (String) - the search text
+find-no-matches = 未找到“{ $text }”
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+       *[other] 已替换 { $n } 处
+    }
+find-replace-tip = 查找和替换形状中的文本 (Ctrl+F)

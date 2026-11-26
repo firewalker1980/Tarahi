@@ -2277,13 +2277,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "find-planned-later-milestone",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "fine-dash",
         attribute: None,
         vars: &[],
@@ -4552,13 +4545,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "replace-planned-later-milestone",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "reply",
         attribute: None,
         vars: &[],
@@ -6798,6 +6784,76 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "find-what",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "replace-with",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "match-case",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "whole-words-only",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "all-pages",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "find-next",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "replace-all",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "find-no-matches",
+        attribute: None,
+        vars: &["text"],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "replaced-n-matches",
+        attribute: None,
+        vars: &["n"],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "find-replace-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6897,13 +6953,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48310,
-            Self::En => 48310..94945,
-            Self::Es => 94945..146284,
-            Self::Fa => 146284..207265,
-            Self::Ja => 207265..259013,
-            Self::Ko => 259013..306651,
-            Self::ZhHans => 306651..348313,
+            Self::De => 0..48658,
+            Self::En => 48658..95625,
+            Self::Es => 95625..147366,
+            Self::Fa => 147366..208754,
+            Self::Ja => 208754..260866,
+            Self::Ko => 260866..308837,
+            Self::ZhHans => 308837..350791,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -8195,9 +8251,6 @@ impl L10nLanguage {
     pub fn msg_find(&self) -> String {
         self.0.msg("find", None).unwrap()
     }
-    pub fn msg_find_planned_later_milestone(&self) -> String {
-        self.0.msg("find-planned-later-milestone", None).unwrap()
-    }
     pub fn msg_fine_dash(&self) -> String {
         self.0.msg("fine-dash", None).unwrap()
     }
@@ -9466,9 +9519,6 @@ impl L10nLanguage {
     pub fn msg_replace(&self) -> String {
         self.0.msg("replace", None).unwrap()
     }
-    pub fn msg_replace_planned_later_milestone(&self) -> String {
-        self.0.msg("replace-planned-later-milestone", None).unwrap()
-    }
     pub fn msg_reply(&self) -> String {
         self.0.msg("reply", None).unwrap()
     }
@@ -10705,5 +10755,41 @@ impl L10nLanguage {
     }
     pub fn msg_field_choices(&self) -> String {
         self.0.msg("field-choices", None).unwrap()
+    }
+    pub fn msg_find_what(&self) -> String {
+        self.0.msg("find-what", None).unwrap()
+    }
+    pub fn msg_replace_with(&self) -> String {
+        self.0.msg("replace-with", None).unwrap()
+    }
+    pub fn msg_match_case(&self) -> String {
+        self.0.msg("match-case", None).unwrap()
+    }
+    pub fn msg_whole_words_only(&self) -> String {
+        self.0.msg("whole-words-only", None).unwrap()
+    }
+    pub fn msg_all_pages(&self) -> String {
+        self.0.msg("all-pages", None).unwrap()
+    }
+    pub fn msg_find_next(&self) -> String {
+        self.0.msg("find-next", None).unwrap()
+    }
+    pub fn msg_replace_all(&self) -> String {
+        self.0.msg("replace-all", None).unwrap()
+    }
+    /// $text (String) - the search text
+    pub fn msg_find_no_matches<F0: AsRef<str>>(&self, text: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("text", text.as_ref());
+        self.0.msg("find-no-matches", Some(_args)).unwrap()
+    }
+    /// $n (Number) - replacement count
+    pub fn msg_replaced_n_matches<F0: Into<FluentNumber>>(&self, n: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("n", n.into());
+        self.0.msg("replaced-n-matches", Some(_args)).unwrap()
+    }
+    pub fn msg_find_replace_tip(&self) -> String {
+        self.0.msg("find-replace-tip", None).unwrap()
     }
 }

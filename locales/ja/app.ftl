@@ -331,7 +331,6 @@ filter-pdf = PDF（ドキュメント）
 filter-png = PNG（ラスター画像）
 filter-svg = SVG（ベクター グラフィックス）
 find = 検索
-find-planned-later-milestone = 検索 — 予定（後のマイルストーン）
 fine-dash = 細かい破線
 fine-dot = 細かい点線
 first-page = 先頭ページ
@@ -662,7 +661,6 @@ rendering-scrim = 描画中…
 reorder-pages = ページの並べ替え
 reorder-pages-menu = ページの並べ替え…
 replace = 置換
-replace-planned-later-milestone = 置換 — 予定（後のマイルストーン）
 reply = 返信
 report-definitions-planned = レポート定義 — 予定
 reports = レポート
@@ -998,3 +996,18 @@ field-type-variable-list = 可変リスト
 field-type-yes-no = はい/いいえ
 field-type-date = 日付
 field-choices = 選択肢 (; 区切り)
+find-what = 検索する文字列
+replace-with = 置換後の文字列
+match-case = 大文字と小文字を区別
+whole-words-only = 完全一致の単語のみ
+all-pages = すべてのページ
+find-next = 次を検索
+replace-all = すべて置換
+# $text (String) - the search text
+find-no-matches = 「{ $text }」は見つかりません
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+       *[other] { $n } 件置換しました
+    }
+find-replace-tip = 図形内のテキストを検索/置換 (Ctrl+F)

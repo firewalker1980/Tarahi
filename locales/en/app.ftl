@@ -377,7 +377,6 @@ filter-pdf = PDF (document)
 filter-png = PNG (raster image)
 filter-svg = SVG (vector graphics)
 find = Find
-find-planned-later-milestone = Find — planned (later milestone)
 fine-dash = Fine Dash
 fine-dot = Fine Dot
 first-page = First page
@@ -773,7 +772,6 @@ rendering-scrim = Rendering…
 reorder-pages = Reorder Pages
 reorder-pages-menu = Reorder Pages…
 replace = Replace
-replace-planned-later-milestone = Replace — planned (later milestone)
 reply = Reply
 report-definitions-planned = Report definitions — planned
 reports = Reports
@@ -1175,3 +1173,19 @@ field-type-variable-list = Variable list
 field-type-yes-no = Yes/No
 field-type-date = Date
 field-choices = Choices, separated by ;
+find-what = Find what
+replace-with = Replace with
+match-case = Match case
+whole-words-only = Whole words only
+all-pages = All pages
+find-next = Find Next
+replace-all = Replace All
+# $text (String) - the search text
+find-no-matches = No matches for “{ $text }”
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+        [one] replaced one match
+       *[other] replaced { $n } matches
+    }
+find-replace-tip = Find and replace text in shapes (Ctrl+F)

@@ -10559,3 +10559,66 @@ fn shape_data_add_field_defines_a_list_field() {
     h.run();
     assert_eq!(h.state().debug_prop_cell_for_test(sid, "Row_1", "Label"), None, "one undo removes it");
 }
+
+/// Home ▸ Editing ▸ Find / Replace: Ctrl+F opens Find, Find Next selects
+/// the matching shape, Replace All rewrites every match in one undo
+/// step; Ctrl+H flips the selection (Visio's key).
+#[test]
+fn find_replace_and_flip_shortcut() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, a) = place_master(&mut h, 2);
+    let (_, b) = place_master(&mut h, 2);
+    h.state_mut().debug_set_shape_text_for_test(a, "core switch");
+    h.state_mut().debug_set_shape_text_for_test(b, "Switch 2");
+    h.run();
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::F);
+    h.run();
+    h.run();
+    h.get_by_label("Find what").focus();
+    h.run();
+    // seeded from the selected shape's text, like Visio
+    assert_eq!(h.get_by_label("Find what").value().as_deref(), Some("Switch 2"));
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::A);
+    h.run();
+    h.get_by_label("Find what").type_text("switch");
+    h.run();
+    h.get_by_label("Find Next").click();
+    h.run();
+    assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(a), "first match");
+    h.get_by_label("Find Next").click();
+    h.run();
+    assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(b), "second match");
+
+    // switch the dialog to Replace (its checkbox; the ribbon has a
+    // Replace button too, so take the one inside the window)
+    let tick = h
+        .get_all_by_label("Replace")
+        .max_by(|x, y| x.rect().top().total_cmp(&y.rect().top()))
+        .unwrap();
+    tick.click();
+    h.run();
+    h.get_by_label("Replace with").focus();
+    h.run();
+    h.get_by_label("Replace with").type_text("router");
+    h.run();
+    h.get_by_label("Replace All").click();
+    h.run();
+    assert_eq!(h.state().debug_shape_plain_text(a).as_deref(), Some("core router"));
+    assert_eq!(h.state().debug_shape_plain_text(b).as_deref(), Some("router 2"));
+    h.key_press(egui::Key::Escape);
+    h.run();
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    assert_eq!(h.state().debug_shape_plain_text(a).as_deref(), Some("core switch"), "one undo");
+    assert_eq!(h.state().debug_shape_plain_text(b).as_deref(), Some("Switch 2"));
+
+    // Ctrl+H flips the selection horizontally
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::A);
+    h.run();
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::H);
+    h.run();
+    for s in [a, b] {
+        assert_eq!(h.state().debug_cell_for_test(s, "FlipX").as_deref(), Some("1"));
+    }
+}

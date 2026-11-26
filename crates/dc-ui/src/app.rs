@@ -261,6 +261,14 @@ pub struct App {
     /// and the layer name being edited.
     layers_open: bool,
     layer_edit: Option<(i64, String)>,
+    /// Find & Replace dialog: open, show the Replace row, texts,
+    /// options (case, whole word, all pages) and the current match.
+    find_open: bool,
+    find_replace: bool,
+    find_text: String,
+    replace_text: String,
+    find_opts: (crate::find::Opts, bool),
+    find_cur: Option<crate::find::Hit>,
     /// Select-by-Type criterion: 0 shape type, 1 master, 2 layer.
     selby_criterion: u8,
     /// Select-by-Type chosen value.
@@ -793,6 +801,12 @@ impl App {
             align_to_page: false,
             selby_open: false,
             layers_open: false,
+            find_open: false,
+            find_replace: false,
+            find_text: String::new(),
+            replace_text: String::new(),
+            find_opts: (crate::find::Opts::default(), true),
+            find_cur: None,
             layer_edit: None,
             selby_criterion: 0,
             selby_value: String::new(),
@@ -3296,6 +3310,19 @@ impl App {
             if i.key_pressed(egui::Key::F7) && (!kb_owned || self.text_edit.is_some()) {
                 self.dispatch(Action::SpellCheck);
             }
+            // Find / Replace (Visio's Ctrl+F / Ctrl+H)
+            if !kb_owned && ctrl && i.key_pressed(egui::Key::F) && self.ed.is_some() {
+                self.dispatch(Action::Find);
+            }
+            // Visio: Ctrl+H flip horizontal, Ctrl+J flip vertical
+            if !kb_owned && ctrl && self.sel.is_some() {
+                if i.key_pressed(egui::Key::H) {
+                    self.flip_selection("FlipX");
+                }
+                if i.key_pressed(egui::Key::J) {
+                    self.flip_selection("FlipY");
+                }
+            }
             // Paste needs no selection: it lands on the current page.
             if !kb_owned && ctrl && i.key_pressed(egui::Key::V) {
                 if let Some(p) = self.page_id() {
@@ -3560,6 +3587,7 @@ impl App {
     fn shell_surface_open(&self) -> bool {
         self.selby_open
             || self.layers_open
+            || self.find_open
             || self.snap_dlg_open
             || self.pagesetup_open
             || self.options_open
@@ -3755,6 +3783,10 @@ impl App {
         }
         if self.layers_open {
             self.layers_open = false;
+            return true;
+        }
+        if self.find_open {
+            self.find_open = false;
             return true;
         }
         // #121: the Check Spelling dialog.
@@ -8498,6 +8530,16 @@ impl App {
             Action::DistributeV => self.distribute_selection(true),
             Action::SelectAll => self.select_all(),
             Action::Layers => self.layers_open = !self.layers_open,
+            Action::Find | Action::Replace => {
+                self.find_open = true;
+                self.find_replace = matches!(a, Action::Replace);
+                // Visio seeds Find with the selected text's first line
+                if self.find_text.is_empty() {
+                    if let Some((_, s)) = self.sel {
+                        self.find_text = self.selected_text(s).unwrap_or_default().lines().next().unwrap_or("").to_string();
+                    }
+                }
+            }
             Action::SelectByType => {
                 self.selby_open = !self.selby_open;
                 if self.selby_open {
@@ -12215,6 +12257,124 @@ impl App {
     /// Remove, and — with a selection — which layers the selection is
     /// on (Visio's Assign to Layer). Every change is one undo step.
     /// Lock makes the layer's shapes unpickable (`unpickable`).
+    /// Find & Replace (Home ▸ Editing): searches shape text on this
+    /// page or all pages; Find Next selects the match (switching page),
+    /// Replace swaps the current match and moves on, Replace All is one
+    /// undo step.
+    fn find_window(&mut self, ctx: &egui::Context) {
+        if !self.find_open {
+            return;
+        }
+        let Some(ed) = self.ed.as_ref() else {
+            self.find_open = false;
+            return;
+        };
+        let s = crate::i18n::strs();
+        let pages: Vec<i64> = if self.find_opts.1 {
+            // current page first, then the rest in order
+            let n = ed.doc.pages.len();
+            (0..n).map(|k| ed.doc.pages[(self.page_idx + k) % n].id).collect()
+        } else {
+            ed.doc.pages.get(self.page_idx).map(|p| p.id).into_iter().collect()
+        };
+        let (mut next, mut replace_one, mut replace_all) = (false, false, false);
+        let mut open = true;
+        egui::Window::new(if self.find_replace { s.msg_replace() } else { s.msg_find() })
+            .open(&mut open)
+            .resizable(false)
+            .collapsible(false)
+            .default_width(340.0)
+            .show(ctx, |ui| {
+                ui.with_layout(dialog_dir(), |ui| {
+                    let r = ui.add(egui::TextEdit::singleline(&mut self.find_text).hint_text(s.msg_find_what()).desired_width(260.0));
+                    r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, s.msg_find_what()));
+                    if r.changed() {
+                        self.find_cur = None;
+                    }
+                    if r.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                        next = true;
+                    }
+                    ui.checkbox(&mut self.find_replace, s.msg_replace());
+                    if self.find_replace {
+                        let r = ui.add(egui::TextEdit::singleline(&mut self.replace_text).hint_text(s.msg_replace_with()).desired_width(260.0));
+                        r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, s.msg_replace_with()));
+                    }
+                    ui.checkbox(&mut self.find_opts.0.match_case, s.msg_match_case());
+                    ui.checkbox(&mut self.find_opts.0.whole_word, s.msg_whole_words_only());
+                    ui.checkbox(&mut self.find_opts.1, s.msg_all_pages());
+                    ui.add_space(4.0);
+                    row(ui, |ui| {
+                        let can = !self.find_text.is_empty();
+                        next |= ui.add_enabled(can, egui::Button::new(s.msg_find_next())).clicked();
+                        if self.find_replace {
+                            replace_one = ui.add_enabled(can, egui::Button::new(s.msg_replace())).clicked();
+                            replace_all = ui.add_enabled(can, egui::Button::new(s.msg_replace_all())).clicked();
+                        }
+                    });
+                });
+            });
+        if !open {
+            self.find_open = false;
+            return;
+        }
+        if !(next || replace_one || replace_all) {
+            return;
+        }
+        let hits = crate::find::find_all(&ed.doc, &pages, &self.find_text, self.find_opts.0);
+        if hits.is_empty() {
+            self.find_cur = None;
+            self.status = s.msg_find_no_matches(self.find_text.clone());
+            return;
+        }
+        if replace_all {
+            if let Some(m) = crate::find::replace_macro(&ed.doc, &hits, &self.replace_text) {
+                self.apply(m);
+                self.status = s.msg_replaced_n_matches(hits.len() as i64);
+            }
+            self.find_cur = None;
+            return;
+        }
+        let cur = self.find_cur.clone().filter(|c| hits.contains(c));
+        if replace_one {
+            if let Some(c) = cur {
+                let i = hits.iter().position(|h| *h == c).unwrap_or(0);
+                if let Some(m) = crate::find::replace_macro(&ed.doc, std::slice::from_ref(&c), &self.replace_text) {
+                    self.apply(m);
+                }
+                // Earlier hits don't move: the next one is the first at
+                // index >= i past the inserted text.
+                let Some(ed) = self.ed.as_ref() else { return };
+                let shift = c.start + self.replace_text.chars().count();
+                let hits = crate::find::find_all(&ed.doc, &pages, &self.find_text, self.find_opts.0);
+                let n = hits
+                    .iter()
+                    .skip(i)
+                    .find(|h| !((h.page, h.shape) == (c.page, c.shape) && h.start < shift))
+                    .or(hits.first())
+                    .cloned();
+                self.find_cur = n.clone();
+                if let Some(h) = n {
+                    self.show_find_hit(&h);
+                }
+                return;
+            }
+            // nothing current yet: Replace first finds, like Visio
+        }
+        let n = crate::find::next_after(&hits, cur.as_ref());
+        self.find_cur = n.clone();
+        if let Some(h) = n {
+            self.show_find_hit(&h);
+        }
+    }
+
+    fn show_find_hit(&mut self, h: &crate::find::Hit) {
+        let idx = self.ed().and_then(|ed| ed.doc.pages.iter().position(|p| p.id == h.page));
+        if let Some(i) = idx {
+            self.switch_page(i);
+        }
+        self.set_selection(Some((h.page, h.shape)));
+    }
+
     fn layers_window(&mut self, ctx: &egui::Context) {
         if !self.layers_open {
             return;
@@ -13756,6 +13916,55 @@ impl App {
         self.set_selection(first.map(|m| (page_id, m)));
     }
 
+    /// Flip Horizontal / Vertical (Ctrl+H / Ctrl+J, context menu):
+    /// toggles FlipX / FlipY on every selected shape and, for several
+    /// shapes, mirrors their pins about the selection's centre (as
+    /// Visio does). One undo step.
+    fn flip_selection(&mut self, cell: &str) {
+        let horiz = cell == "FlipX";
+        let pin = if horiz { "PinX" } else { "PinY" };
+        let sel = self.sel_set.clone();
+        let rects: Vec<(i64, i64, (f64, f64, f64, f64))> = self
+            .ed
+            .as_ref()
+            .map(|ed| {
+                sel.iter()
+                    .filter_map(|&(p, s)| {
+                        let page = ed.doc.pages.iter().find(|pg| pg.id == p)?;
+                        let sh = page.shapes.iter().find(|x| x.id == s)?; // top level only
+                        Some((p, s, self.shape_rect(&ed.doc, p, sh)?))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        let centre = (rects.len() > 1).then(|| {
+            let lo = rects.iter().map(|r| if horiz { r.2 .0 } else { r.2 .1 }).fold(f64::MAX, f64::min);
+            let hi = rects.iter().map(|r| if horiz { r.2 .0 + r.2 .2 } else { r.2 .1 + r.2 .3 }).fold(f64::MIN, f64::max);
+            (lo + hi) / 2.0
+        });
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
+        for (page, shape) in sel {
+            let cur = self.selected_cell(shape, cell).unwrap_or(0.0);
+            cmds.push(Box::new(SetCell::new(
+                Scope::Shape { page, shape },
+                cell,
+                vsdx::Cell::value(if cur != 0.0 { "0" } else { "1" }),
+            )));
+            if let (Some(c), Some(p)) = (centre, self.selected_cell(shape, pin)) {
+                if rects.iter().any(|r| r.1 == shape) {
+                    cmds.push(Box::new(SetCell::new(
+                        Scope::Shape { page, shape },
+                        pin,
+                        vsdx::Cell::value(format!("{:.8}", 2.0 * c - p)),
+                    )));
+                }
+            }
+        }
+        if !cmds.is_empty() {
+            self.apply(Macro::new(format!("flip {cell}"), cmds));
+        }
+    }
+
     /// Toggle one Character Style bit (1 bold, 2 italic, 4 underline)
     /// on the selection, keyed off the primary shape's current state.
     fn toggle_char_style(&mut self, bit: i64) {
@@ -14578,18 +14787,8 @@ impl App {
                     vsdx::Cell::value(format!("{:.10}", cur + delta)),
                 ));
             }
-            Act::FlipV | Act::FlipH => {
-                let name = if a == Act::FlipV { "FlipY" } else { "FlipX" };
-                let cur = self.selected_cell(shape_id, name).unwrap_or(0.0);
-                self.apply(SetCell::new(
-                    Scope::Shape {
-                        page: page_id,
-                        shape: shape_id,
-                    },
-                    name,
-                    vsdx::Cell::value(if cur != 0.0 { "0" } else { "1" }),
-                ));
-            }
+            Act::FlipV => self.flip_selection("FlipY"),
+            Act::FlipH => self.flip_selection("FlipX"),
             Act::EditText => {
                 let draft = self.selected_text(shape_id).unwrap_or_default();
                 self.begin_text_edit(shape_id, draft);
@@ -16834,6 +17033,7 @@ impl App {
         self.backgrounds_window(&ctx);
         self.select_by_type_window(&ctx);
         self.layers_window(&ctx);
+        self.find_window(&ctx);
         self.snap_glue_window(&ctx);
         self.hyperlink_window(&ctx);
         self.fields_insert_window(&ctx);

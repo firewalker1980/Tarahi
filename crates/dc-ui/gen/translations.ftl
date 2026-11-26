@@ -354,7 +354,6 @@ filter-pdf = PDF (Dokument)
 filter-png = PNG (Rasterbild)
 filter-svg = SVG (Vektorgrafik)
 find = Suchen
-find-planned-later-milestone = Suchen — geplant (späterer Meilenstein)
 fine-dash = Feiner Strich
 fine-dot = Feiner Punkt
 first-page = Erste Seite
@@ -719,7 +718,6 @@ rendering-scrim = Rendern …
 reorder-pages = Seiten neu anordnen
 reorder-pages-menu = Seiten neu anordnen …
 replace = Ersetzen
-replace-planned-later-milestone = Ersetzen — geplant (späterer Meilenstein)
 reply = Antworten
 report-definitions-planned = Berichtsdefinitionen — geplant
 reports = Berichte
@@ -1103,6 +1101,22 @@ field-type-variable-list = Variable Liste
 field-type-yes-no = Ja/Nein
 field-type-date = Datum
 field-choices = Auswahlwerte, durch ; getrennt
+find-what = Suchen nach
+replace-with = Ersetzen durch
+match-case = Groß-/Kleinschreibung
+whole-words-only = Nur ganze Wörter
+all-pages = Alle Seiten
+find-next = Weitersuchen
+replace-all = Alle ersetzen
+# $text (String) - the search text
+find-no-matches = Keine Treffer für „{ $text }“
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+        [one] ein Treffer ersetzt
+       *[other] { $n } Treffer ersetzt
+    }
+find-replace-tip = Text in Formen suchen und ersetzen (Strg+F)
 
 
 ## ########## Resource: app ###############
@@ -1486,7 +1500,6 @@ filter-pdf = PDF (document)
 filter-png = PNG (raster image)
 filter-svg = SVG (vector graphics)
 find = Find
-find-planned-later-milestone = Find — planned (later milestone)
 fine-dash = Fine Dash
 fine-dot = Fine Dot
 first-page = First page
@@ -1882,7 +1895,6 @@ rendering-scrim = Rendering…
 reorder-pages = Reorder Pages
 reorder-pages-menu = Reorder Pages…
 replace = Replace
-replace-planned-later-milestone = Replace — planned (later milestone)
 reply = Reply
 report-definitions-planned = Report definitions — planned
 reports = Reports
@@ -2284,6 +2296,22 @@ field-type-variable-list = Variable list
 field-type-yes-no = Yes/No
 field-type-date = Date
 field-choices = Choices, separated by ;
+find-what = Find what
+replace-with = Replace with
+match-case = Match case
+whole-words-only = Whole words only
+all-pages = All pages
+find-next = Find Next
+replace-all = Replace All
+# $text (String) - the search text
+find-no-matches = No matches for “{ $text }”
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+        [one] replaced one match
+       *[other] replaced { $n } matches
+    }
+find-replace-tip = Find and replace text in shapes (Ctrl+F)
 
 
 ## ########## Resource: app ###############
@@ -2665,7 +2693,6 @@ filter-pdf = PDF (documento)
 filter-png = PNG (imagen rasterizada)
 filter-svg = SVG (gráficos vectoriales)
 find = Buscar
-find-planned-later-milestone = Buscar — planeado (hito posterior)
 fine-dash = Guion fino
 fine-dot = Punto fino
 first-page = Primera página
@@ -3060,7 +3087,6 @@ rendering-scrim = Renderizando…
 reorder-pages = Reordenar páginas
 reorder-pages-menu = Reordenar páginas…
 replace = Reemplazar
-replace-planned-later-milestone = Reemplazar — planeado (hito posterior)
 reply = Responder
 report-definitions-planned = Definiciones de informes — planeado
 reports = Informes
@@ -3460,6 +3486,22 @@ field-type-variable-list = Lista variable
 field-type-yes-no = Sí/No
 field-type-date = Fecha
 field-choices = Opciones, separadas por ;
+find-what = Buscar
+replace-with = Reemplazar con
+match-case = Coincidir mayúsculas
+whole-words-only = Solo palabras completas
+all-pages = Todas las páginas
+find-next = Buscar siguiente
+replace-all = Reemplazar todo
+# $text (String) - the search text
+find-no-matches = No hay coincidencias para «{ $text }»
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+        [one] se reemplazó una coincidencia
+       *[other] se reemplazaron { $n } coincidencias
+    }
+find-replace-tip = Buscar y reemplazar texto en formas (Ctrl+F)
 
 
 ## ########## Resource: app ###############
@@ -3817,7 +3859,6 @@ filter-pdf = PDF (سند)
 filter-png = PNG (تصویر شطرنجی)
 filter-svg = SVG (گرافیک برداری)
 find = یافتن
-find-planned-later-milestone = یافتن — برنامه‌ریزی‌شده (نقطهٔ عطف بعدی)
 fine-dash = خط‌چین ریز
 fine-dot = نقطهٔ ریز
 first-page = صفحهٔ نخست
@@ -4182,7 +4223,6 @@ rendering-scrim = در حال رندر…
 reorder-pages = بازچینی صفحه‌ها
 reorder-pages-menu = بازچینی صفحه‌ها…
 replace = جایگزینی
-replace-planned-later-milestone = جایگزینی — برنامه‌ریزی‌شده (نقطهٔ عطف بعدی)
 reply = پاسخ
 report-definitions-planned = تعاریف گزارش — برنامه‌ریزی شده
 reports = گزارش‌ها
@@ -4566,6 +4606,22 @@ field-type-variable-list = فهرست متغیر
 field-type-yes-no = بله/خیر
 field-type-date = تاریخ
 field-choices = گزینه‌ها، جداشده با ;
+find-what = جستجوی
+replace-with = جایگزینی با
+match-case = تطبیق بزرگی و کوچکی
+whole-words-only = فقط واژه‌های کامل
+all-pages = همهٔ صفحه‌ها
+find-next = یافتن بعدی
+replace-all = جایگزینی همه
+# $text (String) - the search text
+find-no-matches = موردی برای «{ $text }» یافت نشد
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+        [one] یک مورد جایگزین شد
+       *[other] { $n } مورد جایگزین شد
+    }
+find-replace-tip = یافتن و جایگزینی متن در شکل‌ها (Ctrl+F)
 
 
 ## ########## Resource: app ###############
@@ -4903,7 +4959,6 @@ filter-pdf = PDF（ドキュメント）
 filter-png = PNG（ラスター画像）
 filter-svg = SVG（ベクター グラフィックス）
 find = 検索
-find-planned-later-milestone = 検索 — 予定（後のマイルストーン）
 fine-dash = 細かい破線
 fine-dot = 細かい点線
 first-page = 先頭ページ
@@ -5234,7 +5289,6 @@ rendering-scrim = 描画中…
 reorder-pages = ページの並べ替え
 reorder-pages-menu = ページの並べ替え…
 replace = 置換
-replace-planned-later-milestone = 置換 — 予定（後のマイルストーン）
 reply = 返信
 report-definitions-planned = レポート定義 — 予定
 reports = レポート
@@ -5570,6 +5624,21 @@ field-type-variable-list = 可変リスト
 field-type-yes-no = はい/いいえ
 field-type-date = 日付
 field-choices = 選択肢 (; 区切り)
+find-what = 検索する文字列
+replace-with = 置換後の文字列
+match-case = 大文字と小文字を区別
+whole-words-only = 完全一致の単語のみ
+all-pages = すべてのページ
+find-next = 次を検索
+replace-all = すべて置換
+# $text (String) - the search text
+find-no-matches = 「{ $text }」は見つかりません
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+       *[other] { $n } 件置換しました
+    }
+find-replace-tip = 図形内のテキストを検索/置換 (Ctrl+F)
 
 
 ## ########## Resource: app ###############
@@ -5908,7 +5977,6 @@ filter-pdf = PDF(문서)
 filter-png = PNG(래스터 이미지)
 filter-svg = SVG(벡터 그래픽)
 find = 찾기
-find-planned-later-milestone = 찾기 — 예정(이후 마일스톤)
 fine-dash = 가는 파선
 fine-dot = 가는 점선
 first-page = 첫 페이지
@@ -6239,7 +6307,6 @@ rendering-scrim = 렌더링 중…
 reorder-pages = 페이지 다시 정렬
 reorder-pages-menu = 페이지 다시 정렬…
 replace = 바꾸기
-replace-planned-later-milestone = 바꾸기 — 예정(이후 마일스톤)
 reply = 회신
 report-definitions-planned = 보고서 정의 — 예정
 reports = 보고서
@@ -6575,6 +6642,21 @@ field-type-variable-list = 가변 목록
 field-type-yes-no = 예/아니요
 field-type-date = 날짜
 field-choices = 선택 항목, ;로 구분
+find-what = 찾을 내용
+replace-with = 바꿀 내용
+match-case = 대/소문자 구분
+whole-words-only = 전체 단어만
+all-pages = 모든 페이지
+find-next = 다음 찾기
+replace-all = 모두 바꾸기
+# $text (String) - the search text
+find-no-matches = “{ $text }”에 대한 결과 없음
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+       *[other] { $n }개 바꿈
+    }
+find-replace-tip = 도형의 텍스트 찾기 및 바꾸기 (Ctrl+F)
 
 
 ## ########## Resource: app ###############
@@ -6912,7 +6994,6 @@ filter-pdf = PDF（文档）
 filter-png = PNG（位图图像）
 filter-svg = SVG（矢量图形）
 find = 查找
-find-planned-later-milestone = 查找 — 计划中（后期里程碑）
 fine-dash = 细虚线
 fine-dot = 细点
 first-page = 第一页
@@ -7243,7 +7324,6 @@ rendering-scrim = 正在渲染…
 reorder-pages = 重新排序页面
 reorder-pages-menu = 重新排序页面…
 replace = 替换
-replace-planned-later-milestone = 替换 — 计划中（后期里程碑）
 reply = 答复
 report-definitions-planned = 报表定义 — 计划中
 reports = 报表
@@ -7584,4 +7664,19 @@ field-type-variable-list = 可变列表
 field-type-yes-no = 是/否
 field-type-date = 日期
 field-choices = 选项,以 ; 分隔
+find-what = 查找内容
+replace-with = 替换为
+match-case = 区分大小写
+whole-words-only = 全字匹配
+all-pages = 所有页面
+find-next = 查找下一个
+replace-all = 全部替换
+# $text (String) - the search text
+find-no-matches = 未找到“{ $text }”
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+       *[other] 已替换 { $n } 处
+    }
+find-replace-tip = 查找和替换形状中的文本 (Ctrl+F)
 

@@ -352,7 +352,7 @@ pub(crate) fn change_all_macro(
 /// The display text a probe-rendered shape paints: the substituted text
 /// for a field-bearing shape (resolved against the probe document's
 /// page context, the layer path's rule), else the plain text.
-fn probe_display(probe: &Document, page: i64, shape: i64) -> String {
+pub(crate) fn probe_display(probe: &Document, page: i64, shape: i64) -> String {
     let Some(p) = probe.pages.iter().find(|p| p.id == page) else {
         return String::new();
     };

@@ -351,7 +351,6 @@ filter-pdf = PDF (سند)
 filter-png = PNG (تصویر شطرنجی)
 filter-svg = SVG (گرافیک برداری)
 find = یافتن
-find-planned-later-milestone = یافتن — برنامه‌ریزی‌شده (نقطهٔ عطف بعدی)
 fine-dash = خط‌چین ریز
 fine-dot = نقطهٔ ریز
 first-page = صفحهٔ نخست
@@ -716,7 +715,6 @@ rendering-scrim = در حال رندر…
 reorder-pages = بازچینی صفحه‌ها
 reorder-pages-menu = بازچینی صفحه‌ها…
 replace = جایگزینی
-replace-planned-later-milestone = جایگزینی — برنامه‌ریزی‌شده (نقطهٔ عطف بعدی)
 reply = پاسخ
 report-definitions-planned = تعاریف گزارش — برنامه‌ریزی شده
 reports = گزارش‌ها
@@ -1100,3 +1098,19 @@ field-type-variable-list = فهرست متغیر
 field-type-yes-no = بله/خیر
 field-type-date = تاریخ
 field-choices = گزینه‌ها، جداشده با ;
+find-what = جستجوی
+replace-with = جایگزینی با
+match-case = تطبیق بزرگی و کوچکی
+whole-words-only = فقط واژه‌های کامل
+all-pages = همهٔ صفحه‌ها
+find-next = یافتن بعدی
+replace-all = جایگزینی همه
+# $text (String) - the search text
+find-no-matches = موردی برای «{ $text }» یافت نشد
+# $n (Number) - replacement count
+replaced-n-matches =
+    { $n ->
+        [one] یک مورد جایگزین شد
+       *[other] { $n } مورد جایگزین شد
+    }
+find-replace-tip = یافتن و جایگزینی متن در شکل‌ها (Ctrl+F)

@@ -10,6 +10,7 @@ pub mod cmd;
 pub mod connectors;
 pub mod export;
 pub mod fields_dlg;
+pub mod find;
 pub mod freeform;
 #[doc(hidden)]
 pub mod group_fixture;

@@ -30,14 +30,14 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
             s.msg_editing(),
             vec![grid(vec![
                 vec![
-                    RibbonButton::new(Icon::Find, "", Action::Macros)
+                    RibbonButton::new(Icon::Find, "", Action::Find)
                         .alt(s.msg_find())
-                        .enabled(false)
-                        .tip(s.msg_find_planned_later_milestone()),
-                    RibbonButton::new(Icon::FindReplace, "", Action::Macros)
+                        .enabled(ctx.has_doc)
+                        .tip(s.msg_find_replace_tip()),
+                    RibbonButton::new(Icon::FindReplace, "", Action::Replace)
                         .alt(s.msg_replace())
-                        .enabled(false)
-                        .tip(s.msg_replace_planned_later_milestone()),
+                        .enabled(ctx.has_doc)
+                        .tip(s.msg_find_replace_tip()),
                 ],
                 vec![
                     RibbonButton::new(Icon::SelectionPane, "", Action::Layers)
