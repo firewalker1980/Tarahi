@@ -165,6 +165,11 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Design ▸ Re-Layout Page, Layout Options (+ Spacing), Layout Size
+    /// (fit the page to the drawing).
+    ReLayout,
+    LayoutOptions,
+    LayoutSize,
     /// Design ▸ Scale (drawing scale).
     DrawingScale,
     /// Review ▸ Language (Options' language page) and Set Proofing

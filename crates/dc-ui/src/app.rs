@@ -286,6 +286,10 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Design ▸ Layout: the style menu / options dialog, and the gap
+    /// between shapes (inches).
+    layout_menu: Option<bool>,
+    layout_gap: f64,
     /// Design ▸ Scale menu.
     scale_menu: bool,
     /// Review ▸ Set Proofing Language picker.
@@ -888,6 +892,8 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            layout_menu: None,
+            layout_gap: 0.5,
             scale_menu: false,
             proof_lang_open: false,
             ops_menu: false,
@@ -6175,6 +6181,133 @@ impl App {
         }
     }
 
+    /// Design ▸ Re-Layout Page (a style menu) / Layout Options and
+    /// Spacing (style + gap): lays the page out from its connectors.
+    fn layout_window(&mut self, ctx: &egui::Context) {
+        use crate::autolayout::Style;
+        let Some(options) = self.layout_menu else { return };
+        let s = crate::i18n::strs();
+        let unit = self.view.unit;
+        let mut pick = None;
+        let mut open = true;
+        let title = if options { s.msg_layout_options() } else { s.msg_re_layout_page() };
+        let mut gap_disp = unit.from_in(self.layout_gap);
+        egui::Window::new(title).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            for (st, label) in [
+                (Style::TopToBottom, s.msg_layout_top_to_bottom()),
+                (Style::BottomToTop, s.msg_layout_bottom_to_top()),
+                (Style::LeftToRight, s.msg_layout_left_to_right()),
+                (Style::RightToLeft, s.msg_layout_right_to_left()),
+                (Style::Circular, s.msg_layout_circular()),
+            ] {
+                if ui.button(label).clicked() {
+                    pick = Some(st);
+                }
+            }
+            if options {
+                ui.separator();
+                ui.horizontal(|ui| {
+                    ui.label(s.msg_spacing());
+                    let r = ui.add(egui::DragValue::new(&mut gap_disp).range(0.0..=1000.0).speed(0.1).suffix(format!(" {}", unit.suffix())));
+                    r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::SpinButton, true, s.msg_spacing()));
+                });
+            }
+        });
+        self.layout_gap = unit.to_in(gap_disp).max(0.0);
+        if !open {
+            self.layout_menu = None;
+        }
+        if let Some(st) = pick {
+            self.layout_menu = None;
+            self.relayout(st);
+        }
+    }
+
+    fn relayout(&mut self, style: crate::autolayout::Style) {
+        let Some(page_id) = self.page_id() else { return };
+        let Some(ed) = self.ed() else { return };
+        let Some(page) = ed.doc.pages.iter().find(|p| p.id == page_id) else { return };
+        let mut nodes = Vec::new();
+        let mut offs: std::collections::HashMap<i64, (f64, f64)> = std::collections::HashMap::new();
+        for sh in &page.shapes {
+            let Ok(chain) = shape_chain(&ed.doc, page_id, sh.id) else { continue };
+            let annotation = sh.sheet.sections_named("User").iter().any(|sec| sec.named_row("AnnotationRef").is_some());
+            if crate::connectors::is_connector_in(&ed.doc, &chain, sh) || crate::guides::is_guide(sh) || annotation {
+                continue;
+            }
+            let Some((x, y, w, h)) = self.shape_rect(&ed.doc, page_id, sh) else { continue };
+            let pin = |n: &str| ed.doc.resolve_cell(sh, &chain, n).and_then(|c| c.numeric()).unwrap_or(0.0);
+            // pin offset from the box centre
+            offs.insert(sh.id, (pin("PinX") - (x + w / 2.0), pin("PinY") - (y + h / 2.0)));
+            nodes.push(crate::autolayout::Node { id: sh.id, w, h });
+        }
+        let mut ends: std::collections::HashMap<i64, (Option<i64>, Option<i64>)> = std::collections::HashMap::new();
+        for c in &page.connects().list {
+            let e = ends.entry(c.from_sheet).or_default();
+            if c.from_cell.starts_with("Begin") {
+                e.0 = Some(c.to_sheet);
+            } else if c.from_cell.starts_with("End") {
+                e.1 = Some(c.to_sheet);
+            }
+        }
+        let edges: Vec<(i64, i64)> = ends.values().filter_map(|(a, b)| Some(((*a)?, (*b)?))).collect();
+        let g = self.page_geom();
+        let pos = crate::autolayout::layout(&nodes, &edges, style, self.layout_gap, (g.w_in / 2.0, g.h_in / 2.0));
+        let moved: Vec<i64> = pos.keys().copied().collect();
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = pos
+            .iter()
+            .map(|(id, (cx, cy))| {
+                let o = offs.get(id).copied().unwrap_or((0.0, 0.0));
+                self.move_cmd_for(page_id, *id, (cx + o.0, cy + o.1))
+            })
+            .collect();
+        if !moved.is_empty() {
+            cmds.push(Box::new(crate::cmd::RerouteConnectors::new(page_id, moved)));
+            self.apply(Macro::new(crate::i18n::strs().msg_re_layout_page(), cmds));
+        }
+    }
+
+    /// Design ▸ Layout Size: the page fitted to the drawing plus a
+    /// quarter-inch margin, the drawing shifted to that margin.
+    /// ponytail: shifts top-level 2-D shapes and lets glued connectors
+    /// reroute; a free (unglued) connector stays where it was.
+    fn fit_page_to_drawing(&mut self) {
+        let Some(page_id) = self.page_id() else { return };
+        let Some(ed) = self.ed() else { return };
+        let Some(page) = ed.doc.pages.iter().find(|p| p.id == page_id) else { return };
+        let rects: Vec<(i64, (f64, f64, f64, f64), bool)> = page
+            .shapes
+            .iter()
+            .filter(|s| !crate::guides::is_guide(s))
+            .filter_map(|s| {
+                let chain = shape_chain(&ed.doc, page_id, s.id).ok()?;
+                Some((s.id, self.shape_rect(&ed.doc, page_id, s)?, crate::connectors::is_connector_in(&ed.doc, &chain, s)))
+            })
+            .collect();
+        if rects.is_empty() {
+            return;
+        }
+        let (x0, y0, x1, y1) = rects.iter().fold((f64::MAX, f64::MAX, f64::MIN, f64::MIN), |a, (_, r, _)| (a.0.min(r.0), a.1.min(r.1), a.2.max(r.0 + r.2), a.3.max(r.1 + r.3)));
+        let m = 0.25;
+        let (dx, dy) = (m - x0, m - y0);
+        let moves: Vec<(i64, (f64, f64))> = rects.iter().filter(|(_, _, conn)| !conn).map(|(id, _, _)| (*id, (dx, dy))).collect();
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
+        for (id, (mx, my)) in &moves {
+            let Some(sh) = page.shapes.iter().find(|s| s.id == *id) else { continue };
+            let Ok(chain) = shape_chain(&ed.doc, page_id, *id) else { continue };
+            let pin = |n: &str| ed.doc.resolve_cell(sh, &chain, n).and_then(|c| c.numeric()).unwrap_or(0.0);
+            cmds.push(self.move_cmd_for(page_id, *id, (pin("PinX") + mx, pin("PinY") + my)));
+        }
+        let scope = Scope::PageSheet { page: page_id };
+        let v = |x: f64| vsdx::Cell::value(format!("{x:.6}"));
+        cmds.push(Box::new(SetCell::new(scope.clone(), "PageWidth", v(x1 - x0 + 2.0 * m))));
+        cmds.push(Box::new(SetCell::new(scope, "PageHeight", v(y1 - y0 + 2.0 * m))));
+        let ids: Vec<i64> = moves.iter().map(|(i, _)| *i).collect();
+        cmds.push(Box::new(crate::cmd::RerouteConnectors::new(page_id, ids)));
+        self.apply(Macro::new(crate::i18n::strs().msg_layout_size(), cmds));
+        self.view.fit_pending = true;
+    }
+
     /// Design ▸ Scale: the page's drawing scale (1:1 … 1:1000). The paper
     /// stays the same size, so the page's drawing size grows with the
     /// scale; shapes keep their drawing coordinates (Visio's Page Setup
@@ -10105,6 +10238,9 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::ReLayout => self.layout_menu = Some(false),
+            Action::LayoutOptions => self.layout_menu = Some(true),
+            Action::LayoutSize => self.fit_page_to_drawing(),
             Action::DrawingScale => self.scale_menu = !self.scale_menu,
             Action::ProofingLanguage => self.proof_lang_open = !self.proof_lang_open,
             Action::LanguageOptions => {
@@ -19079,6 +19215,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.layout_window(&ctx);
         self.scale_window(&ctx);
         self.proof_lang_window(&ctx);
         self.operations_window(&ctx);

@@ -63,7 +63,6 @@ arrange = Anordnen
 arrange-all = Alle anordnen
 arrange-windows-planned = Fenster anordnen — geplant
 assign-a-background-page-behind = Eine Hintergrundseite hinter diese legen
-auto-layout-planned = Automatisches Layout — geplant
 auto-size = Automatische Größe
 autoconnect = AutoConnect
 autoconnect-needs-a-2d-shape = AutoConnect benötigt eine 2D-Form
@@ -456,10 +455,7 @@ new-layer = Neue Ebene
 selection-on-layers = Die Auswahl liegt auf:
 layout = Layout
 layout-options = Layoutoptionen
-layout-options-planned = Layoutoptionen — geplant
 layout-size = Layoutgröße
-layout-size-planned = Layoutgröße — geplant
-layout-spacing-planned = Layoutabstände — geplant
 legend = Legende
 legends-m6-visio-paints-legend-o = Legenden (M6; Visio legt Legend unter „Einfügen" ab, nicht unter „Daten")
 line = Linie
@@ -1170,6 +1166,14 @@ proofing-language-tip = Wörterbuch für die Rechtschreibprüfung wählen
 # $lang (String) - dictionary stem
 proofing-language-set = Korrektursprache: { $lang }
 drawing-scale-tip = Zeichnungsmaßstab festlegen (das Papier bleibt gleich groß)
+layout-top-to-bottom = Von oben nach unten
+layout-bottom-to-top = Von unten nach oben
+layout-left-to-right = Von links nach rechts
+layout-right-to-left = Von rechts nach links
+layout-circular = Kreisförmig
+re-layout-tip = Seite anhand der Verbindungen anordnen
+layout-options-tip = Layoutstil und Abstand zwischen Formen
+layout-size-tip = Seite an die Zeichnung anpassen
 
 
 ## ########## Resource: app ###############
@@ -1243,7 +1247,6 @@ arrange = Arrange
 arrange-all = Arrange All
 arrange-windows-planned = Arrange windows — planned
 assign-a-background-page-behind = Assign a background page behind this one
-auto-layout-planned = Auto layout — planned
 auto-size = Auto Size
 autoconnect = AutoConnect
 autoconnect-needs-a-2d-shape = AutoConnect needs a 2D shape
@@ -1664,10 +1667,7 @@ new-layer = New layer
 selection-on-layers = The selection is on:
 layout = Layout
 layout-options = Layout Options
-layout-options-planned = Layout options — planned
 layout-size = Layout Size
-layout-size-planned = Layout size — planned
-layout-spacing-planned = Layout spacing — planned
 legend = Legend
 legends-m6-visio-paints-legend-o = Legends (M6; Visio paints Legend on Insert, not Data)
 line = Line
@@ -2418,6 +2418,14 @@ proofing-language-tip = Choose the dictionary Check Spelling uses
 # $lang (String) - dictionary stem
 proofing-language-set = Proofing language: { $lang }
 drawing-scale-tip = Set the drawing scale (the paper stays the same size)
+layout-top-to-bottom = Top to bottom
+layout-bottom-to-top = Bottom to top
+layout-left-to-right = Left to right
+layout-right-to-left = Right to left
+layout-circular = Circular
+re-layout-tip = Lay the page out from its connections
+layout-options-tip = Layout style and spacing between shapes
+layout-size-tip = Fit the page to the drawing
 
 
 ## ########## Resource: app ###############
@@ -2489,7 +2497,6 @@ arrange = Organizar
 arrange-all = Organizar todo
 arrange-windows-planned = Organizar ventanas — planeado
 assign-a-background-page-behind = Asignar una página de fondo detrás de esta
-auto-layout-planned = Diseño automático — planeado
 auto-size = Tamaño automático
 autoconnect = Autoconexión
 autoconnect-needs-a-2d-shape = La autoconexión necesita una forma 2D
@@ -2910,10 +2917,7 @@ new-layer = Nueva capa
 selection-on-layers = La selección está en:
 layout = Diseño
 layout-options = Opciones de diseño
-layout-options-planned = Opciones de diseño — planeado
 layout-size = Tamaño del diseño
-layout-size-planned = Tamaño del diseño — planeado
-layout-spacing-planned = Espaciado del diseño — planeado
 legend = Leyenda
 legends-m6-visio-paints-legend-o = Leyendas (M6; Visio pinta Leyenda en Insertar, no en Datos)
 line = Línea
@@ -3661,6 +3665,14 @@ proofing-language-tip = Elegir el diccionario de la revisión ortográfica
 # $lang (String) - dictionary stem
 proofing-language-set = Idioma de corrección: { $lang }
 drawing-scale-tip = Definir la escala del dibujo (el papel no cambia de tamaño)
+layout-top-to-bottom = De arriba abajo
+layout-bottom-to-top = De abajo arriba
+layout-left-to-right = De izquierda a derecha
+layout-right-to-left = De derecha a izquierda
+layout-circular = Circular
+re-layout-tip = Redistribuir la página según sus conexiones
+layout-options-tip = Estilo de diseño y espacio entre formas
+layout-size-tip = Ajustar la página al dibujo
 
 
 ## ########## Resource: app ###############
@@ -3727,7 +3739,6 @@ arrange = چیدمان
 arrange-all = چیدمان همه
 arrange-windows-planned = چیدمان پنجره‌ها — برنامه‌ریزی شده
 assign-a-background-page-behind = انتساب یک صفحهٔ پس‌زمینه در پسِ این صفحه
-auto-layout-planned = چیدمان خودکار — برنامه‌ریزی شده
 auto-size = اندازهٔ خودکار
 autoconnect = اتصال خودکار
 autoconnect-needs-a-2d-shape = اتصال خودکار به یک شکل دوبعدی نیاز دارد
@@ -4120,10 +4131,7 @@ new-layer = لایهٔ جدید
 selection-on-layers = انتخاب روی این لایه‌هاست:
 layout = چیدمان
 layout-options = گزینه‌های چیدمان
-layout-options-planned = گزینه‌های چیدمان — برنامه‌ریزی شده
 layout-size = اندازهٔ چیدمان
-layout-size-planned = اندازهٔ چیدمان — برنامه‌ریزی شده
-layout-spacing-planned = فاصله‌گذاری چیدمان — برنامه‌ریزی شده
 legend = راهنمای نمودار
 legends-m6-visio-paints-legend-o = راهنمای نمودارها (M6؛ Visio راهنما را هنگام Insert ترسیم می‌کند، نه Data)
 line = خط
@@ -4834,6 +4842,14 @@ proofing-language-tip = انتخاب واژه‌نامهٔ بررسی املا
 # $lang (String) - dictionary stem
 proofing-language-set = زبان بازبینی: { $lang }
 drawing-scale-tip = تنظیم مقیاس نقشه (اندازهٔ کاغذ ثابت می‌ماند)
+layout-top-to-bottom = بالا به پایین
+layout-bottom-to-top = پایین به بالا
+layout-left-to-right = چپ به راست
+layout-right-to-left = راست به چپ
+layout-circular = دایره‌ای
+re-layout-tip = چیدن صفحه بر پایهٔ اتصال‌ها
+layout-options-tip = سبک چیدمان و فاصلهٔ شکل‌ها
+layout-size-tip = تطبیق صفحه با نقشه
 
 
 ## ########## Resource: app ###############
@@ -4898,7 +4914,6 @@ arrange = 配置
 arrange-all = すべて整列
 arrange-windows-planned = ウィンドウの整列 — 予定
 assign-a-background-page-behind = このページの背後に背景ページを割り当てます
-auto-layout-planned = 自動レイアウト — 予定
 auto-size = 自動サイズ
 autoconnect = 自動接続
 autoconnect-needs-a-2d-shape = 自動接続には 2D 図形が必要です
@@ -5262,10 +5277,7 @@ new-layer = 新しいレイヤー
 selection-on-layers = 選択範囲のレイヤー:
 layout = レイアウト
 layout-options = レイアウト オプション
-layout-options-planned = レイアウト オプション — 予定
 layout-size = レイアウト サイズ
-layout-size-planned = レイアウト サイズ — 予定
-layout-spacing-planned = レイアウトの間隔 — 予定
 legend = 凡例
 legends-m6-visio-paints-legend-o = 凡例（M6; Visio は挿入時に凡例を描画します。データではありません）
 line = 線
@@ -5903,6 +5915,14 @@ proofing-language-tip = スペル チェックの辞書を選択
 # $lang (String) - dictionary stem
 proofing-language-set = 校正言語: { $lang }
 drawing-scale-tip = 図面の縮尺を設定 (用紙サイズは変わりません)
+layout-top-to-bottom = 上から下
+layout-bottom-to-top = 下から上
+layout-left-to-right = 左から右
+layout-right-to-left = 右から左
+layout-circular = 円形
+re-layout-tip = 接続に基づいてページを再レイアウト
+layout-options-tip = レイアウトのスタイルと図形の間隔
+layout-size-tip = ページを図面に合わせる
 
 
 ## ########## Resource: app ###############
@@ -5968,7 +5988,6 @@ arrange = 정렬
 arrange-all = 모두 정렬
 arrange-windows-planned = 창 정렬 — 예정
 assign-a-background-page-behind = 이 페이지 뒤에 배경 페이지를 할당합니다
-auto-layout-planned = 자동 레이아웃 — 예정
 auto-size = 자동 크기
 autoconnect = 자동 연결
 autoconnect-needs-a-2d-shape = 자동 연결에는 2D 셰이프가 필요합니다
@@ -6332,10 +6351,7 @@ new-layer = 새 레이어
 selection-on-layers = 선택 항목의 레이어:
 layout = 레이아웃
 layout-options = 레이아웃 옵션
-layout-options-planned = 레이아웃 옵션 — 예정
 layout-size = 레이아웃 크기
-layout-size-planned = 레이아웃 크기 — 예정
-layout-spacing-planned = 레이아웃 간격 — 예정
 legend = 범례
 legends-m6-visio-paints-legend-o = 범례(M6; Visio는 데이터가 아닌 삽입에서 범례를 그립니다)
 line = 선
@@ -6973,6 +6989,14 @@ proofing-language-tip = 맞춤법 검사 사전 선택
 # $lang (String) - dictionary stem
 proofing-language-set = 교정 언어: { $lang }
 drawing-scale-tip = 그림 배율 설정 (용지 크기는 그대로)
+layout-top-to-bottom = 위에서 아래로
+layout-bottom-to-top = 아래에서 위로
+layout-left-to-right = 왼쪽에서 오른쪽으로
+layout-right-to-left = 오른쪽에서 왼쪽으로
+layout-circular = 원형
+re-layout-tip = 연결을 기준으로 페이지 다시 배치
+layout-options-tip = 레이아웃 스타일 및 도형 간격
+layout-size-tip = 페이지를 그림에 맞춤
 
 
 ## ########## Resource: app ###############
@@ -7036,7 +7060,6 @@ arrange = 排列
 arrange-all = 全部重排
 arrange-windows-planned = 重排窗口 — 计划中
 assign-a-background-page-behind = 在此页面后面指定一个背景页
-auto-layout-planned = 自动布局 — 计划中
 auto-size = 自动调整大小
 autoconnect = 自动连接
 autoconnect-needs-a-2d-shape = 自动连接需要一个二维形状
@@ -7401,10 +7424,7 @@ new-layer = 新建图层
 selection-on-layers = 所选内容位于:
 layout = 布局
 layout-options = 布局选项
-layout-options-planned = 布局选项 — 计划中
 layout-size = 布局大小
-layout-size-planned = 布局大小 — 计划中
-layout-spacing-planned = 布局间距 — 计划中
 legend = 图例
 legends-m6-visio-paints-legend-o = 图例（M6；Visio 将“图例”放在“插入”而非“数据”下）
 line = 线条
@@ -8047,4 +8067,12 @@ proofing-language-tip = 选择拼写检查使用的词典
 # $lang (String) - dictionary stem
 proofing-language-set = 校对语言:{ $lang }
 drawing-scale-tip = 设置绘图比例 (纸张大小不变)
+layout-top-to-bottom = 从上到下
+layout-bottom-to-top = 从下到上
+layout-left-to-right = 从左到右
+layout-right-to-left = 从右到左
+layout-circular = 圆形
+re-layout-tip = 根据连接重新布局页面
+layout-options-tip = 布局样式和形状间距
+layout-size-tip = 使页面适合绘图
 

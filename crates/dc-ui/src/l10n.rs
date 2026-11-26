@@ -387,13 +387,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "auto-layout-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "auto-size",
         attribute: None,
         vars: &[],
@@ -2872,28 +2865,7 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "layout-options-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "layout-size",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "layout-size-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "layout-spacing-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -7148,6 +7120,62 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "layout-top-to-bottom",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layout-bottom-to-top",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layout-left-to-right",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layout-right-to-left",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layout-circular",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "re-layout-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layout-options-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "layout-size-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7247,13 +7275,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50422,
-            Self::En => 50422..98962,
-            Self::Es => 98962..152442,
-            Self::Fa => 152442..215243,
-            Self::Ja => 215243..269369,
-            Self::Ko => 269369..319163,
-            Self::ZhHans => 319163..362326,
+            Self::De => 0..50586,
+            Self::En => 50586..99266,
+            Self::Es => 99266..152886,
+            Self::Fa => 152886..215736,
+            Self::Ja => 215736..269978,
+            Self::Ko => 269978..319942,
+            Self::ZhHans => 319942..363208,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7508,9 +7536,6 @@ impl L10nLanguage {
     }
     pub fn msg_assign_a_background_page_behind(&self) -> String {
         self.0.msg("assign-a-background-page-behind", None).unwrap()
-    }
-    pub fn msg_auto_layout_planned(&self) -> String {
-        self.0.msg("auto-layout-planned", None).unwrap()
     }
     pub fn msg_auto_size(&self) -> String {
         self.0.msg("auto-size", None).unwrap()
@@ -8882,17 +8907,8 @@ impl L10nLanguage {
     pub fn msg_layout_options(&self) -> String {
         self.0.msg("layout-options", None).unwrap()
     }
-    pub fn msg_layout_options_planned(&self) -> String {
-        self.0.msg("layout-options-planned", None).unwrap()
-    }
     pub fn msg_layout_size(&self) -> String {
         self.0.msg("layout-size", None).unwrap()
-    }
-    pub fn msg_layout_size_planned(&self) -> String {
-        self.0.msg("layout-size-planned", None).unwrap()
-    }
-    pub fn msg_layout_spacing_planned(&self) -> String {
-        self.0.msg("layout-spacing-planned", None).unwrap()
     }
     pub fn msg_legend(&self) -> String {
         self.0.msg("legend", None).unwrap()
@@ -11211,5 +11227,29 @@ impl L10nLanguage {
     }
     pub fn msg_drawing_scale_tip(&self) -> String {
         self.0.msg("drawing-scale-tip", None).unwrap()
+    }
+    pub fn msg_layout_top_to_bottom(&self) -> String {
+        self.0.msg("layout-top-to-bottom", None).unwrap()
+    }
+    pub fn msg_layout_bottom_to_top(&self) -> String {
+        self.0.msg("layout-bottom-to-top", None).unwrap()
+    }
+    pub fn msg_layout_left_to_right(&self) -> String {
+        self.0.msg("layout-left-to-right", None).unwrap()
+    }
+    pub fn msg_layout_right_to_left(&self) -> String {
+        self.0.msg("layout-right-to-left", None).unwrap()
+    }
+    pub fn msg_layout_circular(&self) -> String {
+        self.0.msg("layout-circular", None).unwrap()
+    }
+    pub fn msg_re_layout_tip(&self) -> String {
+        self.0.msg("re-layout-tip", None).unwrap()
+    }
+    pub fn msg_layout_options_tip(&self) -> String {
+        self.0.msg("layout-options-tip", None).unwrap()
+    }
+    pub fn msg_layout_size_tip(&self) -> String {
+        self.0.msg("layout-size-tip", None).unwrap()
     }
 }

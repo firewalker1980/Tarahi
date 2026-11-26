@@ -11445,3 +11445,38 @@ fn design_scale_sets_the_drawing_scale() {
     let (w1, h1) = h.state().debug_page_geom_for_test();
     assert!((w1 - w0 * 10.0).abs() < 1e-6 && (h1 - h0 * 10.0).abs() < 1e-6, "{w0}x{h0} -> {w1}x{h1}");
 }
+
+/// Design ▸ Re-Layout Page ▸ Top to bottom: an AutoConnect chain laid
+/// out left-to-right becomes a column in connection order, one undo.
+#[test]
+fn relayout_top_to_bottom() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, a) = place_master(&mut h, 2);
+    let mut ids = vec![a];
+    for _ in 0..2 {
+        let (_, cur) = h.state().debug_sel().unwrap();
+        let r = h.state().debug_shape_screen_rect(cur).unwrap();
+        h.hover_at(r.center());
+        h.run();
+        click_at(&mut h, egui::pos2(r.right() + 9.0, r.center().y), egui::PointerButton::Primary);
+        h.run();
+        ids.push(h.state().debug_sel().unwrap().1);
+    }
+    assert_eq!(h.state().debug_connects().len(), 4, "two glued connectors");
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Design);
+    h.run();
+    h.get_by_label("Re-layout Page").click();
+    h.run();
+    h.run();
+    h.get_by_label("Top to bottom").click();
+    h.run();
+    let y = |h: &Harness<'_, App>, id: i64| h.state().debug_shape_screen_rect(id).unwrap().center();
+    let (p0, p1, p2) = (y(&h, ids[0]), y(&h, ids[1]), y(&h, ids[2]));
+    assert!(p0.y < p1.y && p1.y < p2.y, "a column, top to bottom: {p0:?} {p1:?} {p2:?}");
+    assert!((p0.x - p1.x).abs() < 2.0 && (p1.x - p2.x).abs() < 2.0, "aligned");
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::Z);
+    h.run();
+    let q1 = y(&h, ids[1]);
+    assert!((q1.y - p0.y).abs() > 1.0 || (q1.x - p1.x).abs() > 1.0, "undo moved them back");
+}

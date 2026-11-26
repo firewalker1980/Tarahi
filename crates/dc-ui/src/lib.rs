@@ -5,6 +5,7 @@
 
 pub mod align;
 pub mod app;
+pub mod autolayout;
 pub mod canvas;
 pub mod cmd;
 pub mod connectors;

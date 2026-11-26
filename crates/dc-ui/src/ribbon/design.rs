@@ -76,21 +76,21 @@ fn layout_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super
     // paints Re-Layout/Layout Options/Spacing on Design ▸ Layout.
     vec![grid(vec![
         vec![
-            RibbonButton::new(Icon::Shapes, s.msg_re_layout_page(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_auto_layout_planned()),
-            RibbonButton::new(Icon::Align, s.msg_layout_options(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_layout_options_planned()),
+            RibbonButton::new(Icon::Shapes, s.msg_re_layout_page(), Action::ReLayout)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_re_layout_tip()),
+            RibbonButton::new(Icon::Align, s.msg_layout_options(), Action::LayoutOptions)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_layout_options_tip()),
         ],
         vec![
-            RibbonButton::new(Icon::DistV, s.msg_spacing(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_layout_spacing_planned()),
-            RibbonButton::new(Icon::NewPage, "", Action::Macros)
+            RibbonButton::new(Icon::DistV, s.msg_spacing(), Action::LayoutOptions)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_layout_options_tip()),
+            RibbonButton::new(Icon::NewPage, "", Action::LayoutSize)
                 .alt(s.msg_layout_size())
-                .enabled(false)
-                .tip(s.msg_layout_size_planned()),
+                .enabled(ctx.has_doc)
+                .tip(s.msg_layout_size_tip()),
         ],
     ])]
 }
