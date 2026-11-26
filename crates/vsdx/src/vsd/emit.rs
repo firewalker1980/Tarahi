@@ -99,6 +99,8 @@ struct Ctx<'a> {
     /// (master id, master shape id) → its named connection points
     /// (name slot, name, row)
     master_conn: HashMap<(u32, u32), Vec<NamedPoint>>,
+    /// (master id, master shape id) → its child shape ids
+    master_kids: HashMap<(u32, u32), Vec<u32>>,
     /// (master id, master shape id) → its connection point count
     master_conn_count: HashMap<(u32, u32), u32>,
     pool: Vec<String>,
@@ -139,6 +141,7 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
         conn_rows: HashMap::new(),
         master_conn: HashMap::new(),
         master_conn_count: HashMap::new(),
+        master_kids: HashMap::new(),
         pool: vec![],
         media: vec![],
     };
@@ -540,6 +543,11 @@ fn contents(cx: &mut Ctx, container: &Ptr, part: &str) -> (String, String) {
         .map(|r| name_idx(&r.data))
         .unwrap_or_default();
     let top = child_ids(srecs);
+    // a master's top-level shapes: what an instance of the whole master
+    // (master shape "none") is expected to hold
+    if let Some(mid) = cx.cur_master {
+        cx.master_kids.insert((mid, u32::MAX), top.clone());
+    }
     cx.cur = 0;
     let sheet_xml = format!(
         "<PageSheet>{}</PageSheet>",
@@ -647,10 +655,49 @@ fn shape_xml(
     cx.inh = None;
     let _ = write!(out, "<Shape {attrs}>{body}");
     let kids = child_ids(recs);
-    if !kids.is_empty() {
+    // master sub-shapes this instance dropped (anywhere below it):
+    // Visio lists them on the instance root as `Del` entries, or they
+    // would reappear from the master
+    let is_root = m != u32::MAX && m != parent_master;
+    let deleted: Vec<u32> = if cx.cur_master.is_none() && is_root {
+        fn below(map: &HashMap<(u32, u32), Vec<u32>>, m: u32, s: u32, out: &mut Vec<u32>) {
+            for &k in map.get(&(m, s)).into_iter().flatten() {
+                if !out.contains(&k) {
+                    out.push(k);
+                    below(map, m, k, out);
+                }
+            }
+        }
+        fn present(shapes: &HashMap<u32, (u32, Vec<Rec>)>, id: u32, out: &mut Vec<u32>, depth: usize) {
+            let Some((_, recs)) = shapes.get(&id) else { return };
+            for k in child_ids(recs) {
+                if let Some(h) = shapes.get(&k).and_then(|(_, r)| r.iter().find(|r| r.id == u32::MAX)) {
+                    out.push(u32_at(&h.data, cells::HDR_MASTER_SHAPE));
+                }
+                if depth < 32 {
+                    present(shapes, k, out, depth + 1);
+                }
+            }
+        }
+        let (mut all, mut have) = (vec![], vec![]);
+        // master shape 0 (the master's page) or none: the whole master
+        let from = if ms == 0 { u32::MAX } else { ms };
+        below(&cx.master_kids, m, from, &mut all);
+        present(shapes, id, &mut have, 0);
+        all.into_iter().filter(|k| !have.contains(k)).collect()
+    } else {
+        vec![]
+    };
+    if let Some(mid) = cx.cur_master {
+        cx.master_kids.insert((mid, id), kids.clone());
+    }
+    if !kids.is_empty() || !deleted.is_empty() {
         out.push_str("<Shapes>");
         for k in kids {
             shape_xml(cx, shapes, names, k, part, out, seen, m);
+        }
+        for d in deleted {
+            let _ = write!(out, "<Shape ID='4294967295' Del='1' MasterShape='{d}'/>");
         }
         out.push_str("</Shapes>");
     }
@@ -869,6 +916,25 @@ fn write_cells(out: &mut String, cells: &[CellOut]) {
     }
 }
 
+/// Inheritance bookkeeping for one record's cells (`prefix` locates
+/// the row; empty for shape-level cells). In a master, remember which
+/// cells have a formula; in an instance, mark a cell without a local
+/// formula `F='Inh'` when its master shape's cell has one, so Visio
+/// recalculates it instead of pinning the stored value.
+fn inherit_marks(cx: &mut Ctx, prefix: &str, cells: &mut [CellOut]) {
+    if let Some(inh) = &cx.inh {
+        for c in cells.iter_mut().filter(|c| c.2.is_none()) {
+            if inh.contains(&format!("{prefix}{}", c.0)) {
+                c.2 = Some("Inh".into());
+            }
+        }
+    }
+    if let Some(mid) = cx.cur_master {
+        let set = cx.master_f.entry((mid, cx.cur)).or_default();
+        set.extend(cells.iter().filter(|c| c.2.is_some()).map(|c| format!("{prefix}{}", c.0)));
+    }
+}
+
 /// Cells, sections, text and foreign data of one sheet.
 fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
     let mut out = String::new();
@@ -880,14 +946,6 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
             .map(|c| (c.name, c.off, c.enc))
             .collect();
         let mut cells = record_cells(cx, r, &defs, None);
-        if let Some(inh) = &cx.inh {
-            for c in cells
-                .iter_mut()
-                .filter(|c| c.2.is_none() && inh.contains(&c.0))
-            {
-                c.2 = Some("Inh".into());
-            }
-        }
         if cx.cur_master.is_none() {
             for c in cells.iter().filter(|c| {
                 matches!(
@@ -907,10 +965,7 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
                 cx.glue.push((cx.cur, "WalkPreference".into(), v));
             }
         }
-        if let Some(mid) = cx.cur_master {
-            let set = cx.master_f.entry((mid, cx.cur)).or_default();
-            set.extend(cells.iter().filter(|c| c.2.is_some()).map(|c| c.0.clone()));
-        }
+        inherit_marks(cx, "", &mut cells);
         write_cells(&mut out, &cells);
     }
     // sections: group rows by their list
@@ -957,8 +1012,10 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
             let Some(rd) = ROWS.iter().find(|d| d.t == r.typ) else {
                 continue;
             };
-            let cells = record_cells(cx, r, rd.cells, Some(sec));
+            let mut cells = record_cells(cx, r, rd.cells, Some(sec));
+            let secix = if *sec == "Geometry" { geom_ix - 1 } else { 0 };
             if rd.header {
+                inherit_marks(cx, &format!("{sec}{secix}/hdr/"), &mut cells);
                 write_cells(&mut out, &cells);
                 continue;
             }
@@ -967,6 +1024,10 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
                 .get(&r.id)
                 .and_then(|&(_, u)| cx.name(u))
                 .map(str::to_owned);
+            let rowkey = match &rname {
+                Some(n) if named || *sec == "Control" || *sec == "Connection" => n.clone(),
+                _ => (if *sec == "Geometry" { ord + 1 } else { ord }).to_string(),
+            };
             // control handles glued to a connection point (labels,
             // callouts) feed the page's Connects like connector ends
             if *sec == "Control" && cx.cur_master.is_none() {
@@ -976,6 +1037,7 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
                     cx.glue.push((cx.cur, format!("Controls.{n}@{ord}"), f));
                 }
             }
+            inherit_marks(cx, &format!("{sec}{secix}/{rowkey}/"), &mut cells);
             match rname {
                 Some(n) if named || *sec == "Control" || *sec == "Connection" => {
                     let _ = write!(out, "<Row N='{}'{t}>", esc(&n));
