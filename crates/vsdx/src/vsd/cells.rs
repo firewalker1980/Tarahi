@@ -20,6 +20,8 @@ pub enum Enc {
     Trans,
     /// f64 value unless its unit byte is 0xE8 (string kept in the formula)
     Num,
+    /// a plain f64 with no unit byte in front
+    Raw,
 }
 use Enc::*;
 
@@ -110,11 +112,25 @@ pub const CELLS: &[CellDef] = &[
     c(0x98, 10, F64, "ImgOffsetY"),
     c(0x98, 19, F64, "ImgWidth"),
     c(0x98, 28, F64, "ImgHeight"),
-    // Protection
+    // Protection: one byte per cell in COM order
     c(0xa0, 0, U8, "LockWidth"),
     c(0xa0, 1, U8, "LockHeight"),
+    c(0xa0, 2, U8, "LockMoveX"),
+    c(0xa0, 3, U8, "LockMoveY"),
     c(0xa0, 4, U8, "LockAspect"),
+    c(0xa0, 5, U8, "LockDelete"),
+    c(0xa0, 6, U8, "LockBegin"),
+    c(0xa0, 7, U8, "LockEnd"),
+    c(0xa0, 8, U8, "LockRotate"),
+    c(0xa0, 9, U8, "LockCrop"),
     c(0xa0, 10, U8, "LockVtxEdit"),
+    c(0xa0, 11, U8, "LockTextEdit"),
+    c(0xa0, 12, U8, "LockFormat"),
+    c(0xa0, 13, U8, "LockGroup"),
+    c(0xa0, 14, U8, "LockCalcWH"),
+    c(0xa0, 15, U8, "LockSelect"),
+    c(0xa0, 16, U8, "LockCustProp"),
+    c(0xa0, 17, U8, "LockFromGroupFormat"),
     // Misc: flag bits of byte 0, object type, drop scale
     c(0xa4, 0, Bit(0), "NoObjHandles"),
     c(0xa4, 0, Bit(1), "NonPrinting"),
@@ -157,6 +173,16 @@ pub struct RowDef {
 }
 
 const XY: &[(&str, usize, Enc)] = &[("X", 1, F64), ("Y", 10, F64)];
+/// NURBSTo: X/Y carry units, the knot/weight cells A–D are plain f64s.
+const NURBS: &[(&str, usize, Enc)] = &[
+    ("X", 1, F64),
+    ("Y", 10, F64),
+    ("A", 18, Raw),
+    ("B", 26, Raw),
+    ("C", 34, Raw),
+    ("D", 42, Raw),
+];
+
 const XYABCD: &[(&str, usize, Enc)] = &[
     ("X", 1, F64),
     ("Y", 10, F64),
@@ -218,7 +244,7 @@ pub const ROWS: &[RowDef] = &[
         t: 0xc3,
         header: false,
         row_t: Some("NURBSTo"),
-        cells: XYABCD,
+        cells: NURBS,
     },
     RowDef {
         t: 0x94,

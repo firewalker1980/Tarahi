@@ -262,6 +262,12 @@ pub struct Rec {
     pub data: Vec<u8>,
 }
 
+/// Section list streams (0x64 Scratch … 0x76): always hold a child list,
+/// whatever their format flags say (later v11 writers leave the flag off).
+pub fn is_list_type(t: u32) -> bool {
+    (0x64..=0x76).contains(&t)
+}
+
 /// Shape-like stream types (page sheet, group, shape, foreign, …).
 pub fn is_shape_type(t: u32) -> bool {
     matches!(t, 0x46..=0x4e)
@@ -359,7 +365,7 @@ fn collect(doc: &[u8], p: &Ptr, slot: u32, list: Option<(u32, u32)>, out: &mut V
                 data: c.data.to_vec(),
             });
         }
-    } else if p.has_children() {
+    } else if p.has_children() || is_list_type(p.typ) {
         for (i, c) in children(p, &s).iter().enumerate() {
             collect(doc, c, i as u32, sect, out);
         }

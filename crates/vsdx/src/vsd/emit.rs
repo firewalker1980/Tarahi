@@ -470,7 +470,14 @@ fn value(
                 None,
             ));
         }
-        Enc::Trans => *d.get(off)? as f64 / 256.0,
+        // 0..=255 → 0..1, rounded as Visio shows it (128 → 0.5, 255 → 1)
+        Enc::Trans => (*d.get(off)? as f64 / 255.0 * 100.0).round() / 100.0,
+        Enc::Raw => {
+            if off + 8 > d.len() {
+                return None;
+            }
+            return Some((num(f64_at(d, off)), None));
+        }
         Enc::Num => {
             if off == 0 || off + 8 > d.len() || d[off - 1] == 0xE8 {
                 return None;
@@ -671,8 +678,9 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
             String::new()
         };
         let _ = write!(out, "<Section N='{sec}'{ix}>");
-        // non-geometry rows are numbered 0.. in id order (text run
-        // markers index them that way); geometry keeps its row ids
+        // rows are numbered contiguously: non-geometry 0.. in id order
+        // (text run markers index them that way), geometry 1.. in
+        // stored order (deleted rows leave gaps in the ids)
         let mut sec_rows = rows[&l].clone();
         if *sec != "Geometry" {
             sec_rows.sort_by_key(|r| r.id);
@@ -697,7 +705,9 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
                     let _ = write!(out, "<Row N='{}'{t}>", esc(&n));
                 }
                 _ => {
-                    let ix = if *sec == "Geometry" { r.id } else { ord };
+                    // geometry rows count from 1 (row 0 is the section
+                    // header), contiguously as Visio renumbers them
+                    let ix = if *sec == "Geometry" { ord + 1 } else { ord };
                     let _ = write!(out, "<Row{t} IX='{ix}'>");
                 }
             }
