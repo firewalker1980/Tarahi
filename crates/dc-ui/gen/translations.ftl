@@ -699,7 +699,6 @@ resolution-dpi = Auflösung (dpi):
 review = Überprüfen
 review-new-comment = Neuer Kommentar
 reviewing-pane = Überarbeitungsbereich
-reviewing-pane-planned = Überarbeitungsbereich — geplant
 right-angle-connector = Rechtwinkliger Verbinder
 ring = Ring
 ring-tick = Ring + Tick
@@ -766,7 +765,6 @@ selected-n-by-criterion =
 selected-shape-shape-id = Form { $shape_id } ausgewählt
 selection = Auswahl
 selection-pane = Auswahlbereich
-selection-pane-planned-112-shell = Auswahlbereich — geplant (#112-Shell-Tiefe)
 send-backward = Nach hinten
 send-the-drawing-to-a-printer-or = Die Zeichnung an einen Drucker senden oder als PDF speichern.
 send-to-back = In den Hintergrund
@@ -1127,6 +1125,9 @@ lock-deletion = Löschen
 lock-heading = Sperren
 text-locked-status = Der Text dieser Form ist gesperrt (Schutz)
 protection-tip = Auswahl gegen Änderungen sperren
+no-comments-in-drawing = Keine Kommentare in dieser Zeichnung
+selection-pane-tip = Alle Formen der Seite; zum Auswählen klicken
+reviewing-pane-tip = Alle Kommentare der Zeichnung; zum Hinspringen klicken
 
 
 ## ########## Resource: app ###############
@@ -1886,7 +1887,6 @@ resolution-dpi = Resolution (dpi):
 review = Review
 review-new-comment = New comment
 reviewing-pane = Reviewing Pane
-reviewing-pane-planned = Reviewing pane — planned
 right-angle-connector = Right-Angle Connector
 ring = Ring
 ring-tick = Ring + Tick
@@ -1955,7 +1955,6 @@ selected-n-by-criterion =
 selected-shape-shape-id = selected shape { $shape_id }
 selection = Selection
 selection-pane = Selection Pane
-selection-pane-planned-112-shell = Selection pane — planned (#112 shell depth)
 send-backward = Send Backward
 send-the-drawing-to-a-printer-or = Send the drawing to a printer or save it as a PDF.
 send-to-back = Send to Back
@@ -2332,6 +2331,9 @@ lock-deletion = Deletion
 lock-heading = Lock
 text-locked-status = This shape's text is locked (Protection)
 protection-tip = Lock the selection against changes
+no-comments-in-drawing = No comments in this drawing
+selection-pane-tip = Every shape on the page; click to select
+reviewing-pane-tip = Every comment in the drawing; click to go to it
 
 
 ## ########## Resource: app ###############
@@ -3088,7 +3090,6 @@ resolution-dpi = Resolución (ppp):
 review = Revisar
 review-new-comment = Nuevo comentario
 reviewing-pane = Panel de revisión
-reviewing-pane-planned = Panel de revisión — planeado
 right-angle-connector = Conector de ángulo recto
 ring = Anillo
 ring-tick = Anillo + marca
@@ -3157,7 +3158,6 @@ selected-n-by-criterion =
 selected-shape-shape-id = forma { $shape_id } seleccionada
 selection = Selección
 selection-pane = Panel de selección
-selection-pane-planned-112-shell = Panel de selección — planeado (profundidad del shell #112)
 send-backward = Enviar atrás
 send-the-drawing-to-a-printer-or = Enviar el dibujo a una impresora o guardarlo como PDF.
 send-to-back = Enviar al fondo
@@ -3532,6 +3532,9 @@ lock-deletion = Eliminación
 lock-heading = Bloquear
 text-locked-status = El texto de esta forma está bloqueado (Protección)
 protection-tip = Bloquear la selección contra cambios
+no-comments-in-drawing = No hay comentarios en este dibujo
+selection-pane-tip = Todas las formas de la página; haga clic para seleccionar
+reviewing-pane-tip = Todos los comentarios del dibujo; haga clic para ir a ellos
 
 
 ## ########## Resource: app ###############
@@ -4234,7 +4237,6 @@ resolution-dpi = تفکیک‌پذیری (dpi):
 review = بازبینی
 review-new-comment = نظر جدید
 reviewing-pane = قاب بازبینی
-reviewing-pane-planned = قاب بازبینی — برنامه‌ریزی شده
 right-angle-connector = اتصال‌دهندهٔ قائم‌گون
 ring = حلقه
 ring-tick = حلقه + تیک
@@ -4301,7 +4303,6 @@ selected-n-by-criterion =
 selected-shape-shape-id = شکل { $shape_id } انتخاب شد
 selection = گزینش
 selection-pane = قاب گزینش
-selection-pane-planned-112-shell = قاب گزینش — برنامه‌ریزی‌شده (عمق پوستهٔ #112)
 send-backward = فرستادن به عقب
 send-the-drawing-to-a-printer-or = ارسال نقاشی به چاپگر یا ذخیرهٔ آن به‌صورت PDF.
 send-to-back = فرستادن به زیر
@@ -4662,6 +4663,9 @@ lock-deletion = حذف
 lock-heading = قفل
 text-locked-status = متن این شکل قفل است (محافظت)
 protection-tip = قفل‌کردن انتخاب در برابر تغییر
+no-comments-in-drawing = این نقشه هیچ نظری ندارد
+selection-pane-tip = همهٔ شکل‌های صفحه؛ برای انتخاب کلیک کنید
+reviewing-pane-tip = همهٔ نظرهای نقشه؛ برای رفتن به آن کلیک کنید
 
 
 ## ########## Resource: app ###############
@@ -5310,7 +5314,6 @@ resolution-dpi = 解像度（dpi）:
 review = 校閲
 review-new-comment = 新しいコメント
 reviewing-pane = 校閲ウィンドウ
-reviewing-pane-planned = 校閲ウィンドウ — 予定
 right-angle-connector = 直角コネクタ
 ring = リング
 ring-tick = リング + チック
@@ -5364,7 +5367,6 @@ selected-n-by-criterion = 条件 { $crit } で { $n } 個の図形を選択し�
 selected-shape-shape-id = 図形 { $shape_id } を選択しました
 selection = 選択
 selection-pane = 選択ウィンドウ
-selection-pane-planned-112-shell = 選択ウィンドウ — 予定（#112 のシェル階層）
 send-backward = 背面へ
 send-the-drawing-to-a-printer-or = 図面をプリンターに送るか、PDF として保存します。
 send-to-back = 最背面へ移動
@@ -5689,6 +5691,9 @@ lock-deletion = 削除
 lock-heading = ロック
 text-locked-status = この図形のテキストはロックされています (保護)
 protection-tip = 選択範囲を変更からロック
+no-comments-in-drawing = この図面にはコメントがありません
+selection-pane-tip = ページ上のすべての図形 (クリックで選択)
+reviewing-pane-tip = 図面内のすべてのコメント (クリックで移動)
 
 
 ## ########## Resource: app ###############
@@ -6338,7 +6343,6 @@ resolution-dpi = 해상도(dpi):
 review = 검토
 review-new-comment = 새 메모
 reviewing-pane = 검토 창
-reviewing-pane-planned = 검토 창 — 예정
 right-angle-connector = 직각 커넥터
 ring = 링
 ring-tick = 링 + 눈금
@@ -6392,7 +6396,6 @@ selected-n-by-criterion = { $crit } 조건으로 셰이프 { $n }개를 선택�
 selected-shape-shape-id = 셰이프 { $shape_id }을(를) 선택했습니다
 selection = 선택
 selection-pane = 선택 창
-selection-pane-planned-112-shell = 선택 창 — 예정(#112 셸 깊이)
 send-backward = 한 칸 뒤로
 send-the-drawing-to-a-printer-or = 드로잉을 프린터로 보내거나 PDF로 저장합니다.
 send-to-back = 맨 뒤로
@@ -6717,6 +6720,9 @@ lock-deletion = 삭제
 lock-heading = 잠금
 text-locked-status = 이 도형의 텍스트는 잠겨 있습니다(보호)
 protection-tip = 선택 영역을 변경으로부터 잠금
+no-comments-in-drawing = 이 그림에는 메모가 없습니다
+selection-pane-tip = 페이지의 모든 도형; 클릭하여 선택
+reviewing-pane-tip = 그림의 모든 메모; 클릭하여 이동
 
 
 ## ########## Resource: app ###############
@@ -7365,7 +7371,6 @@ resolution-dpi = 分辨率 (dpi)：
 review = 审阅
 review-new-comment = 新建批注
 reviewing-pane = 审阅窗格
-reviewing-pane-planned = 审阅窗格 — 计划中
 right-angle-connector = 直角连接符
 ring = 圆环
 ring-tick = 圆环 + 刻度
@@ -7424,7 +7429,6 @@ selected-n-by-criterion =
 selected-shape-shape-id = 已选择形状 { $shape_id }
 selection = 选定内容
 selection-pane = 选择窗格
-selection-pane-planned-112-shell = 选择窗格 — 计划中（#112 的外壳深度）
 send-backward = 下移一层
 send-the-drawing-to-a-printer-or = 将绘图发送到打印机或另存为 PDF。
 send-to-back = 置于底层
@@ -7749,4 +7753,7 @@ lock-deletion = 删除
 lock-heading = 锁定
 text-locked-status = 此形状的文本已锁定(保护)
 protection-tip = 锁定所选内容以防更改
+no-comments-in-drawing = 此绘图中没有批注
+selection-pane-tip = 页面上的所有形状;单击以选择
+reviewing-pane-tip = 绘图中的所有批注;单击以转到
 

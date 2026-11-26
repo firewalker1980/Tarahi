@@ -4412,13 +4412,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "reviewing-pane-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "right-angle-connector",
         attribute: None,
         vars: &[],
@@ -4784,13 +4777,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "selection-pane",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "selection-pane-planned-112-shell",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6896,6 +6882,27 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "no-comments-in-drawing",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "selection-pane-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "reviewing-pane-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6995,13 +7002,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48538,
-            Self::En => 48538..95365,
-            Self::Es => 95365..146937,
-            Self::Fa => 146937..207584,
-            Self::Ja => 207584..259608,
-            Self::Ko => 259608..307576,
-            Self::ZhHans => 307576..349216,
+            Self::De => 0..48602,
+            Self::En => 48602..95480,
+            Self::Es => 95480..147118,
+            Self::Fa => 147118..207831,
+            Self::Ja => 207831..259935,
+            Self::Ko => 259935..307982,
+            Self::ZhHans => 307982..349656,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -9500,9 +9507,6 @@ impl L10nLanguage {
     pub fn msg_reviewing_pane(&self) -> String {
         self.0.msg("reviewing-pane", None).unwrap()
     }
-    pub fn msg_reviewing_pane_planned(&self) -> String {
-        self.0.msg("reviewing-pane-planned", None).unwrap()
-    }
     pub fn msg_right_angle_connector(&self) -> String {
         self.0.msg("right-angle-connector", None).unwrap()
     }
@@ -9703,11 +9707,6 @@ impl L10nLanguage {
     }
     pub fn msg_selection_pane(&self) -> String {
         self.0.msg("selection-pane", None).unwrap()
-    }
-    pub fn msg_selection_pane_planned_112_shell(&self) -> String {
-        self.0
-            .msg("selection-pane-planned-112-shell", None)
-            .unwrap()
     }
     pub fn msg_send_backward(&self) -> String {
         self.0.msg("send-backward", None).unwrap()
@@ -10848,5 +10847,14 @@ impl L10nLanguage {
     }
     pub fn msg_protection_tip(&self) -> String {
         self.0.msg("protection-tip", None).unwrap()
+    }
+    pub fn msg_no_comments_in_drawing(&self) -> String {
+        self.0.msg("no-comments-in-drawing", None).unwrap()
+    }
+    pub fn msg_selection_pane_tip(&self) -> String {
+        self.0.msg("selection-pane-tip", None).unwrap()
+    }
+    pub fn msg_reviewing_pane_tip(&self) -> String {
+        self.0.msg("reviewing-pane-tip", None).unwrap()
     }
 }

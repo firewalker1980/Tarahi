@@ -11067,3 +11067,49 @@ fn protection_locks_block_edits() {
     h.run();
     assert!(h.state().debug_text_edit().is_none(), "LockTextEdit");
 }
+
+/// Home ▸ Selection Pane selects a shape by its list entry; Review ▸
+/// Reviewing Pane lists the drawing's comments and jumps to one.
+#[test]
+fn selection_and_reviewing_panes() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, a) = place_master(&mut h, 2);
+    let (_, b) = place_master(&mut h, 2);
+    h.state_mut().debug_set_shape_text_for_test(a, "edge router");
+    h.state_mut().debug_set_shape_text_for_test(b, "core switch");
+    h.run();
+    h.get_by_label("Selection Pane").click();
+    h.run();
+    h.run();
+    h.get_all_by_label_contains("edge router").last().expect("pane entry").click();
+    h.run();
+    assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(a));
+
+    // a comment on b, then jump to it from the Reviewing Pane
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Review);
+    h.run();
+    let bc = h.state().debug_shape_screen_rect(b).unwrap().center();
+    click_at(&mut h, bc + egui::vec2(10.0, 0.0), egui::PointerButton::Primary);
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Review);
+    h.run();
+    h.get_by_label("New Comment").click();
+    h.run();
+    h.get(egui_kittest::kittest::By::default().role(egui::Role::TextInput).label("New comment"))
+        .set_text_value_accesskit("check uplink");
+    h.run();
+    h.get_by_label("OK").click();
+    h.run();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    let ac = h.state().debug_shape_screen_rect(a).unwrap().center();
+    click_at(&mut h, ac, egui::PointerButton::Primary);
+    h.run();
+    h.get_by_label("Reviewing Pane").click();
+    h.run();
+    h.run();
+    h.get_all_by_label("check uplink").max_by(|x, y| x.rect().left().total_cmp(&y.rect().left())).unwrap().click();
+    h.run();
+    assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(b), "jumped to the commented shape");
+}

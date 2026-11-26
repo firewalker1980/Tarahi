@@ -335,10 +335,10 @@ fn arrange_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, multi_sel: 
                     .tip(s.msg_rotate_the_selection_90_clockwis()),
             ],
             vec![
-                RibbonButton::new(Icon::SelectionPane, "", Action::Macros)
+                RibbonButton::new(Icon::SelectionPane, "", Action::SelectionPane)
                     .alt(s.msg_selection_pane())
-                    .enabled(false)
-                    .tip(s.msg_selection_pane_planned_112_shell()),
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_selection_pane_tip()),
                 RibbonButton::new(Icon::Check, "", Action::AlignToPage)
                     .alt(s.msg_to_page())
                     .selected(ctx.align_to_page)

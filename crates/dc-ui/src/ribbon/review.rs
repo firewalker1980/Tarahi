@@ -97,9 +97,9 @@ fn markup_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super
         RibbonButton::new(Icon::Shapes, s.msg_show_markup(), Action::Macros)
             .enabled(false)
             .tip(s.msg_show_markup_planned()),
-        RibbonButton::new(Icon::Fit, s.msg_reviewing_pane(), Action::Macros)
-            .enabled(false)
-            .tip(s.msg_reviewing_pane_planned()),
+        RibbonButton::new(Icon::Fit, s.msg_reviewing_pane(), Action::ReviewingPane)
+            .enabled(ctx.has_doc)
+            .tip(s.msg_reviewing_pane_tip()),
     ])]
 }
 

@@ -288,6 +288,8 @@ pub struct App {
     stamp: bool,
     /// Developer ▸ Protection dialog.
     protection_open: bool,
+    selpane_open: bool,
+    reviewpane_open: bool,
     /// Review ▸ Shape Report (all pages or this one) and Word Count.
     report_open: bool,
     report_all: bool,
@@ -856,6 +858,8 @@ impl App {
             panes_menu: false,
             stamp: false,
             protection_open: false,
+            selpane_open: false,
+            reviewpane_open: false,
             report_open: false,
             report_all: true,
             wordcount_open: false,
@@ -4662,6 +4666,122 @@ impl App {
             cmds.extend(crate::containers::fit_cmds(&probe, page_id, cid, false));
         }
         self.apply(Macro::new(format!("container {row}"), cmds));
+    }
+
+    /// The Selection Pane (the page's shapes; a click selects, Ctrl adds)
+    /// and the Reviewing Pane (every comment in the drawing; a click
+    /// goes to its shape and opens the thread).
+    fn panes_lists_window(&mut self, ctx: &egui::Context) {
+        let s = crate::i18n::strs();
+        let right = ctx.input(|i| i.viewport().inner_rect).map_or(1280.0, |r| r.right());
+        let user = |sh: &Shape, row: &str| -> Option<String> {
+            sh.sheet.sections_named("User").iter().find_map(|sec| sec.named_row(row)).and_then(|r| r.cell("Value")).and_then(|c| c.v.clone())
+        };
+        let label_of = |sh: &Shape| -> String {
+            let name = sh
+                .attrs
+                .iter()
+                .find(|(k, _)| k == "Name")
+                .map(|(_, v)| v.clone())
+                .or(sh.name_u.clone())
+                .unwrap_or_else(|| format!("Sheet.{}", sh.id));
+            match sh.sheet.text.as_deref().map(str::trim).filter(|t| !t.is_empty()) {
+                Some(t) => format!("{name} — {}", t.lines().next().unwrap_or("").chars().take(40).collect::<String>()),
+                None => name,
+            }
+        };
+        if self.selpane_open {
+            let rows: Vec<(i64, String)> = self
+                .ed()
+                .and_then(|ed| ed.doc.pages.get(self.page_idx))
+                .map(|p| {
+                    p.shapes
+                        .iter()
+                        .rev() // front-most first, like Visio's list
+                        .filter(|sh| user(sh, "AnnotationRef").is_none())
+                        .map(|sh| (sh.id, label_of(sh)))
+                        .collect()
+                })
+                .unwrap_or_default();
+            let mut pick = None;
+            let mut open = true;
+            egui::Window::new(s.msg_selection_pane())
+                .open(&mut open)
+                .default_pos(egui::pos2(right - 280.0, 140.0))
+                .default_width(240.0)
+                .show(ctx, |ui| {
+                    egui::ScrollArea::vertical().max_height(400.0).show(ui, |ui| {
+                        for (id, label) in &rows {
+                            let on = self.sel_set.iter().any(|(_, s)| s == id);
+                            if ui.selectable_label(on, label).clicked() {
+                                pick = Some((*id, ui.input(|i| i.modifiers.command)));
+                            }
+                        }
+                    });
+                });
+            if let (Some((id, add)), Some(p)) = (pick, self.page_id()) {
+                if add && !self.sel_set.contains(&(p, id)) {
+                    self.sel_set.push((p, id));
+                    self.sel = Some((p, id));
+                } else {
+                    self.set_selection(Some((p, id)));
+                    self.sel_set = vec![(p, id)];
+                }
+            }
+            self.selpane_open &= open;
+        }
+        if self.reviewpane_open {
+            // (page index, target, header, body)
+            let rows: Vec<(usize, i64, String, String)> = self
+                .ed()
+                .map(|ed| {
+                    let mut out = Vec::new();
+                    for (pi, p) in ed.doc.pages.iter().enumerate() {
+                        for sh in &p.shapes {
+                            let Some(t) = user(sh, "AnnotationRef").and_then(|v| v.parse::<f64>().ok()) else { continue };
+                            let author = user(sh, "AnnotationAuthor").unwrap_or_default();
+                            let date = user(sh, "AnnotationDate").unwrap_or_default();
+                            let text = sh.sheet.text.clone().unwrap_or_default();
+                            let body = text.strip_prefix(&format!("{author} — {date}: ")).unwrap_or(&text).to_string();
+                            out.push((pi, t as i64, format!("{} · {author} {date}", p.name), body));
+                        }
+                    }
+                    out
+                })
+                .unwrap_or_default();
+            let mut pick = None;
+            let mut open = true;
+            egui::Window::new(s.msg_reviewing_pane())
+                .open(&mut open)
+                .default_pos(egui::pos2(right - 320.0, 420.0))
+                .default_width(280.0)
+                .show(ctx, |ui| {
+                    if rows.is_empty() {
+                        ui.weak(s.msg_no_comments_in_drawing());
+                    }
+                    egui::ScrollArea::vertical().max_height(400.0).show(ui, |ui| {
+                        for (pi, t, head, body) in &rows {
+                            ui.weak(head);
+                            if ui.selectable_label(false, body).clicked() {
+                                pick = Some((*pi, *t));
+                            }
+                            ui.separator();
+                        }
+                    });
+                });
+            if let Some((pi, t)) = pick {
+                self.switch_page(pi);
+                if let Some(p) = self.page_id() {
+                    self.show_comments = true;
+                    self.set_selection(Some((p, t)));
+                    self.sel_set = vec![(p, t)];
+                    self.comment_target = Some(t);
+                    self.comment_body.clear();
+                    self.comment_edit = None;
+                }
+            }
+            self.reviewpane_open &= open;
+        }
     }
 
     /// Developer ▸ Protection: the selection's Lock* cells as
@@ -9168,6 +9288,8 @@ impl App {
             }
             Action::ClearFormatting => self.clear_formatting(),
             Action::Protection => self.protection_open = !self.protection_open,
+            Action::SelectionPane => self.selpane_open = !self.selpane_open,
+            Action::ReviewingPane => self.reviewpane_open = !self.reviewpane_open,
             Action::ShapeReport => self.report_open = !self.report_open,
             Action::WordCount => self.wordcount_open = !self.wordcount_open,
             Action::ToggleDocStencil => {
@@ -18029,6 +18151,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.panes_lists_window(&ctx);
         self.sizepos_window(&ctx);
         self.switch_window(&ctx);
         self.snap_glue_window(&ctx);

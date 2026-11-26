@@ -162,6 +162,9 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Home ▸ Selection Pane and Review ▸ Reviewing Pane.
+    SelectionPane,
+    ReviewingPane,
     /// Developer ▸ Protection (the Lock* cells).
     Protection,
     /// Home ▸ Clear (formatting) and the Stamp tool.
