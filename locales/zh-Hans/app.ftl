@@ -215,7 +215,6 @@ double-tick-ring = 双刻度 + 圆环
 drawing-aids = 绘图辅助
 drawing-explorer = 绘图资源管理器
 drawing-n = 绘图{ $n }
-drawing-scale-planned = 绘图比例 — 计划中
 drawings-you-open-will-appear-he = 在此处显示打开的绘图。
 duplicate = 创建副本
 duplicate-page = 复制页面
@@ -1068,3 +1067,4 @@ language-options-tip = 选择 Tarahi 的显示语言
 proofing-language-tip = 选择拼写检查使用的词典
 # $lang (String) - dictionary stem
 proofing-language-set = 校对语言:{ $lang }
+drawing-scale-tip = 设置绘图比例 (纸张大小不变)

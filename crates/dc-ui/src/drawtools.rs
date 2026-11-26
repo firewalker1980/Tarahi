@@ -180,3 +180,25 @@ mod render_check {
         ed.save_as(std::path::Path::new(&out)).unwrap();
     }
 }
+
+#[cfg(test)]
+mod scale_check {
+    /// SCALE_OUT=file.vsdx: a 1:10 page (Letter paper = 85 x 110 in of
+    /// drawing) with a 20 x 10 rectangle, 2 pt line, 12 pt text.
+    #[test]
+    fn write_scaled_sample() {
+        let Some(out) = std::env::var_os("SCALE_OUT") else { return };
+        let mut ed = dc_core::Editor::new_blank();
+        let page = ed.doc.pages[0].id;
+        for (c, v) in [("PageWidth", "85"), ("PageHeight", "110"), ("PageScale", "1"), ("DrawingScale", "10")] {
+            ed.apply(dc_core::SetCell::new(dc_core::Scope::PageSheet { page }, c, vsdx::Cell::value(v))).unwrap();
+        }
+        let mut s = super::build(super::Kind::Rect, 1, (30.0, 50.0), (50.0, 60.0));
+        s.sheet.set_cell("LineWeight", vsdx::Cell::value(format!("{}", 2.0 / 72.0)));
+        ed.apply(dc_core::AddShape { page, parent: None, shape: s }).unwrap();
+        let scope = dc_core::Scope::Shape { page, shape: 1 };
+        let m = dc::textfunc::text_edit_macro(&ed.doc, &scope, "Scaled 1:10");
+        ed.apply(m).unwrap();
+        ed.save_as(std::path::Path::new(&out)).unwrap();
+    }
+}

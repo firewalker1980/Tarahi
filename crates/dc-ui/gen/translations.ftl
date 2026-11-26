@@ -235,7 +235,6 @@ drawing-aids = Zeichenhilfen
 drawing-explorer = Zeichnungs-Explorer
 # $n - Nummer des unbenannten Dokuments
 drawing-n = Zeichnung{ $n }
-drawing-scale-planned = Zeichnungsmaßstab — geplant
 drawings-you-open-will-appear-he = Hier erscheinen die Zeichnungen, die Sie öffnen.
 duplicate = Duplizieren
 duplicate-page = Seite duplizieren
@@ -1170,6 +1169,7 @@ language-options-tip = Sprache der Oberfläche wählen
 proofing-language-tip = Wörterbuch für die Rechtschreibprüfung wählen
 # $lang (String) - dictionary stem
 proofing-language-set = Korrektursprache: { $lang }
+drawing-scale-tip = Zeichnungsmaßstab festlegen (das Papier bleibt gleich groß)
 
 
 ## ########## Resource: app ###############
@@ -1430,7 +1430,6 @@ drawing-aids = Drawing aids
 drawing-explorer = Drawing Explorer
 # $n (Number) - untitled document number
 drawing-n = Drawing{ $n }
-drawing-scale-planned = Drawing scale — planned
 drawings-you-open-will-appear-he = Drawings you open will appear here.
 duplicate = Duplicate
 duplicate-page = Duplicate Page
@@ -2418,6 +2417,7 @@ language-options-tip = Choose the language Tarahi shows
 proofing-language-tip = Choose the dictionary Check Spelling uses
 # $lang (String) - dictionary stem
 proofing-language-set = Proofing language: { $lang }
+drawing-scale-tip = Set the drawing scale (the paper stays the same size)
 
 
 ## ########## Resource: app ###############
@@ -2676,7 +2676,6 @@ drawing-aids = Ayudas de dibujo
 drawing-explorer = Explorador de dibujo
 # $n - número del documento sin título
 drawing-n = Dibujo{ $n }
-drawing-scale-planned = Escala de dibujo — planeado
 drawings-you-open-will-appear-he = Los dibujos que abra aparecerán aquí.
 duplicate = Duplicar
 duplicate-page = Duplicar página
@@ -3661,6 +3660,7 @@ language-options-tip = Elegir el idioma de Tarahi
 proofing-language-tip = Elegir el diccionario de la revisión ortográfica
 # $lang (String) - dictionary stem
 proofing-language-set = Idioma de corrección: { $lang }
+drawing-scale-tip = Definir la escala del dibujo (el papel no cambia de tamaño)
 
 
 ## ########## Resource: app ###############
@@ -3899,7 +3899,6 @@ drawing-aids = ابزارهای ترسیم
 drawing-explorer = کاوشگر نقاشی
 # $n - شمارهٔ سند بی‌نام
 drawing-n = نقشه{ $n }
-drawing-scale-planned = مقیاس نقاشی — برنامه‌ریزی شده
 drawings-you-open-will-appear-he = نقاشی‌هایی که باز می‌کنید این‌جا ظاهر می‌شوند.
 duplicate = تکثیر
 duplicate-page = تکثیر صفحه
@@ -4834,6 +4833,7 @@ language-options-tip = انتخاب زبان رابط Tarahi
 proofing-language-tip = انتخاب واژه‌نامهٔ بررسی املا
 # $lang (String) - dictionary stem
 proofing-language-set = زبان بازبینی: { $lang }
+drawing-scale-tip = تنظیم مقیاس نقشه (اندازهٔ کاغذ ثابت می‌ماند)
 
 
 ## ########## Resource: app ###############
@@ -5056,7 +5056,6 @@ double-tick-ring = 二重チック + リング
 drawing-aids = 作図支援
 drawing-explorer = 図面エクスプローラー
 drawing-n = 図面{ $n }
-drawing-scale-planned = 図面の縮尺 — 予定
 drawings-you-open-will-appear-he = 開いた図面がここに表示されます。
 duplicate = 複製
 duplicate-page = ページの複製
@@ -5903,6 +5902,7 @@ language-options-tip = Tarahi の表示言語を選択
 proofing-language-tip = スペル チェックの辞書を選択
 # $lang (String) - dictionary stem
 proofing-language-set = 校正言語: { $lang }
+drawing-scale-tip = 図面の縮尺を設定 (用紙サイズは変わりません)
 
 
 ## ########## Resource: app ###############
@@ -6126,7 +6126,6 @@ double-tick-ring = 이중 눈금 + 링
 drawing-aids = 드로잉 보조
 drawing-explorer = 드로잉 탐색기
 drawing-n = 드로잉{ $n }
-drawing-scale-planned = 드로잉 배율 — 예정
 drawings-you-open-will-appear-he = 연 드로잉이 여기에 표시됩니다.
 duplicate = 복제
 duplicate-page = 페이지 복제
@@ -6973,6 +6972,7 @@ language-options-tip = Tarahi 표시 언어 선택
 proofing-language-tip = 맞춤법 검사 사전 선택
 # $lang (String) - dictionary stem
 proofing-language-set = 교정 언어: { $lang }
+drawing-scale-tip = 그림 배율 설정 (용지 크기는 그대로)
 
 
 ## ########## Resource: app ###############
@@ -7194,7 +7194,6 @@ double-tick-ring = 双刻度 + 圆环
 drawing-aids = 绘图辅助
 drawing-explorer = 绘图资源管理器
 drawing-n = 绘图{ $n }
-drawing-scale-planned = 绘图比例 — 计划中
 drawings-you-open-will-appear-he = 在此处显示打开的绘图。
 duplicate = 创建副本
 duplicate-page = 复制页面
@@ -8047,4 +8046,5 @@ language-options-tip = 选择 Tarahi 的显示语言
 proofing-language-tip = 选择拼写检查使用的词典
 # $lang (String) - dictionary stem
 proofing-language-set = 校对语言:{ $lang }
+drawing-scale-tip = 设置绘图比例 (纸张大小不变)
 

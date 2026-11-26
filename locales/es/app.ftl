@@ -252,7 +252,6 @@ drawing-aids = Ayudas de dibujo
 drawing-explorer = Explorador de dibujo
 # $n - número del documento sin título
 drawing-n = Dibujo{ $n }
-drawing-scale-planned = Escala de dibujo — planeado
 drawings-you-open-will-appear-he = Los dibujos que abra aparecerán aquí.
 duplicate = Duplicar
 duplicate-page = Duplicar página
@@ -1237,3 +1236,4 @@ language-options-tip = Elegir el idioma de Tarahi
 proofing-language-tip = Elegir el diccionario de la revisión ortográfica
 # $lang (String) - dictionary stem
 proofing-language-set = Idioma de corrección: { $lang }
+drawing-scale-tip = Definir la escala del dibujo (el papel no cambia de tamaño)

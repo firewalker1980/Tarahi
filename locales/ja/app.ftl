@@ -216,7 +216,6 @@ double-tick-ring = 二重チック + リング
 drawing-aids = 作図支援
 drawing-explorer = 図面エクスプローラー
 drawing-n = 図面{ $n }
-drawing-scale-planned = 図面の縮尺 — 予定
 drawings-you-open-will-appear-he = 開いた図面がここに表示されます。
 duplicate = 複製
 duplicate-page = ページの複製
@@ -1063,3 +1062,4 @@ language-options-tip = Tarahi の表示言語を選択
 proofing-language-tip = スペル チェックの辞書を選択
 # $lang (String) - dictionary stem
 proofing-language-set = 校正言語: { $lang }
+drawing-scale-tip = 図面の縮尺を設定 (用紙サイズは変わりません)

@@ -232,7 +232,6 @@ drawing-aids = ابزارهای ترسیم
 drawing-explorer = کاوشگر نقاشی
 # $n - شمارهٔ سند بی‌نام
 drawing-n = نقشه{ $n }
-drawing-scale-planned = مقیاس نقاشی — برنامه‌ریزی شده
 drawings-you-open-will-appear-he = نقاشی‌هایی که باز می‌کنید این‌جا ظاهر می‌شوند.
 duplicate = تکثیر
 duplicate-page = تکثیر صفحه
@@ -1167,3 +1166,4 @@ language-options-tip = انتخاب زبان رابط Tarahi
 proofing-language-tip = انتخاب واژه‌نامهٔ بررسی املا
 # $lang (String) - dictionary stem
 proofing-language-set = زبان بازبینی: { $lang }
+drawing-scale-tip = تنظیم مقیاس نقشه (اندازهٔ کاغذ ثابت می‌ماند)

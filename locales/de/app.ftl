@@ -232,7 +232,6 @@ drawing-aids = Zeichenhilfen
 drawing-explorer = Zeichnungs-Explorer
 # $n - Nummer des unbenannten Dokuments
 drawing-n = Zeichnung{ $n }
-drawing-scale-planned = Zeichnungsmaßstab — geplant
 drawings-you-open-will-appear-he = Hier erscheinen die Zeichnungen, die Sie öffnen.
 duplicate = Duplizieren
 duplicate-page = Seite duplizieren
@@ -1167,3 +1166,4 @@ language-options-tip = Sprache der Oberfläche wählen
 proofing-language-tip = Wörterbuch für die Rechtschreibprüfung wählen
 # $lang (String) - dictionary stem
 proofing-language-set = Korrektursprache: { $lang }
+drawing-scale-tip = Zeichnungsmaßstab festlegen (das Papier bleibt gleich groß)

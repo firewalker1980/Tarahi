@@ -208,6 +208,7 @@ fn fit_transform(cell: f64, pad: f64, (bx, by, bw, bh): (f64, f64, f64, f64)) ->
 /// One master rendered as a standalone SVG (stencil thumbnail): the
 /// master's shape tree centered and scaled into a square viewBox.
 pub fn render_master(doc: &Document, m: &vsdx::Master) -> anyhow::Result<String> {
+    let _units = unit_scope(m.sheet());
     let cell = 1.0f64;
     let mut svg = String::new();
     let _ = writeln!(
@@ -371,6 +372,7 @@ pub fn shape_ink_bounds_focused(
     shape_id: i64,
     focus: Option<i64>,
 ) -> Option<(f64, f64, f64, f64)> {
+    let _units = unit_scope(page.sheet());
     let page_h = num(page.sheet().and_then(|s| s.cell("PageHeight"))).unwrap_or(11.0);
     let root = page.shapes.iter().find(|s| s.id == shape_id)?;
     let mut u = Focus {
@@ -796,7 +798,7 @@ fn node_ink_box(
         if get("BeginArrow", &text_env).is_some_and(arrowed)
             || get("EndArrow", &text_env).is_some_and(arrowed)
         {
-            let weight = get("LineWeight", &text_env).unwrap_or(0.75 / 72.0);
+            let weight = get("LineWeight", &text_env).unwrap_or(0.75 / 72.0) * unit_k();
             let pad = |pt: (f64, f64), arrow: Option<f64>, sz: f64, u: &mut Focus| {
                 if !arrow.is_some_and(arrowed) {
                     return;
@@ -1053,6 +1055,7 @@ pub fn render_shape_layer_opts_culled(
     cull_rect: (f64, f64, f64, f64),
     fields: Option<&crate::fields::FieldsCtx<'_>>,
 ) -> anyhow::Result<(Vec<f64>, String)> {
+    let _units = unit_scope(page.sheet());
     let boxes = subtree_ink_boxes(doc, page, shape_id)
         .ok_or_else(|| anyhow::anyhow!("shape {shape_id} not found on page {}", page.id))?;
     let cull = InkCull {
@@ -1195,6 +1198,7 @@ fn render_page_full(
     border: bool,
     background: bool,
 ) -> anyhow::Result<String> {
+    let _units = unit_scope(page.sheet());
     let w = num(page.sheet().and_then(|s| s.cell("PageWidth"))).unwrap_or(8.5);
     let h = num(page.sheet().and_then(|s| s.cell("PageHeight"))).unwrap_or(11.0);
     // Layers switched off in the file never render (Visio's Visible).
@@ -2198,6 +2202,7 @@ pub struct BulletSpec {
 /// chain (GitHub #22): the same cell reads and defaults `emit_text`
 /// performs, hoisted so the GUI overlay and the renderer agree.
 pub fn text_block(doc: &Document, page: &vsdx::Page, shape_id: i64) -> Option<TextBlock> {
+    let _units = unit_scope(page.sheet());
     let chain = dc_core::scope::shape_chain(doc, page.id, shape_id).ok()?;
     let s = *chain.last()?;
     let env = shape_env(doc, s, &chain);
@@ -2335,7 +2340,7 @@ pub(crate) fn resolve_text_block(
     // Char.Size lives in the Character section's first row, stored in
     // inches (0.13889 in = 10 pt); the viewBox unit is inches, so the
     // value is the SVG font-size directly.
-    let font_size = char_size(doc, s, chain).unwrap_or(0.13888).max(0.02);
+    let font_size = char_size(doc, s, chain).unwrap_or(0.13888 * unit_k()).max(0.02);
     // First Character row extras: color (palette/theme aware) and the
     // Style bitmask (1 = bold, 2 = italic). Both resolve per-cell through
     // `char_cell`, so a LangID-only instance row picks them up from the
@@ -2376,10 +2381,11 @@ pub(crate) fn resolve_text_block(
 
     // Text-block insets (Visio defaults: 0.1 in left/right, 0.0555 in
     // top/bottom) and 120% line spacing.
-    let ins_l = get("LeftMargin").unwrap_or(0.1);
-    let ins_r = get("RightMargin").unwrap_or(0.1);
-    let ins_t = get("TopMargin").unwrap_or(0.0555);
-    let ins_b = get("BottomMargin").unwrap_or(0.0555);
+    // margins are paper measures (scaled pages: unit_k)
+    let ins_l = get("LeftMargin").unwrap_or(0.1) * unit_k();
+    let ins_r = get("RightMargin").unwrap_or(0.1) * unit_k();
+    let ins_t = get("TopMargin").unwrap_or(0.0555) * unit_k();
+    let ins_b = get("BottomMargin").unwrap_or(0.0555) * unit_k();
     let line_height = get("LineSpacing")
         .map(|l| l * font_size)
         .unwrap_or(font_size * 1.2)
@@ -3991,6 +3997,7 @@ fn text_runs(doc: &Document, s: &Shape, chain: &[&Shape], tb: &TextBlock) -> Opt
                     .is_some_and(|v| v != 0.0);
             let size = row_cell(ix, "Size")
                 .and_then(|c| c.numeric())
+                .map(|z| z * unit_k())
                 .filter(|z| (z - tb.font_size).abs() > 1e-6);
             RunStyle {
                 color,
@@ -4824,7 +4831,8 @@ fn render_geometry(
     let line_weight = doc
         .resolve_cell(s, chain, "LineWeight")
         .and_then(|c| cell_num(&c, env))
-        .unwrap_or(0.0104);
+        .unwrap_or(0.0104)
+        * unit_k();
     // A 1-D shape's OPEN path (a line, an arc) has no interior: some
     // line masters carry decorative FillPattern cells (28/30) that must
     // be ignored, or the arc-chord region paints over everything. Its
@@ -7615,6 +7623,34 @@ fn char_size(doc: &Document, s: &Shape, chain: &[&Shape]) -> Option<f64> {
     char_cell(doc, s, chain, "Size")
         .and_then(|c| c.numeric())
         .filter(|v| *v > 0.0)
+        .map(|v| v * unit_k())
+}
+
+thread_local! {
+    /// Drawing units per paper unit on the page being rendered
+    /// (DrawingScale / PageScale). Geometry is in drawing units, but
+    /// line weights, text sizes and text margins are paper measures:
+    /// on a 1:10 page a 2 pt line is 20 pt of drawing.
+    static UNIT_K: std::cell::Cell<f64> = const { std::cell::Cell::new(1.0) };
+}
+
+fn unit_k() -> f64 {
+    UNIT_K.with(|k| k.get())
+}
+
+/// Sets [`unit_k`] from a page (or master) sheet until dropped.
+pub struct UnitScope(f64);
+
+pub fn unit_scope(sheet: Option<&vsdx::model::Sheet>) -> UnitScope {
+    let n = |c: &str| sheet.and_then(|s| s.cell(c)).and_then(|c| c.numeric()).filter(|v| *v > 0.0);
+    let k = n("DrawingScale").unwrap_or(1.0) / n("PageScale").unwrap_or(1.0);
+    UnitScope(UNIT_K.with(|u| u.replace(if k.is_finite() && k > 0.0 { k } else { 1.0 })))
+}
+
+impl Drop for UnitScope {
+    fn drop(&mut self) {
+        UNIT_K.with(|u| u.set(self.0));
+    }
 }
 
 /// First Character-section row's Font cell — the family name as stored

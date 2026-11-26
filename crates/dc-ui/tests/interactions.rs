@@ -11427,3 +11427,21 @@ fn review_language_and_proofing_language() {
     h.run();
     assert!(h.state().debug_options_open());
 }
+
+/// Design ▸ Scale ▸ 1 : 10: the page's DrawingScale is 10 and its
+/// drawing size grows tenfold (same paper).
+#[test]
+fn design_scale_sets_the_drawing_scale() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (w0, h0) = h.state().debug_page_geom_for_test();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Design);
+    h.run();
+    h.get_by_label("Scale").click();
+    h.run();
+    h.run();
+    h.get_by_label("1 : 10").click();
+    h.run();
+    let (w1, h1) = h.state().debug_page_geom_for_test();
+    assert!((w1 - w0 * 10.0).abs() < 1e-6 && (h1 - h0 * 10.0).abs() < 1e-6, "{w0}x{h0} -> {w1}x{h1}");
+}

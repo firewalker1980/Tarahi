@@ -217,7 +217,6 @@ double-tick-ring = 이중 눈금 + 링
 drawing-aids = 드로잉 보조
 drawing-explorer = 드로잉 탐색기
 drawing-n = 드로잉{ $n }
-drawing-scale-planned = 드로잉 배율 — 예정
 drawings-you-open-will-appear-he = 연 드로잉이 여기에 표시됩니다.
 duplicate = 복제
 duplicate-page = 페이지 복제
@@ -1064,3 +1063,4 @@ language-options-tip = Tarahi 표시 언어 선택
 proofing-language-tip = 맞춤법 검사 사전 선택
 # $lang (String) - dictionary stem
 proofing-language-set = 교정 언어: { $lang }
+drawing-scale-tip = 그림 배율 설정 (용지 크기는 그대로)

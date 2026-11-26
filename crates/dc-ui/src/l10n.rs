@@ -1493,13 +1493,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "drawing-scale-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "drawings-you-open-will-appear-he",
         attribute: None,
         vars: &[],
@@ -7148,6 +7141,13 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "drawing-scale-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7247,13 +7247,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50395,
-            Self::En => 50395..98911,
-            Self::Es => 98911..152364,
-            Self::Fa => 152364..215144,
-            Self::Ja => 215144..269237,
-            Self::Ko => 269237..319013,
-            Self::ZhHans => 319013..362167,
+            Self::De => 0..50422,
+            Self::En => 50422..98962,
+            Self::Es => 98962..152442,
+            Self::Fa => 152442..215243,
+            Self::Ja => 215243..269369,
+            Self::Ko => 269369..319163,
+            Self::ZhHans => 319163..362326,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -8152,9 +8152,6 @@ impl L10nLanguage {
         let mut _args = FluentArgs::new();
         _args.set("n", n.into());
         self.0.msg("drawing-n", Some(_args)).unwrap()
-    }
-    pub fn msg_drawing_scale_planned(&self) -> String {
-        self.0.msg("drawing-scale-planned", None).unwrap()
     }
     pub fn msg_drawings_you_open_will_appear_he(&self) -> String {
         self.0
@@ -11211,5 +11208,8 @@ impl L10nLanguage {
         let mut _args = FluentArgs::new();
         _args.set("lang", lang.as_ref());
         self.0.msg("proofing-language-set", Some(_args)).unwrap()
+    }
+    pub fn msg_drawing_scale_tip(&self) -> String {
+        self.0.msg("drawing-scale-tip", None).unwrap()
     }
 }

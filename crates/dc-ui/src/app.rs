@@ -286,6 +286,8 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Design ▸ Scale menu.
+    scale_menu: bool,
     /// Review ▸ Set Proofing Language picker.
     proof_lang_open: bool,
     /// Developer ▸ Operations menu.
@@ -886,6 +888,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            scale_menu: false,
             proof_lang_open: false,
             ops_menu: false,
             behavior_open: false,
@@ -6172,6 +6175,45 @@ impl App {
         }
     }
 
+    /// Design ▸ Scale: the page's drawing scale (1:1 … 1:1000). The paper
+    /// stays the same size, so the page's drawing size grows with the
+    /// scale; shapes keep their drawing coordinates (Visio's Page Setup
+    /// ▸ Drawing Scale). One undo step.
+    fn scale_window(&mut self, ctx: &egui::Context) {
+        if !self.scale_menu {
+            return;
+        }
+        let Some(page) = self.page_id() else { return };
+        let sheet = self.ed().and_then(|ed| ed.doc.pages.iter().find(|p| p.id == page)).and_then(|p| p.sheet().cloned());
+        let n = |c: &str| sheet.as_ref().and_then(|s| s.cell(c)?.numeric()).filter(|v| *v > 0.0);
+        let cur = n("DrawingScale").unwrap_or(1.0) / n("PageScale").unwrap_or(1.0);
+        let s = crate::i18n::strs();
+        let mut pick = None;
+        let mut open = true;
+        egui::Window::new(s.msg_scale()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            for k in [1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0, 1000.0] {
+                if ui.selectable_label((cur - k).abs() < 1e-9, format!("1 : {k}")).clicked() {
+                    pick = Some(k);
+                }
+            }
+        });
+        self.scale_menu &= open;
+        let Some(k) = pick else { return };
+        self.scale_menu = false;
+        let (w, h) = (n("PageWidth").unwrap_or(8.5), n("PageHeight").unwrap_or(11.0));
+        let f = k / cur;
+        let scope = Scope::PageSheet { page };
+        let v = |x: f64| vsdx::Cell::value(format!("{x}"));
+        let cmds: Vec<Box<dyn dc_core::Command>> = vec![
+            Box::new(SetCell::new(scope.clone(), "PageScale", v(1.0))),
+            Box::new(SetCell::new(scope.clone(), "DrawingScale", v(k))),
+            Box::new(SetCell::new(scope.clone(), "PageWidth", v(w * f))),
+            Box::new(SetCell::new(scope, "PageHeight", v(h * f))),
+        ];
+        self.apply(Macro::new(s.msg_scale(), cmds));
+        self.view.fit_pending = true;
+    }
+
     /// Review ▸ Set Proofing Language: the dictionaries the spell checker
     /// has; the pick is the language Check Spelling uses from now on.
     fn proof_lang_window(&mut self, ctx: &egui::Context) {
@@ -10063,6 +10105,7 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::DrawingScale => self.scale_menu = !self.scale_menu,
             Action::ProofingLanguage => self.proof_lang_open = !self.proof_lang_open,
             Action::LanguageOptions => {
                 self.open_options_dialog();
@@ -19036,6 +19079,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.scale_window(&ctx);
         self.proof_lang_window(&ctx);
         self.operations_window(&ctx);
         self.behavior_window(&ctx);

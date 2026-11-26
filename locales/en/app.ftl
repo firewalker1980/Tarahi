@@ -254,7 +254,6 @@ drawing-aids = Drawing aids
 drawing-explorer = Drawing Explorer
 # $n (Number) - untitled document number
 drawing-n = Drawing{ $n }
-drawing-scale-planned = Drawing scale — planned
 drawings-you-open-will-appear-he = Drawings you open will appear here.
 duplicate = Duplicate
 duplicate-page = Duplicate Page
@@ -1242,3 +1241,4 @@ language-options-tip = Choose the language Tarahi shows
 proofing-language-tip = Choose the dictionary Check Spelling uses
 # $lang (String) - dictionary stem
 proofing-language-set = Proofing language: { $lang }
+drawing-scale-tip = Set the drawing scale (the paper stays the same size)
