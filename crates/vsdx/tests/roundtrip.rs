@@ -25,7 +25,7 @@ fn write_messy_package(dir: &Path) -> PathBuf {
 <Default Extension="bin" ContentType="application/octet-stream"/>
 <Override PartName="/visio/document.xml" ContentType="application/vnd.ms-visio.drawing.main+xml"/>
 <Override PartName="/visio/pages/pages.xml" ContentType="application/vnd.ms-visio.pages+xml"/>
-<Override PartName="/visio/pages/page1.xml" ContentType="application/vnd.ms-visio.pages+xml"/>
+<Override PartName="/visio/pages/page1.xml" ContentType="application/vnd.ms-visio.page+xml"/>
 <Override PartName="/visio/masters/masters.xml" ContentType="application/vnd.ms-visio.masters+xml"/>
 <Override PartName="/visio/masters/master1.xml" ContentType="application/vnd.ms-visio.master+xml"/>
 </Types>"#;
@@ -551,4 +551,39 @@ fn writes_fresh_document_from_model() {
     // helper), pinning serializer conventions the model API does not
     // guarantee. Attribute fidelity is already proven where it is the
     // spec — the messy-package canonical-XML oracle above.
+}
+
+/// Files from older Tarahi builds typed their page parts with the
+/// page-LIST content type; Visio then shows those pages empty. Saving
+/// repairs it.
+#[test]
+fn save_repairs_page_part_content_type() {
+    let dir = std::env::temp_dir().join(format!("tarahi-ct-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let src = dir.join("old.vsdx");
+    let fixed = std::fs::read(env!("CARGO_MANIFEST_DIR").to_string() + "/../dc-core/assets/blank.vsdx").unwrap();
+    // rebuild the blank with the old (wrong) page type
+    let mut zin = zip::ZipArchive::new(std::io::Cursor::new(fixed)).unwrap();
+    let mut out = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
+    for i in 0..zin.len() {
+        let mut f = zin.by_index(i).unwrap();
+        let name = f.name().unwrap().to_string();
+        let mut bytes = Vec::new();
+        std::io::Read::read_to_end(&mut f, &mut bytes).unwrap();
+        if name == "[Content_Types].xml" {
+            bytes = String::from_utf8(bytes)
+                .unwrap()
+                .replace("page1.xml\" ContentType=\"application/vnd.ms-visio.page+xml", "page1.xml\" ContentType=\"application/vnd.ms-visio.pages+xml")
+                .into_bytes();
+        }
+        out.start_file(name, zip::write::SimpleFileOptions::default()).unwrap();
+        std::io::Write::write_all(&mut out, &bytes).unwrap();
+    }
+    std::fs::write(&src, out.finish().unwrap().into_inner()).unwrap();
+    let doc = vsdx::parse::parse(&src).unwrap();
+    let saved = dir.join("saved.vsdx");
+    vsdx::write::save(&doc, &saved).unwrap();
+    let ct = String::from_utf8(vsdx::Package::open(&saved).unwrap().part("[Content_Types].xml").unwrap().to_vec()).unwrap();
+    assert!(ct.contains("page1.xml\" ContentType=\"application/vnd.ms-visio.page+xml"), "{ct}");
+    assert!(ct.contains("pages.xml\" ContentType=\"application/vnd.ms-visio.pages+xml"), "{ct}");
 }

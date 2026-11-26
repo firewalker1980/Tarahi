@@ -645,6 +645,7 @@ pub fn build_parts(doc: &Document) -> BTreeMap<String, Vec<u8>> {
         // and keep the pages-index rels and [Content_Types].xml in sync.
         // Pure round-trips (no page-set change) leave all three untouched.
         reconcile_page_parts(&mut parts, doc, pkg);
+        repair_page_content_types(&mut parts, doc);
         reconcile_master_parts(&mut parts, doc, pkg);
         reconcile_media(&mut parts, doc, pkg);
         return parts;
@@ -818,7 +819,8 @@ fn content_types_xml(
     };
     override_part(doc_part, doc_ct, &mut out);
     for part in &page_set {
-        override_part(part, "application/vnd.ms-visio.pages+xml", &mut out);
+        let ct = if part == pages_part { CT_PAGES } else { CT_PAGE };
+        override_part(part, ct, &mut out);
     }
     if let Some(mp) = &masters_part {
         override_part(mp, "application/vnd.ms-visio.masters+xml", &mut out);
@@ -1059,7 +1061,10 @@ fn build_content_types(defaults: &[(String, String)], overrides: &[(String, Stri
     out.into_bytes()
 }
 
-const CT_PAGE: &str = "application/vnd.ms-visio.pages+xml";
+/// A single page part. (Tarahi used to write the page-list type for
+/// pages too, and Visio then drops every shape on them.)
+const CT_PAGE: &str = "application/vnd.ms-visio.page+xml";
+const CT_PAGES: &str = "application/vnd.ms-visio.pages+xml";
 
 /// Synchronize `parts` with the model's page set: new pages get their
 /// part, a pages-index relationship, and a content-types override;
@@ -1242,6 +1247,25 @@ fn reconcile_page_parts(
         let built = build_content_types(&defaults, &overrides);
         defaults.clear();
         parts.insert("[Content_Types].xml".to_string(), built);
+    }
+}
+
+/// Page parts declared with the page-LIST content type (files written by
+/// older Tarahi builds) get the page type back; Visio ignores the shapes
+/// of a page part typed as a list. Correct files are left byte-identical.
+fn repair_page_content_types(parts: &mut BTreeMap<String, Vec<u8>>, doc: &Document) {
+    let Some(ct_bytes) = parts.get("[Content_Types].xml") else { return };
+    let (defaults, mut overrides) = parse_content_types(ct_bytes);
+    let mut fixed = false;
+    for (part, ct) in &mut overrides {
+        let name = part.trim_start_matches('/');
+        if ct == CT_PAGES && doc.pages.iter().any(|p| p.part == name) {
+            *ct = CT_PAGE.to_string();
+            fixed = true;
+        }
+    }
+    if fixed {
+        parts.insert("[Content_Types].xml".to_string(), build_content_types(&defaults, &overrides));
     }
 }
 

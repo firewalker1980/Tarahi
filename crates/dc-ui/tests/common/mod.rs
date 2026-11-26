@@ -124,7 +124,7 @@ pub fn many_shape_fixture(
 <Default Extension="xml" ContentType="application/xml"/>
 <Override PartName="/visio/document.xml" ContentType="application/vnd.ms-visio.drawing.main+xml"/>
 <Override PartName="/visio/pages/pages.xml" ContentType="application/vnd.ms-visio.pages+xml"/>
-<Override PartName="/visio/pages/page1.xml" ContentType="application/vnd.ms-visio.pages+xml"/>
+<Override PartName="/visio/pages/page1.xml" ContentType="application/vnd.ms-visio.page+xml"/>
 <Override PartName="/visio/masters/masters.xml" ContentType="application/vnd.ms-visio.masters+xml"/>
 {master_overrides}</Types>"#
     );
@@ -360,7 +360,7 @@ pub fn shell_fixture_pages(dir: &std::path::Path, names: &[&str]) -> std::path::
         .enumerate()
         .map(|(i, _)| {
             format!(
-                "<Override PartName=\"/visio/pages/page{}.xml\" ContentType=\"application/vnd.ms-visio.pages+xml\"/>\n",
+                "<Override PartName=\"/visio/pages/page{}.xml\" ContentType=\"application/vnd.ms-visio.page+xml\"/>\n",
                 i + 1
             )
         })
