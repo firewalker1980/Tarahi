@@ -164,10 +164,42 @@ pub struct Chunk<'a> {
     pub data: &'a [u8],
 }
 
+thread_local! {
+    /// The file being read is Visio 2000 (v6): 8-bit strings and no
+    /// row trailers. ponytail: a per-thread flag set by the converter
+    /// instead of threading a version through every reader; pass a
+    /// version value around once more v6 differences turn up.
+    static V6: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// Mark the current thread as reading a v6 (Visio 2000) file.
+pub fn set_v6(on: bool) {
+    V6.with(|v| v.set(on));
+}
+
+/// Is the current file Visio 2000 (8-bit strings)?
+pub fn is_v6() -> bool {
+    V6.with(|v| v.get())
+}
+
+/// A NUL-terminated string: UTF-16LE (v11) or 8-bit Windows-1252 (v6,
+/// read as Latin-1).
+pub fn text(d: &[u8]) -> String {
+    if is_v6() {
+        let end = d.iter().position(|&b| b == 0).unwrap_or(d.len());
+        return d[..end].iter().map(|&b| b as char).collect();
+    }
+    let units: Vec<u16> = d.as_chunks::<2>().0.iter().map(|b| u16::from_le_bytes(*b)).collect();
+    let end = units.iter().position(|&u| u == 0).unwrap_or(units.len());
+    String::from_utf16_lossy(&units[..end])
+}
+
 /// Chunk header: type u32, id u32, list u32, data length u32, level
 /// u16, u8 flag; then the data; then a trailer of 8 bytes when the
-/// chunk carries a list and 4 bytes for level-2 rows flagged 0x55.
+/// chunk carries a list and (v11 only) 4 bytes for level-2 rows
+/// flagged 0x55.
 pub fn chunks(s: &[u8]) -> Vec<Chunk<'_>> {
+    let v6 = is_v6();
     let mut out = vec![];
     let mut p = 0;
     while p + 19 <= s.len() {
@@ -192,7 +224,7 @@ pub fn chunks(s: &[u8]) -> Vec<Chunk<'_>> {
         if list != 0 || trail8(typ) {
             p += 8;
         }
-        if level == 2 && unk == 0x55 {
+        if level == 2 && unk == 0x55 && !v6 {
             p += 4;
         }
     }

@@ -34,20 +34,17 @@ fn esc(s: &str) -> String {
 }
 
 fn utf16(d: &[u8]) -> String {
-    let units: Vec<u16> = d
-        .as_chunks::<2>()
-        .0
-        .iter()
-        .map(|b| u16::from_le_bytes(*b))
-        .collect();
-    let end = units.iter().position(|&u| u == 0).unwrap_or(units.len());
-    String::from_utf16_lossy(&units[..end])
+    super::text(d)
 }
 
 /// Format a cell value the way Visio writes V (shortest round-trip).
 fn num(v: f64) -> String {
     if v == v.trunc() && v.abs() < 1e15 {
         format!("{}", v as i64)
+    } else if v.abs() < 1e-9 || v.abs() >= 1e15 || !v.is_finite() {
+        // denormal-ish noise and huge values: exponent form, not
+        // hundreds of digits
+        if v.is_finite() { format!("{v:E}") } else { "0".into() }
     } else {
         format!("{v}")
     }
@@ -100,7 +97,8 @@ impl Ctx<'_> {
 pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
     let doc = visio_stream(bytes)?;
     let ver = doc[0x1A];
-    if ver != 11 {
+    super::set_v6(ver == 6);
+    if ver != 11 && ver != 6 {
         bail!("Visio binary version {ver} is not supported yet (only Visio 2003–2010 files)");
     }
     let tr = trailer(&doc);
@@ -727,7 +725,9 @@ fn foreign(cx: &mut Ctx, data: &[u8], info: Option<&[u8]>, part: &str) -> Option
         if data.starts_with(&[1, 0, 0, 0]) && data.get(40..44) == Some(b" EMF") {
             ("EnhMetaFile", "emf", data.to_vec())
         } else if data.starts_with(&[1, 0, 9, 0]) || data.starts_with(&[2, 0, 9, 0]) {
-            ("MetaFile", "wmf", data.to_vec())
+            // Visio's own conversions label legacy WMF pictures
+            // EnhMetaFile; the renderer plays either under that type
+            ("EnhMetaFile", "wmf", data.to_vec())
         } else if data.starts_with(b"\x89PNG") {
             ("Bitmap", "png", data.to_vec())
         } else if data.starts_with(&[0xff, 0xd8]) {

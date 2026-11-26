@@ -220,16 +220,12 @@ pub fn decode(t: &[u8], pool: &[String], own: u32) -> Option<String> {
                 p += 3;
             }
             0x60 => {
+                // string: u8 length, then UTF-16 (v6: 8-bit) and a NUL
                 let n = *t.get(p + 1)? as usize;
-                let s = t.get(p + 2..p + 2 + 2 * n)?;
-                let units: Vec<u16> = s
-                    .as_chunks::<2>()
-                    .0
-                    .iter()
-                    .map(|c| u16::from_le_bytes(*c))
-                    .collect();
-                st.push(format!("\"{}\"", String::from_utf16_lossy(&units)));
-                p += 2 + 2 * n + 2;
+                let w = if super::is_v6() { 1 } else { 2 };
+                let s = t.get(p + 2..p + 2 + w * n)?;
+                st.push(format!("\"{}\"", super::text(&[s, &[0, 0]].concat())));
+                p += 2 + w * n + w;
             }
             0x75 => {
                 st.push(obj_cell(u16_at(t, p + 1))?.to_string());

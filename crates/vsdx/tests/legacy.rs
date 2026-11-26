@@ -1,7 +1,7 @@
 //! Legacy binary Visio reader (#36) over a local corpus. Binary
 //! stencils and drawings are vendor content and stay out of the repo,
 //! so this runs only when `TARAHI_VSD_CORPUS` names a directory:
-//! every Visio 2003–2010 `.vsd/.vss/.vst` under it must convert and
+//! every Visio 2000–2010 `.vsd/.vss/.vst` under it must convert and
 //! parse, and stencils must yield masters.
 //!
 //!     TARAHI_VSD_CORPUS=~/stencils cargo test -p vsdx --test legacy -- --nocapture
@@ -36,11 +36,11 @@ fn legacy_corpus_converts() {
     let mut checked = 0;
     for f in &files {
         let bytes = std::fs::read(f).unwrap();
-        // only Visio 2003–2010 (v11) binaries are in scope
+        // Visio 2000 (v6) and 2003–2010 (v11) binaries are in scope
         let Ok(vd) = vsdx::vsd::visio_stream(&bytes) else {
             continue;
         };
-        if vd[0x1A] != 11 {
+        if vd[0x1A] != 11 && vd[0x1A] != 6 {
             continue;
         }
         checked += 1;
