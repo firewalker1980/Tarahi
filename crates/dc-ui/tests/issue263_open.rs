@@ -26,8 +26,10 @@ fn harness_with(app: App) -> Harness<'static, App> {
 }
 
 /// The CLI entry (`App::new`'s only job beyond shell state is
-/// `load(path)`): a `.vssx` argument must land in the Shapes pane —
-/// the editor stays untouched (#83) — and the app must frame.
+/// `load(path)`): a `.vssx` argument must land in the Shapes pane and
+/// the app must frame. With no drawing open a blank one starts, since
+/// the start screen hides the Shapes pane (the stencil itself never
+/// becomes the edited document, #83).
 #[test]
 fn cli_vssx_argument_lands_in_the_shapes_pane_and_the_app_frames() {
     let dir = tempfile::tempdir().unwrap();
@@ -35,7 +37,7 @@ fn cli_vssx_argument_lands_in_the_shapes_pane_and_the_app_frames() {
 
     let mut app = App::with_doc_opt(None);
     app.debug_load_for_test(path);
-    assert!(!app.debug_doc_open(), "a stencil never opens the editor");
+    assert!(app.debug_doc_open(), "a blank drawing shows the Shapes pane");
     assert_eq!(
         app.debug_stencil_entries().len(),
         1,
@@ -51,7 +53,7 @@ fn cli_vssx_argument_lands_in_the_shapes_pane_and_the_app_frames() {
     let mut h = harness_with(app);
     h.run();
     assert!(h.state().debug_stencil_entries().len() == 1);
-    assert!(!h.state().debug_doc_open());
+    assert_eq!(h.state().debug_shape_count(), 0, "the drawing is blank, not the stencil");
 }
 
 /// The same package offered as a DOCUMENT (a `.vsdx`/`.vstx`
