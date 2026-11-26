@@ -4181,39 +4181,7 @@ fn foreign_image_uri(doc: &Document, part: &str, s: &Shape, chain: &[&Shape]) ->
         .find(|(k, _)| k == "r:id")
         .map(|(_, v)| v.clone())
         .or_else(|| extract_rid(&fd.inner))?;
-    // Runtime-inserted media (#113) resolves through `extra_media`
-    // by the owning page's part — no retained package needed; the
-    // package relationship wins when it carries this rid.
-    let target: String = doc
-        .package
-        .as_ref()
-        .and_then(|pkg| {
-            pkg.relationships(part)
-                .into_iter()
-                .find(|(id, ty, _)| id == &rid && ty.ends_with("/image"))
-                .map(|(_, _, t)| t)
-        })
-        .or_else(|| {
-            let page_id = doc.pages.iter().find(|p| p.part == part).map(|p| p.id)?;
-            doc.extra_media
-                .iter()
-                .find(|m| m.page == page_id && m.rid == rid)
-                .map(|m| m.part.clone())
-        })?;
-    // `relationships` returns the target already resolved to an absolute
-    // package part name. Runtime-inserted media (#113) lives in
-    // `extra_media`, not the retained package.
-    let name = target.trim_start_matches('/');
-    let bytes = doc
-        .package
-        .as_ref()
-        .and_then(|pkg| pkg.part(name))
-        .or_else(|| {
-            doc.extra_media
-                .iter()
-                .find(|m| m.part == name)
-                .map(|m| m.bytes.as_slice())
-        })?;
+    let bytes = media_bytes(doc, part, &rid)?;
     if mime == "image/bmp" {
         let png = crate::emf::bmp_to_png(bytes)?;
         return Some(format!("data:image/png;base64,{}", base64(&png)));
@@ -4250,16 +4218,32 @@ fn foreign_emf_svg(
         .find(|(k, _)| k == "r:id")
         .map(|(_, v)| v.clone())
         .or_else(|| extract_rid(&fd.inner))?;
-    let pkg = doc.package.as_ref()?;
-    let target = pkg
-        .relationships(part)
-        .into_iter()
-        .find(|(id, ty, _)| id == &rid && ty.ends_with("/image"))
-        .map(|(_, _, t)| t)?;
-    let bytes = pkg.part(target.trim_start_matches('/'))?;
+    let bytes = media_bytes(doc, part, &rid)?;
     // Legacy stencils store WMF bytes under the EnhMetaFile type (the
     // network LLDs' bridge/ONT icons).
     crate::emf::emf_to_svg(bytes, w, h).or_else(|| crate::emf::wmf_to_svg(bytes, w, h))
+}
+
+/// The bytes of image relationship `rid` on `part`: the retained
+/// package's relationship first, else runtime media (#113) owned by
+/// that page or — for a master imported from a stencil — that master
+/// part.
+fn media_bytes<'a>(doc: &'a Document, part: &str, rid: &str) -> Option<&'a [u8]> {
+    if let Some(pkg) = &doc.package {
+        let target = pkg
+            .relationships(part)
+            .into_iter()
+            .find(|(id, ty, _)| id == rid && ty.ends_with("/image"))
+            .map(|(_, _, t)| t);
+        if let Some(b) = target.and_then(|t| pkg.part(t.trim_start_matches('/'))) {
+            return Some(b);
+        }
+    }
+    let page_id = doc.pages.iter().find(|p| p.part == part).map(|p| p.id);
+    doc.extra_media
+        .iter()
+        .find(|m| m.rid == rid && (m.owner.as_deref() == Some(part) || (m.owner.is_none() && Some(m.page) == page_id)))
+        .map(|m| m.bytes.as_slice())
 }
 
 /// The shape that owns a picture's `ForeignData` and the package part

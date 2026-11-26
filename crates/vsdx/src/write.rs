@@ -724,6 +724,11 @@ pub fn build_parts(doc: &Document) -> BTreeMap<String, Vec<u8>> {
 }
 
 fn rel_type(kind: &str) -> String {
+    // pictures use the generic Office image relationship; Visio ignores
+    // a Visio-namespace "image" one and shows its missing-picture box
+    if kind == "image" {
+        return "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image".to_string();
+    }
     format!("{VISIO_REL}/{kind}")
 }
 
@@ -1086,6 +1091,13 @@ fn reconcile_media(
     let mut by_page: std::collections::BTreeMap<String, Vec<&crate::model::MediaRef>> =
         std::collections::BTreeMap::new();
     for m in &doc.extra_media {
+        // an imported master's picture belongs to the master part
+        if let Some(owner) = &m.owner {
+            if doc.masters.iter().any(|x| &x.part == owner) {
+                by_page.entry(owner.clone()).or_default().push(m);
+            }
+            continue;
+        }
         let Some(page) = doc.pages.iter().find(|p| p.id == m.page) else {
             continue;
         };
@@ -1144,6 +1156,10 @@ fn reconcile_media(
                         "png" => "image/png",
                         "jpeg" | "jpg" => "image/jpeg",
                         "gif" => "image/gif",
+                        "emf" => "image/x-emf",
+                        "wmf" => "image/x-wmf",
+                        "bmp" => "image/bmp",
+                        "tif" | "tiff" => "image/tiff",
                         _ => continue,
                     }
                 );

@@ -7932,6 +7932,7 @@ impl App {
             page: page_id,
             rid,
             ext: ext.to_string(),
+            owner: None,
         });
         let shape = sh;
         self.apply(dc_core::AddShape {
@@ -9061,6 +9062,21 @@ impl App {
         }
     }
 
+    /// A placement plus Visio's drop scale for the new instance (same
+    /// undo step); unchanged when `k` is 1.
+    fn with_drop_scale(cmd: dc_core::Macro, page: i64, id: i64, k: f64) -> dc_core::Macro {
+        if (k - 1.0).abs() < 1e-12 {
+            return cmd;
+        }
+        let label = cmd.label.clone();
+        let touch = dc_core::TouchList {
+            pages: vec![],
+            shapes: vec![dc_core::Touched { page, shape: id, touch: dc_core::Touch::Ink, sub: None }],
+        };
+        let scale = crate::cmd::Deferred::new("drop scale", touch, move |doc| crate::cmd::scale_instance_cmds(doc, page, id, k));
+        dc_core::Macro::new(label, vec![Box::new(cmd), Box::new(scale)])
+    }
+
     /// Place the armed/carried master `key` at `page_pos` (inches).
     /// Returns the new shape id when a placement happened.
     ///
@@ -9072,12 +9088,19 @@ impl App {
         let page_id = self.page_id()?;
         match key.0 {
             StencilId::Document => {
-                let new_id = self
-                    .ed
-                    .as_ref()
-                    .map(|ed| dc_core::commands::next_shape_id(&ed.doc, page_id));
-                self.apply(AddMasterInstance::new(page_id, key.1, page_pos));
-                new_id
+                let ed = self.ed.as_ref()?;
+                let new_id = dc_core::commands::next_shape_id(&ed.doc, page_id);
+                let k = ed
+                    .doc
+                    .master(key.1)
+                    .zip(ed.doc.pages.iter().find(|p| p.id == page_id))
+                    .map_or(1.0, |(m, p)| crate::cmd::drop_scale(m, p));
+                let cmd = dc_core::Macro::new(
+                    format!("place master {}", key.1),
+                    vec![Box::new(AddMasterInstance::new(page_id, key.1, page_pos))],
+                );
+                self.apply(Self::with_drop_scale(cmd, page_id, new_id, k));
+                Some(new_id)
             }
             StencilId::Open(ix) => {
                 let src = self
@@ -9091,8 +9114,26 @@ impl App {
                 };
                 let ed = self.ed.as_ref()?;
                 let new_id = dc_core::commands::next_shape_id(&ed.doc, page_id);
-                let cmd = dc_core::place_master_from_stencil(&ed.doc, page_id, &src, page_pos);
-                self.apply(cmd);
+                let k = ed.doc.pages.iter().find(|p| p.id == page_id).map_or(1.0, |p| crate::cmd::drop_scale(&src, p));
+                // the master's pictures, from the stencil's package
+                let media: Vec<(String, Vec<u8>, String)> = self
+                    .stencils
+                    .get(ix)
+                    .and_then(|st| st.doc.package.as_ref())
+                    .map(|pkg| {
+                        pkg.relationships(&src.part)
+                            .into_iter()
+                            .filter(|(_, ty, _)| ty.ends_with("/image"))
+                            .filter_map(|(rid, _, target)| {
+                                let name = target.trim_start_matches('/');
+                                let ext = name.rsplit('.').next()?.to_ascii_lowercase();
+                                Some((rid, pkg.part(name)?.to_vec(), ext))
+                            })
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                let cmd = dc_core::commands::place_master_from_stencil_with_media(&ed.doc, page_id, &src, page_pos, media);
+                self.apply(Self::with_drop_scale(cmd, page_id, new_id, k));
                 Some(new_id)
             }
         }
@@ -17030,6 +17071,12 @@ impl App {
         self.ctx_menu_rect
     }
     #[doc(hidden)]
+    /// kittest: arm a master as a click in the Shapes pane would.
+    #[doc(hidden)]
+    pub fn arm_master_for_test(&mut self, key: MasterKey) {
+        self.stencil.armed = Some(key);
+    }
+
     pub fn debug_armed(&self) -> Option<MasterKey> {
         self.stencil.armed
     }

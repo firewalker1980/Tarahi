@@ -398,6 +398,10 @@ pub struct MediaRef {
     pub rid: String,
     /// `png` / `jpeg` — extension and content-type family.
     pub ext: String,
+    /// The owning part when it isn't a page: an imported master's part
+    /// (its picture travels with it from the stencil). `page` is then
+    /// unused.
+    pub owner: Option<String>,
 }
 
 /// A fully parsed VSDX-family package.

@@ -1948,6 +1948,8 @@ pub fn find_imported(doc: &Document, src: &vsdx::model::Master) -> Option<i64> {
 /// the imported copy instead of duplicating.
 pub struct ImportMaster {
     source: vsdx::model::Master,
+    media: Vec<(String, Vec<u8>, String)>,
+    added_media: usize,
     /// What apply did: a fresh copy (undo removes it) or a dedupe hit
     /// (undo is a no-op).
     outcome: Option<ImportOutcome>,
@@ -1965,7 +1967,17 @@ impl ImportMaster {
         ImportMaster {
             source,
             outcome: None,
+            media: Vec::new(),
+            added_media: 0,
         }
+    }
+
+    /// With the master's pictures from its stencil package: `(rid,
+    /// bytes, ext)` per image relationship of the source master part.
+    /// They are attached to the new master part (runtime media) so the
+    /// picture survives the save.
+    pub fn with_media(source: vsdx::model::Master, media: Vec<(String, Vec<u8>, String)>) -> ImportMaster {
+        ImportMaster { media, ..ImportMaster::new(source) }
     }
 }
 
@@ -2013,6 +2025,30 @@ impl crate::Command for ImportMaster {
         m.part = format!("visio/masters/master{next_part}.xml");
         // The stencil's rIds belong to the stencil's rels, not ours.
         m.children.retain(|c| !matches!(c, IndexChild::Rel(_)));
+        // The master part's own image rels keep their rIds; the bytes
+        // get document-unique media part names.
+        let taken = |doc: &Document, name: &str| {
+            doc.extra_media.iter().any(|x| x.part == name) || doc.package.as_ref().is_some_and(|p| p.part(name).is_some())
+        };
+        let mut n = 1;
+        for (rid, bytes, ext) in &self.media {
+            let name = loop {
+                let cand = format!("visio/media/image{n}.{ext}");
+                n += 1;
+                if !taken(doc, &cand) {
+                    break cand;
+                }
+            };
+            doc.extra_media.push(vsdx::model::MediaRef {
+                part: name,
+                bytes: bytes.clone(),
+                page: -1,
+                rid: rid.clone(),
+                ext: ext.clone(),
+                owner: Some(m.part.clone()),
+            });
+        }
+        self.added_media = self.media.len();
         doc.masters.push(m);
         self.outcome = Some(ImportOutcome::Fresh {
             pos: doc.masters.len() - 1,
@@ -2026,6 +2062,9 @@ impl crate::Command for ImportMaster {
                 if pos < doc.masters.len() {
                     doc.masters.remove(pos);
                 }
+                let keep = doc.extra_media.len().saturating_sub(self.added_media);
+                doc.extra_media.truncate(keep);
+                self.added_media = 0;
             }
             Some(ImportOutcome::Reused) | None => {}
         }
@@ -2054,6 +2093,31 @@ pub fn place_master_from_stencil(
             format!("place master {name}"),
             vec![
                 Box::new(ImportMaster::new(src.clone())),
+                Box::new(AddMasterInstance::new(page, next_master_id(doc), pin)),
+            ],
+        ),
+    }
+}
+
+/// [`place_master_from_stencil`] carrying the master's pictures (see
+/// [`ImportMaster::with_media`]).
+pub fn place_master_from_stencil_with_media(
+    doc: &Document,
+    page: i64,
+    src: &vsdx::model::Master,
+    pin: (f64, f64),
+    media: Vec<(String, Vec<u8>, String)>,
+) -> Macro {
+    let name = src.name_u.as_deref().unwrap_or("-");
+    match find_imported(doc, src) {
+        Some(id) => Macro::new(
+            format!("place master {name}"),
+            vec![Box::new(AddMasterInstance::new(page, id, pin))],
+        ),
+        None => Macro::new(
+            format!("place master {name}"),
+            vec![
+                Box::new(ImportMaster::with_media(src.clone(), media)),
                 Box::new(AddMasterInstance::new(page, next_master_id(doc), pin)),
             ],
         ),

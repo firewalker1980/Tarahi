@@ -5270,3 +5270,127 @@ mod reconcile_jump_tests {
         }
     }
 }
+
+/// A command built from the document as it stands when it first runs
+/// (after the steps before it in the same Macro): `build` makes the
+/// inner commands once; redo replays them. `touch` names what it may
+/// change, for the layer cache.
+pub struct Deferred {
+    label: String,
+    touch: dc_core::TouchList,
+    build: Option<Box<dyn FnOnce(&Document) -> Vec<Box<dyn Command>>>>,
+    inner: Option<dc_core::Macro>,
+}
+
+impl Deferred {
+    pub fn new(
+        label: impl Into<String>,
+        touch: dc_core::TouchList,
+        build: impl FnOnce(&Document) -> Vec<Box<dyn Command>> + 'static,
+    ) -> Self {
+        Deferred { label: label.into(), touch, build: Some(Box::new(build)), inner: None }
+    }
+}
+
+impl Command for Deferred {
+    fn label(&self) -> String {
+        self.label.clone()
+    }
+    fn touched(&self, _doc: &Document) -> dc_core::TouchList {
+        self.touch.clone()
+    }
+    fn apply(&mut self, doc: &mut Document) -> anyhow::Result<()> {
+        if let Some(b) = self.build.take() {
+            self.inner = Some(dc_core::Macro::new(self.label.clone(), b(doc)));
+        }
+        match &mut self.inner {
+            Some(m) => m.apply(doc),
+            None => Ok(()),
+        }
+    }
+    fn undo(&mut self, doc: &mut Document) -> anyhow::Result<()> {
+        match &mut self.inner {
+            Some(m) => m.undo(doc),
+            None => Ok(()),
+        }
+    }
+}
+
+/// Visio's drop scale: a master drawn at a different drawing scale
+/// than the page is resized to keep its size on paper when the two
+/// scales differ by more than a factor of 8 (an ISR icon drawn at 1:10
+/// lands 1.27 in wide on a 1:1 page, not 12.7). Returns the factor to
+/// apply to the instance, 1 when none.
+pub fn drop_scale(master: &vsdx::model::Master, page: &vsdx::model::Page) -> f64 {
+    let ratio = |s: Option<&vsdx::model::Sheet>| {
+        let n = |c: &str| s.and_then(|s| s.cell(c)).and_then(|c| c.numeric()).filter(|v| *v > 0.0);
+        n("DrawingScale").unwrap_or(1.0) / n("PageScale").unwrap_or(1.0)
+    };
+    let (m, p) = (ratio(master.sheet()), ratio(page.sheet()));
+    let r = m / p;
+    if r > 8.0 || r < 1.0 / 8.0 {
+        1.0 / r
+    } else {
+        1.0
+    }
+}
+
+/// The commands that scale a just-placed 2-D instance by `k` about its
+/// pin (Width, Height, LocPins, and the group's member caches).
+pub fn scale_instance_cmds(doc: &Document, page: i64, id: i64, k: f64) -> Vec<Box<dyn Command>> {
+    let Some(p) = doc.pages.iter().find(|p| p.id == page) else { return vec![] };
+    let Some(s) = p.shapes.iter().find(|s| s.id == id) else { return vec![] };
+    let Ok(chain) = dc_core::scope::shape_chain(doc, page, id) else { return vec![] };
+    let get = |n: &str| doc.resolve_cell(s, &chain, n).and_then(|c| c.numeric());
+    if s.sheet.cell("BeginX").is_some() {
+        return vec![]; // 1-D: the drop already spans one inch
+    }
+    let (Some(w), Some(h)) = (get("Width"), get("Height")) else { return vec![] };
+    let scope = Scope::Shape { page, shape: id };
+    // a formula-driven cell (GUARD(Width*…) aspect locks, Width*0.5 loc
+    // pins) gets Visio's instance cache: F='Inh' with the new value,
+    // the master's formula kept; a literal gets the scaled literal
+    let cell = |n: &str, x: f64| {
+        let formula = doc.resolve_cell(s, &chain, n).and_then(|c| c.f.clone()).is_some_and(|f| f != "Inh" && f != "No Formula");
+        Cell { v: Some(format!("{x:.10}")), f: formula.then(|| "Inh".to_string()), ..Cell::default() }
+    };
+    let mut cmds: Vec<Box<dyn Command>> = vec![
+        Box::new(SetCell::new(scope.clone(), "Width", cell("Width", w * k))),
+        Box::new(SetCell::new(scope.clone(), "Height", cell("Height", h * k))),
+        Box::new(SetCell::new(scope.clone(), "LocPinX", cell("LocPinX", get("LocPinX").unwrap_or(w / 2.0) * k))),
+        Box::new(SetCell::new(scope, "LocPinY", cell("LocPinY", get("LocPinY").unwrap_or(h / 2.0) * k))),
+    ];
+    cmds.extend(group_cache_refresh(doc, page, id, k, k));
+    cmds
+}
+
+
+#[cfg(test)]
+mod drop_scale_tests {
+    use super::*;
+
+    fn scaled(page_scale: &str, drawing_scale: &str) -> vsdx::model::Sheet {
+        let mut s = vsdx::model::Sheet::default();
+        s.set_cell("PageScale", Cell::value(page_scale));
+        s.set_cell("DrawingScale", Cell::value(drawing_scale));
+        s
+    }
+
+    /// Visio 2016: an ISR 1100 master drawn at 1:10 (12.7 in wide) drops
+    /// 1.27 in wide on a 1:1 page and 12.7 on a 1:10 page; within a
+    /// factor of 8 nothing rescales.
+    #[test]
+    fn drop_scale_follows_visio() {
+        let m = vsdx::model::Master {
+            children: vec![vsdx::model::IndexChild::Sheet { tag: "PageSheet".into(), sheet: scaled("1", "10") }],
+            ..Default::default()
+        };
+        let page = |ps: &str, ds: &str| vsdx::model::Page {
+            children: vec![vsdx::model::IndexChild::Sheet { tag: "PageSheet".into(), sheet: scaled(ps, ds) }],
+            ..Default::default()
+        };
+        assert!((drop_scale(&m, &page("1", "1")) - 0.1).abs() < 1e-12);
+        assert_eq!(drop_scale(&m, &page("1", "10")), 1.0);
+        assert_eq!(drop_scale(&m, &page("1", "4")), 1.0, "within 8x");
+    }
+}

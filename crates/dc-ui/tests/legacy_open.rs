@@ -78,3 +78,69 @@ fn legacy_stencil_and_drawing_open_in_the_app() {
         h.state().debug_status()
     );
 }
+
+/// Visio's drop scale on a real vendor stencil: the Cisco ISR 1100
+/// masters are drawn at 1:10; Visio 2016 drops the first one 1.27 in
+/// wide on a 1:1 page (12.7 in on the master). Corpus-gated like the
+/// test above; skips when the stencil isn't in it.
+#[test]
+fn scaled_master_drops_at_page_size() {
+    let Some(root) = std::env::var_os("TARAHI_VSD_CORPUS") else { return };
+    let Some(vssx) = walk(&PathBuf::from(root)).into_iter().find(|p| p.to_string_lossy().contains("ISR 1100") && p.extension().is_some_and(|e| e == "vssx")) else {
+        eprintln!("no ISR 1100 stencil in the corpus; skipping");
+        return;
+    };
+    let mut h = harness_with(App::with_blank());
+    h.run();
+    h.state_mut().debug_load_for_test(vssx);
+    for _ in 0..20 {
+        h.run();
+    }
+    let key = h
+        .state()
+        .debug_master_cells()
+        .into_iter()
+        .map(|(k, _)| k)
+        .find(|k| matches!(k.0, dc_ui::stencil::StencilId::Open(_)))
+        .expect("stencil master in the pane");
+    h.state_mut().arm_master_for_test(key);
+    let to = h.state().debug_canvas_rect().center();
+    h.hover_at(to);
+    h.run();
+    h.event(egui::Event::PointerButton { pos: to, button: egui::PointerButton::Primary, pressed: true, modifiers: egui::Modifiers::NONE });
+    h.run();
+    h.event(egui::Event::PointerButton { pos: to, button: egui::PointerButton::Primary, pressed: false, modifiers: egui::Modifiers::NONE });
+    h.run();
+    h.run();
+    let (_, sid) = h.state().debug_sel().expect("placed");
+    let w: f64 = h.state().debug_cell_for_test(sid, "Width").expect("Width").parse().unwrap();
+    assert!((w - 1.27).abs() < 0.01, "width {w}");
+    // DROPSCALE_OUT: save the drawing for a visual check (Tarahi / Visio)
+    if let Some(out) = std::env::var_os("DROPSCALE_OUT") {
+        h.state_mut().preset_save_as_for_test(Some(PathBuf::from(out.clone())));
+        h.key_press_modifiers(egui::Modifiers::COMMAND | egui::Modifiers::SHIFT, egui::Key::S);
+        for _ in 0..30 {
+            h.run();
+            if Path::new(&out).exists() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(30));
+        }
+    }
+}
+
+fn walk(dir: &Path) -> Vec<PathBuf> {
+    let mut out = Vec::new();
+    let mut stack = vec![dir.to_path_buf()];
+    while let Some(d) = stack.pop() {
+        for e in std::fs::read_dir(&d).into_iter().flatten().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                stack.push(p);
+            } else {
+                out.push(p);
+            }
+        }
+    }
+    out
+}
