@@ -791,7 +791,6 @@ shape-id-s-extension = die Formverlängerung von Form { $id }
 shape-id-s-handle = der Formgriff von Form { $id }
 shape-id-s-vertex = der Scheitelpunkt von Form { $id }
 shape-intersections = Formüberschneidungen
-shape-protection-planned = Formschutz — geplant
 shape-report = Formbericht
 shape-sid = Form { $sid }
 shape-styles = Formformatvorlagen
@@ -1118,6 +1117,16 @@ shape-report-tip = Die Formdaten aller Formen in einer Tabelle, als CSV speicher
 word-count-tip = Wörter im Text der Formen zählen
 clear-formatting-tip = Eigene Linien-, Füll- und Textformatierung der Auswahl entfernen
 stamp-tool-tip = Form im Formenbereich wählen, dann auf die Seite klicken, um Kopien zu platzieren (Esc beendet)
+lock-x-position = X-Position
+lock-y-position = Y-Position
+lock-rotation = Drehung
+lock-begin-point = Anfangspunkt
+lock-end-point = Endpunkt
+lock-text = Text
+lock-deletion = Löschen
+lock-heading = Sperren
+text-locked-status = Der Text dieser Form ist gesperrt (Schutz)
+protection-tip = Auswahl gegen Änderungen sperren
 
 
 ## ########## Resource: app ###############
@@ -1978,7 +1987,6 @@ shape-id-s-handle = shape { $id }'s handle
 # $id (Number) - argument
 shape-id-s-vertex = shape { $id }'s vertex
 shape-intersections = Shape intersections
-shape-protection-planned = Shape protection — planned
 shape-report = Shape Report
 # $sid (Number) - argument
 shape-sid = shape { $sid }
@@ -2314,6 +2322,16 @@ shape-report-tip = Every shape's Shape Data in one table, saved as CSV
 word-count-tip = Count the words in the shapes' text
 clear-formatting-tip = Remove the selection's own line, fill and text formatting
 stamp-tool-tip = Pick a shape in the Shapes pane, then click the page to place copies (Esc ends)
+lock-x-position = X position
+lock-y-position = Y position
+lock-rotation = Rotation
+lock-begin-point = Begin point
+lock-end-point = End point
+lock-text = Text
+lock-deletion = Deletion
+lock-heading = Lock
+text-locked-status = This shape's text is locked (Protection)
+protection-tip = Lock the selection against changes
 
 
 ## ########## Resource: app ###############
@@ -3171,7 +3189,6 @@ shape-id-s-handle = tirador de la forma { $id }
 # $id - argumento
 shape-id-s-vertex = vértice de la forma { $id }
 shape-intersections = Intersecciones de formas
-shape-protection-planned = Protección de forma — planeado
 shape-report = Informe de formas
 # $sid - argumento
 shape-sid = forma { $sid }
@@ -3505,6 +3522,16 @@ shape-report-tip = Los datos de forma de todas las formas en una tabla, guardabl
 word-count-tip = Contar las palabras del texto de las formas
 clear-formatting-tip = Quitar el formato propio de línea, relleno y texto de la selección
 stamp-tool-tip = Elija una forma en el panel Formas y haga clic en la página para colocar copias (Esc termina)
+lock-x-position = Posición X
+lock-y-position = Posición Y
+lock-rotation = Giro
+lock-begin-point = Punto inicial
+lock-end-point = Punto final
+lock-text = Texto
+lock-deletion = Eliminación
+lock-heading = Bloquear
+text-locked-status = El texto de esta forma está bloqueado (Protección)
+protection-tip = Bloquear la selección contra cambios
 
 
 ## ########## Resource: app ###############
@@ -4299,7 +4326,6 @@ shape-id-s-extension = پسوند شکل { $id }
 shape-id-s-handle = دستهٔ شکل { $id }
 shape-id-s-vertex = رأس شکل { $id }
 shape-intersections = تقاطع‌های شکل‌ها
-shape-protection-planned = حفاظت شکل — برنامه‌ریزی شده
 shape-report = گزارش شکل
 shape-sid = شکل { $sid }
 shape-styles = سبک‌های شکل
@@ -4626,6 +4652,16 @@ shape-report-tip = دادهٔ همهٔ شکل‌ها در یک جدول، قاب
 word-count-tip = شمارش واژه‌های متن شکل‌ها
 clear-formatting-tip = حذف قالب‌بندی خط، پرکردن و متنِ خودِ انتخاب
 stamp-tool-tip = شکلی را در پنل شکل‌ها برگزینید، سپس برای گذاشتن نسخه‌ها روی صفحه کلیک کنید (Esc پایان)
+lock-x-position = موقعیت X
+lock-y-position = موقعیت Y
+lock-rotation = چرخش
+lock-begin-point = نقطهٔ آغاز
+lock-end-point = نقطهٔ پایان
+lock-text = متن
+lock-deletion = حذف
+lock-heading = قفل
+text-locked-status = متن این شکل قفل است (محافظت)
+protection-tip = قفل‌کردن انتخاب در برابر تغییر
 
 
 ## ########## Resource: app ###############
@@ -5353,7 +5389,6 @@ shape-id-s-extension = 図形 { $id } の拡張
 shape-id-s-handle = 図形 { $id } のハンドル
 shape-id-s-vertex = 図形 { $id } の頂点
 shape-intersections = 図形の交点
-shape-protection-planned = 図形の保護 — 予定
 shape-report = 図形レポート
 shape-sid = 図形 { $sid }
 shape-styles = 図形スタイル
@@ -5644,6 +5679,16 @@ shape-report-tip = すべての図形のシェイプ データを 1 つの表に
 word-count-tip = 図形のテキストの単語数を数える
 clear-formatting-tip = 選択範囲の線・塗りつぶし・テキストの書式を解除
 stamp-tool-tip = 図形ウィンドウで図形を選び、ページをクリックしてコピーを配置 (Esc で終了)
+lock-x-position = X 位置
+lock-y-position = Y 位置
+lock-rotation = 回転
+lock-begin-point = 始点
+lock-end-point = 終点
+lock-text = テキスト
+lock-deletion = 削除
+lock-heading = ロック
+text-locked-status = この図形のテキストはロックされています (保護)
+protection-tip = 選択範囲を変更からロック
 
 
 ## ########## Resource: app ###############
@@ -6372,7 +6417,6 @@ shape-id-s-extension = 셰이프 { $id }의 확장
 shape-id-s-handle = 셰이프 { $id }의 핸들
 shape-id-s-vertex = 셰이프 { $id }의 꼭짓점
 shape-intersections = 셰이프 교점
-shape-protection-planned = 셰이프 보호 — 예정
 shape-report = 셰이프 보고서
 shape-sid = 셰이프 { $sid }
 shape-styles = 셰이프 스타일
@@ -6663,6 +6707,16 @@ shape-report-tip = 모든 도형의 도형 데이터를 하나의 표로, CSV로
 word-count-tip = 도형 텍스트의 단어 수 세기
 clear-formatting-tip = 선택 영역의 선, 채우기, 텍스트 서식 제거
 stamp-tool-tip = 도형 창에서 도형을 고른 뒤 페이지를 클릭해 복사본 배치 (Esc로 종료)
+lock-x-position = X 위치
+lock-y-position = Y 위치
+lock-rotation = 회전
+lock-begin-point = 시작점
+lock-end-point = 끝점
+lock-text = 텍스트
+lock-deletion = 삭제
+lock-heading = 잠금
+text-locked-status = 이 도형의 텍스트는 잠겨 있습니다(보호)
+protection-tip = 선택 영역을 변경으로부터 잠금
 
 
 ## ########## Resource: app ###############
@@ -7395,7 +7449,6 @@ shape-id-s-extension = 形状 { $id } 的延伸线
 shape-id-s-handle = 形状 { $id } 的手柄
 shape-id-s-vertex = 形状 { $id } 的顶点
 shape-intersections = 形状交点
-shape-protection-planned = 形状保护 — 计划中
 shape-report = 形状报表
 shape-sid = 形状 { $sid }
 shape-styles = 形状样式
@@ -7686,4 +7739,14 @@ shape-report-tip = 所有形状的形状数据汇总为一张表,可保存为 CS
 word-count-tip = 统计形状文本中的字数
 clear-formatting-tip = 清除所选内容自身的线条、填充和文本格式
 stamp-tool-tip = 在形状窗格中选择形状,然后单击页面放置副本 (按 Esc 结束)
+lock-x-position = X 位置
+lock-y-position = Y 位置
+lock-rotation = 旋转
+lock-begin-point = 起点
+lock-end-point = 终点
+lock-text = 文本
+lock-deletion = 删除
+lock-heading = 锁定
+text-locked-status = 此形状的文本已锁定(保护)
+protection-tip = 锁定所选内容以防更改
 

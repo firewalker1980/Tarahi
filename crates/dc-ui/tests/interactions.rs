@@ -11031,3 +11031,39 @@ fn clear_formatting_and_stamp_tool() {
     h.run();
     assert_eq!(h.state().debug_shape_count(), n + 3, "Esc ended stamping");
 }
+
+/// Developer ▸ Protection: Deletion, X position and Text locks stop
+/// those edits; a vertical nudge still moves an X-locked shape.
+#[test]
+fn protection_locks_block_edits() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Developer);
+    h.run();
+    h.get_by_label("Protection").click();
+    h.run();
+    h.run();
+    for l in ["Deletion", "X position", "Text"] {
+        h.get_by_label(l).click();
+        h.run();
+    }
+    h.key_press(egui::Key::Escape); // close the dialog, give keys back to the canvas
+    h.run();
+    let n = h.state().debug_shape_count();
+    h.key_press(egui::Key::Delete);
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), n, "LockDelete");
+    assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(sid), "still selected");
+    let pin = |h: &Harness<'_, App>, c: &str| h.state().debug_cell_for_test(sid, c).unwrap().parse::<f64>().unwrap();
+    let (x0, y0) = (pin(&h, "PinX"), pin(&h, "PinY"));
+    h.key_press(egui::Key::ArrowRight);
+    h.run();
+    assert!((pin(&h, "PinX") - x0).abs() < 1e-9, "LockMoveX");
+    h.key_press(egui::Key::ArrowUp);
+    h.run();
+    assert!(pin(&h, "PinY") > y0, "vertical still moves");
+    h.key_press(egui::Key::F2);
+    h.run();
+    assert!(h.state().debug_text_edit().is_none(), "LockTextEdit");
+}

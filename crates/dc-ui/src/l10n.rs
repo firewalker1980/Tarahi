@@ -4965,13 +4965,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "shape-protection-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "shape-report",
         attribute: None,
         vars: &[],
@@ -6833,6 +6826,76 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "lock-x-position",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "lock-y-position",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "lock-rotation",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "lock-begin-point",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "lock-end-point",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "lock-text",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "lock-deletion",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "lock-heading",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "text-locked-status",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "protection-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6932,13 +6995,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48268,
-            Self::En => 48268..94834,
-            Self::Es => 94834..146124,
-            Self::Fa => 146124..206472,
-            Self::Ja => 206472..258208,
-            Self::Ko => 258208..305898,
-            Self::ZhHans => 305898..347296,
+            Self::De => 0..48538,
+            Self::En => 48538..95365,
+            Self::Es => 95365..146937,
+            Self::Fa => 146937..207584,
+            Self::Ja => 207584..259608,
+            Self::Ko => 259608..307576,
+            Self::ZhHans => 307576..349216,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -9748,9 +9811,6 @@ impl L10nLanguage {
     pub fn msg_shape_intersections(&self) -> String {
         self.0.msg("shape-intersections", None).unwrap()
     }
-    pub fn msg_shape_protection_planned(&self) -> String {
-        self.0.msg("shape-protection-planned", None).unwrap()
-    }
     pub fn msg_shape_report(&self) -> String {
         self.0.msg("shape-report", None).unwrap()
     }
@@ -10758,5 +10818,35 @@ impl L10nLanguage {
     }
     pub fn msg_stamp_tool_tip(&self) -> String {
         self.0.msg("stamp-tool-tip", None).unwrap()
+    }
+    pub fn msg_lock_x_position(&self) -> String {
+        self.0.msg("lock-x-position", None).unwrap()
+    }
+    pub fn msg_lock_y_position(&self) -> String {
+        self.0.msg("lock-y-position", None).unwrap()
+    }
+    pub fn msg_lock_rotation(&self) -> String {
+        self.0.msg("lock-rotation", None).unwrap()
+    }
+    pub fn msg_lock_begin_point(&self) -> String {
+        self.0.msg("lock-begin-point", None).unwrap()
+    }
+    pub fn msg_lock_end_point(&self) -> String {
+        self.0.msg("lock-end-point", None).unwrap()
+    }
+    pub fn msg_lock_text(&self) -> String {
+        self.0.msg("lock-text", None).unwrap()
+    }
+    pub fn msg_lock_deletion(&self) -> String {
+        self.0.msg("lock-deletion", None).unwrap()
+    }
+    pub fn msg_lock_heading(&self) -> String {
+        self.0.msg("lock-heading", None).unwrap()
+    }
+    pub fn msg_text_locked_status(&self) -> String {
+        self.0.msg("text-locked-status", None).unwrap()
+    }
+    pub fn msg_protection_tip(&self) -> String {
+        self.0.msg("protection-tip", None).unwrap()
     }
 }

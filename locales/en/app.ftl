@@ -854,7 +854,6 @@ shape-id-s-handle = shape { $id }'s handle
 # $id (Number) - argument
 shape-id-s-vertex = shape { $id }'s vertex
 shape-intersections = Shape intersections
-shape-protection-planned = Shape protection — planned
 shape-report = Shape Report
 # $sid (Number) - argument
 shape-sid = shape { $sid }
@@ -1190,3 +1189,13 @@ shape-report-tip = Every shape's Shape Data in one table, saved as CSV
 word-count-tip = Count the words in the shapes' text
 clear-formatting-tip = Remove the selection's own line, fill and text formatting
 stamp-tool-tip = Pick a shape in the Shapes pane, then click the page to place copies (Esc ends)
+lock-x-position = X position
+lock-y-position = Y position
+lock-rotation = Rotation
+lock-begin-point = Begin point
+lock-end-point = End point
+lock-text = Text
+lock-deletion = Deletion
+lock-heading = Lock
+text-locked-status = This shape's text is locked (Protection)
+protection-tip = Lock the selection against changes

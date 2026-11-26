@@ -851,7 +851,6 @@ shape-id-s-handle = tirador de la forma { $id }
 # $id - argumento
 shape-id-s-vertex = vértice de la forma { $id }
 shape-intersections = Intersecciones de formas
-shape-protection-planned = Protección de forma — planeado
 shape-report = Informe de formas
 # $sid - argumento
 shape-sid = forma { $sid }
@@ -1185,3 +1184,13 @@ shape-report-tip = Los datos de forma de todas las formas en una tabla, guardabl
 word-count-tip = Contar las palabras del texto de las formas
 clear-formatting-tip = Quitar el formato propio de línea, relleno y texto de la selección
 stamp-tool-tip = Elija una forma en el panel Formas y haga clic en la página para colocar copias (Esc termina)
+lock-x-position = Posición X
+lock-y-position = Posición Y
+lock-rotation = Giro
+lock-begin-point = Punto inicial
+lock-end-point = Punto final
+lock-text = Texto
+lock-deletion = Eliminación
+lock-heading = Bloquear
+text-locked-status = El texto de esta forma está bloqueado (Protección)
+protection-tip = Bloquear la selección contra cambios

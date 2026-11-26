@@ -162,6 +162,8 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Developer ▸ Protection (the Lock* cells).
+    Protection,
     /// Home ▸ Clear (formatting) and the Stamp tool.
     ClearFormatting,
     StampTool,

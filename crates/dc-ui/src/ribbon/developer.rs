@@ -71,9 +71,9 @@ fn shape_design_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
                 .tip(s.msg_shape_behavior_planned()),
         ],
         vec![
-            RibbonButton::new(Icon::Check, s.msg_protection(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_shape_protection_planned()),
+            RibbonButton::new(Icon::Check, s.msg_protection(), Action::Protection)
+                .enabled(ctx.has_sel)
+                .tip(s.msg_protection_tip()),
         ],
     ])]
 }

@@ -538,8 +538,20 @@ fn lock_for(cell: &str) -> Option<&'static str> {
         "Height" => "LockHeight",
         "BeginX" | "BeginY" => "LockBegin",
         "EndX" | "EndY" => "LockEnd",
+        "PinX" => "LockMoveX",
+        "PinY" => "LockMoveY",
+        "Angle" => "LockRotate",
         _ => return None,
     })
+}
+
+/// Whether a shape's Protection `lock` (e.g. `LockDelete`) is on, on the
+/// instance or its master.
+pub fn shape_locked(doc: &Document, page: i64, shape: i64, lock: &str) -> bool {
+    let Some(p) = doc.pages.iter().find(|p| p.id == page) else { return false };
+    let Some(sh) = vsdx::model::find_shape_by_id(&p.shapes, shape) else { return false };
+    let Ok(chain) = crate::scope::shape_chain(doc, page, shape) else { return false };
+    sheet_locked(&sh.sheet, lock) || doc.instance_source(sh, &chain).is_some_and(|src| sheet_locked(&src.sheet, lock))
 }
 
 /// A Protection flag is on when its cell (sheet-level or a Protection
@@ -733,6 +745,15 @@ pub fn protection_refusal(
         }
     }
     if let Some(lock) = lock_for(name) {
+        // a write that keeps the value (a vertical move rewriting PinX)
+        // isn't a change the lock forbids
+        let cur = doc.resolve_cell(sh, &chain, name).and_then(|c| c.numeric());
+        if let (Some(a), Some(b)) = (cur, new.numeric()) {
+            // moves rewrite the other pin at 6 decimals
+            if (a - b).abs() < 1e-6 {
+                return None;
+            }
+        }
         let locked = sheet_locked(&sh.sheet, lock)
             || doc
                 .instance_source(sh, &chain)
@@ -2709,6 +2730,9 @@ impl crate::Command for RemoveShape {
         format!("remove shape {} from page:{}", self.shape, self.page)
     }
     fn apply(&mut self, doc: &mut Document) -> Result<()> {
+        if shape_locked(doc, self.page, self.shape, "LockDelete") {
+            bail!("LockDelete is set (Protection section) — shape {} can't be deleted", self.shape);
+        }
         let pi = doc
             .pages
             .iter()

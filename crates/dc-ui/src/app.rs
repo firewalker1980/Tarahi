@@ -286,6 +286,8 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Developer ▸ Protection dialog.
+    protection_open: bool,
     /// Review ▸ Shape Report (all pages or this one) and Word Count.
     report_open: bool,
     report_all: bool,
@@ -853,6 +855,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            protection_open: false,
             report_open: false,
             report_all: true,
             wordcount_open: false,
@@ -3690,6 +3693,7 @@ impl App {
         self.selby_open
             || self.layers_open
             || self.find_open
+            || self.protection_open
             || self.snap_dlg_open
             || self.pagesetup_open
             || self.options_open
@@ -3773,8 +3777,16 @@ impl App {
             let shape_id = self.sel.unwrap().1;
             self.delete_one(page_id, shape_id);
         }
-        self.set_selection(None);
-        self.sel_set.clear();
+        // a refused delete (LockDelete) keeps what survived selected
+        let alive = |app: &Self, s: i64| {
+            app.ed()
+                .and_then(|ed| ed.doc.pages.iter().find(|p| p.id == page_id))
+                .is_some_and(|p| vsdx::model::find_shape_by_id(&p.shapes, s).is_some())
+        };
+        let left: Vec<(i64, i64)> = self.sel_set.iter().copied().filter(|&(_, s)| alive(self, s)).collect();
+        let primary = self.sel.filter(|&(_, s)| alive(self, s));
+        self.set_selection(primary.or(left.first().copied()));
+        self.sel_set = if left.is_empty() { primary.into_iter().collect() } else { left };
     }
 
     /// Delete a single shape, folding membership-row cleanup into the
@@ -3889,6 +3901,10 @@ impl App {
         }
         if self.find_open {
             self.find_open = false;
+            return true;
+        }
+        if self.protection_open {
+            self.protection_open = false;
             return true;
         }
         // #121: the Check Spelling dialog.
@@ -4646,6 +4662,56 @@ impl App {
             cmds.extend(crate::containers::fit_cmds(&probe, page_id, cid, false));
         }
         self.apply(Macro::new(format!("container {row}"), cmds));
+    }
+
+    /// Developer ▸ Protection: the selection's Lock* cells as
+    /// checkboxes (mixed when the shapes differ); a tick writes the cell
+    /// on every selected shape, one undo step.
+    fn protection_window(&mut self, ctx: &egui::Context) {
+        if !self.protection_open {
+            return;
+        }
+        let Some(ed) = self.ed() else { return };
+        let s = crate::i18n::strs();
+        let locks: [(&'static str, String); 9] = [
+            ("LockWidth", s.msg_width()),
+            ("LockHeight", s.msg_height()),
+            ("LockMoveX", s.msg_lock_x_position()),
+            ("LockMoveY", s.msg_lock_y_position()),
+            ("LockRotate", s.msg_lock_rotation()),
+            ("LockBegin", s.msg_lock_begin_point()),
+            ("LockEnd", s.msg_lock_end_point()),
+            ("LockTextEdit", s.msg_lock_text()),
+            ("LockDelete", s.msg_lock_deletion()),
+        ];
+        let sel = self.sel_set.clone();
+        let state: Vec<usize> = locks
+            .iter()
+            .map(|(c, _)| sel.iter().filter(|(p, sid)| dc_core::commands::shape_locked(&ed.doc, *p, *sid, c)).count())
+            .collect();
+        let mut set: Option<(&'static str, bool)> = None;
+        let mut open = true;
+        egui::Window::new(s.msg_protection()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            ui.strong(s.msg_lock_heading());
+            for ((cell, label), n) in locks.iter().zip(&state) {
+                let mut on = *n == sel.len() && *n > 0;
+                let cb = egui::Checkbox::new(&mut on, label.as_str()).indeterminate(*n > 0 && *n < sel.len());
+                if ui.add_enabled(!sel.is_empty(), cb).changed() {
+                    set = Some((cell, on));
+                }
+            }
+        });
+        if let Some((cell, on)) = set {
+            let cmds: Vec<Box<dyn dc_core::Command>> = sel
+                .iter()
+                .map(|&(page, shape)| {
+                    Box::new(SetCell::new(Scope::Shape { page, shape }, cell, vsdx::Cell::value(if on { "1" } else { "0" })))
+                        as Box<dyn dc_core::Command>
+                })
+                .collect();
+            self.apply(Macro::new(s.msg_protection(), cmds));
+        }
+        self.protection_open &= open;
     }
 
     /// Review ▸ Shape Report (the shapes' data as a table, Save as CSV)
@@ -9101,6 +9167,7 @@ impl App {
                 }
             }
             Action::ClearFormatting => self.clear_formatting(),
+            Action::Protection => self.protection_open = !self.protection_open,
             Action::ShapeReport => self.report_open = !self.report_open,
             Action::WordCount => self.wordcount_open = !self.wordcount_open,
             Action::ToggleDocStencil => {
@@ -15837,6 +15904,10 @@ impl App {
         let Some(page_id) = self.page_id() else {
             return;
         };
+        if self.ed().is_some_and(|ed| dc_core::commands::shape_locked(&ed.doc, page_id, shape_id, "LockTextEdit")) {
+            self.status = crate::i18n::strs().msg_text_locked_status();
+            return;
+        }
         self.text_edit = Some(crate::textedit::TextEditSession::new(
             page_id, shape_id, draft, &self.view,
         ));
@@ -17957,6 +18028,7 @@ impl App {
         self.font_menu_window(&ctx);
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
+        self.protection_window(&ctx);
         self.sizepos_window(&ctx);
         self.switch_window(&ctx);
         self.snap_glue_window(&ctx);
