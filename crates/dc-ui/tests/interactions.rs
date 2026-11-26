@@ -11135,3 +11135,31 @@ fn auto_size_grows_the_page_with_the_drawing() {
     h.run();
     assert_eq!(h.state().debug_page_geom_for_test().0, w0, "one undo restores the page");
 }
+
+/// View ▸ Presentation Mode: the chrome goes, the page fits the whole
+/// window, arrows change page, Esc brings the editor back.
+#[test]
+fn presentation_mode_pages_and_exits() {
+    let mut h = harness_with_blank();
+    h.run();
+    h.state_mut().debug_add_page();
+    h.run();
+    let canvas_before = h.state().debug_canvas_rect();
+    h.key_press(egui::Key::F5);
+    h.run();
+    h.run();
+    let full = h.state().debug_canvas_rect();
+    assert!(full.height() > canvas_before.height() + 100.0, "ribbon and tabs gone: {full:?}");
+    assert!(h.query_by_label("Home").is_none(), "no ribbon");
+    let first = h.state().debug_active_page_name();
+    h.key_press(egui::Key::ArrowRight);
+    h.run();
+    assert_ne!(h.state().debug_active_page_name(), first, "next page");
+    h.key_press(egui::Key::ArrowLeft);
+    h.run();
+    assert_eq!(h.state().debug_active_page_name(), first);
+    h.key_press(egui::Key::Escape);
+    h.run();
+    h.run();
+    assert!(h.query_by_label("Home").is_some(), "ribbon back");
+}

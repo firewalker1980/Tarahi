@@ -657,7 +657,6 @@ pointer-tool = Zeigerwerkzeug
 pointer-tool-select-and-drag-esc = Zeiger — auswählen und ziehen (Esc vom Verbindertool)
 portrait = Hochformat
 presentation-mode = Präsentationsmodus
-presentation-mode-planned = Präsentationsmodus — geplant
 preset-sizes = Voreingestellte Größen
 previous-comment = Vorheriger Kommentar
 previous-page = Vorherige Seite
@@ -1128,6 +1127,7 @@ no-comments-in-drawing = Keine Kommentare in dieser Zeichnung
 selection-pane-tip = Alle Formen der Seite; zum Auswählen klicken
 reviewing-pane-tip = Alle Kommentare der Zeichnung; zum Hinspringen klicken
 auto-size-tip = Seite wächst mit der Zeichnung
+presentation-mode-tip = Seiten im Vollbild zeigen; Pfeile blättern, Esc beendet (F5)
 
 
 ## ########## Resource: app ###############
@@ -1843,7 +1843,6 @@ pointer-tool = Pointer Tool
 pointer-tool-select-and-drag-esc = Pointer tool — select and drag (Esc from the Connector Tool)
 portrait = Portrait
 presentation-mode = Presentation Mode
-presentation-mode-planned = Presentation mode — planned
 preset-sizes = Preset sizes
 previous-comment = Previous Comment
 previous-page = Previous page
@@ -2334,6 +2333,7 @@ no-comments-in-drawing = No comments in this drawing
 selection-pane-tip = Every shape on the page; click to select
 reviewing-pane-tip = Every comment in the drawing; click to go to it
 auto-size-tip = Grow the page to hold the drawing
+presentation-mode-tip = Show the pages full screen; arrows change page, Esc ends (F5)
 
 
 ## ########## Resource: app ###############
@@ -3046,7 +3046,6 @@ pointer-tool = Herramienta Puntero
 pointer-tool-select-and-drag-esc = Herramienta Puntero — seleccione y arrastre (Esc desde la herramienta Conector)
 portrait = Vertical
 presentation-mode = Modo presentación
-presentation-mode-planned = Modo presentación — planeado
 preset-sizes = Tamaños preestablecidos
 previous-comment = Comentario anterior
 previous-page = Página anterior
@@ -3535,6 +3534,7 @@ no-comments-in-drawing = No hay comentarios en este dibujo
 selection-pane-tip = Todas las formas de la página; haga clic para seleccionar
 reviewing-pane-tip = Todos los comentarios del dibujo; haga clic para ir a ellos
 auto-size-tip = Agrandar la página para que quepa el dibujo
+presentation-mode-tip = Mostrar las páginas a pantalla completa; las flechas cambian de página, Esc termina (F5)
 
 
 ## ########## Resource: app ###############
@@ -4195,7 +4195,6 @@ pointer-tool = ابزار اشاره‌گر
 pointer-tool-select-and-drag-esc = ابزار اشاره‌گر — گزینش و کشیدن (از ابزار اتصال‌دهنده با Esc)
 portrait = عمودی
 presentation-mode = حالت ارائه
-presentation-mode-planned = حالت ارائه — برنامه‌ریزی شده
 preset-sizes = اندازه‌های پیش‌تنظیم
 previous-comment = نظر قبلی
 previous-page = صفحهٔ قبلی
@@ -4666,6 +4665,7 @@ no-comments-in-drawing = این نقشه هیچ نظری ندارد
 selection-pane-tip = همهٔ شکل‌های صفحه؛ برای انتخاب کلیک کنید
 reviewing-pane-tip = همهٔ نظرهای نقشه؛ برای رفتن به آن کلیک کنید
 auto-size-tip = بزرگ‌کردن صفحه تا نقشه در آن جا شود
+presentation-mode-tip = نمایش صفحه‌ها در تمام‌صفحه؛ پیکان‌ها صفحه را عوض می‌کنند، Esc پایان (F5)
 
 
 ## ########## Resource: app ###############
@@ -5272,7 +5272,6 @@ pointer-tool = ポインター ツール
 pointer-tool-select-and-drag-esc = ポインター ツール — 選択とドラッグ（コネクタ ツールからは Esc）
 portrait = 縦向き
 presentation-mode = プレゼンテーション モード
-presentation-mode-planned = プレゼンテーション モード — 予定
 preset-sizes = 定型サイズ
 previous-comment = 前のコメント
 previous-page = 前のページ
@@ -5694,6 +5693,7 @@ no-comments-in-drawing = この図面にはコメントがありません
 selection-pane-tip = ページ上のすべての図形 (クリックで選択)
 reviewing-pane-tip = 図面内のすべてのコメント (クリックで移動)
 auto-size-tip = 図面が収まるようにページを拡張
+presentation-mode-tip = ページを全画面表示。矢印でページ切り替え、Esc で終了 (F5)
 
 
 ## ########## Resource: app ###############
@@ -6301,7 +6301,6 @@ pointer-tool = 포인터 도구
 pointer-tool-select-and-drag-esc = 포인터 도구 — 선택하고 끌기(커넥터 도구에서는 Esc)
 portrait = 세로
 presentation-mode = 프레젠테이션 모드
-presentation-mode-planned = 프레젠테이션 모드 — 예정
 preset-sizes = 표준 크기
 previous-comment = 이전 메모
 previous-page = 이전 페이지
@@ -6723,6 +6722,7 @@ no-comments-in-drawing = 이 그림에는 메모가 없습니다
 selection-pane-tip = 페이지의 모든 도형; 클릭하여 선택
 reviewing-pane-tip = 그림의 모든 메모; 클릭하여 이동
 auto-size-tip = 그림이 들어가도록 페이지 확장
+presentation-mode-tip = 페이지를 전체 화면으로 표시; 화살표로 페이지 이동, Esc로 종료 (F5)
 
 
 ## ########## Resource: app ###############
@@ -7329,7 +7329,6 @@ pointer-tool = 指针工具
 pointer-tool-select-and-drag-esc = 指针工具——选择并拖动（从连接符工具按 Esc 返回）
 portrait = 纵向
 presentation-mode = 演示模式
-presentation-mode-planned = 演示模式 — 计划中
 preset-sizes = 预设大小
 previous-comment = 上一条批注
 previous-page = 上一页
@@ -7756,4 +7755,5 @@ no-comments-in-drawing = 此绘图中没有批注
 selection-pane-tip = 页面上的所有形状;单击以选择
 reviewing-pane-tip = 绘图中的所有批注;单击以转到
 auto-size-tip = 扩展页面以容纳绘图
+presentation-mode-tip = 全屏显示页面;方向键翻页,按 Esc 结束 (F5)
 

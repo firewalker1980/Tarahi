@@ -23,9 +23,9 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
 
 fn views_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![big(
-        RibbonButton::new(Icon::Fit, s.msg_presentation_mode(), Action::Macros)
-            .enabled(false)
-            .tip(s.msg_presentation_mode_planned()),
+        RibbonButton::new(Icon::Fit, s.msg_presentation_mode(), Action::PresentationMode)
+            .enabled(ctx.has_doc)
+            .tip(s.msg_presentation_mode_tip()),
     )]
 }
 

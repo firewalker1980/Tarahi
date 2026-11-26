@@ -163,6 +163,8 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// View ▸ Presentation Mode (F5).
+    PresentationMode,
     /// Design ▸ Auto Size (page DrawingResizeType).
     AutoSize,
     /// Home ▸ Selection Pane and Review ▸ Reviewing Pane.

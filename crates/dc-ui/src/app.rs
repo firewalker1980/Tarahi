@@ -286,6 +286,9 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// View ▸ Presentation Mode: Some(rulers, grid) to restore on exit.
+    present: Option<(bool, bool)>,
+    present_toggle_pending: bool,
     /// Developer ▸ Protection dialog.
     protection_open: bool,
     selpane_open: bool,
@@ -857,6 +860,8 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            present: None,
+            present_toggle_pending: false,
             protection_open: false,
             selpane_open: false,
             reviewpane_open: false,
@@ -3290,6 +3295,34 @@ impl App {
     // -- interaction ------------------------------------------------------
 
     fn handle_shortcuts(&mut self, ctx: &Context) {
+        // View ▸ Presentation Mode owns the keyboard: pages and Esc only
+        if self.present.is_some() {
+            let (next, prev, esc) = ctx.input(|i| {
+                let k = |ks: &[egui::Key]| ks.iter().any(|k| i.key_pressed(*k));
+                (
+                    k(&[egui::Key::ArrowRight, egui::Key::ArrowDown, egui::Key::PageDown, egui::Key::Space]),
+                    k(&[egui::Key::ArrowLeft, egui::Key::ArrowUp, egui::Key::PageUp]),
+                    k(&[egui::Key::Escape]),
+                )
+            });
+            let n = self.ed().map_or(0, |ed| ed.doc.pages.len());
+            if next && self.page_idx + 1 < n {
+                self.switch_page(self.page_idx + 1);
+                self.view.fit_pending = true;
+            }
+            if prev && self.page_idx > 0 {
+                self.switch_page(self.page_idx - 1);
+                self.view.fit_pending = true;
+            }
+            if esc {
+                self.toggle_presentation(ctx);
+            }
+            return;
+        }
+        if ctx.input(|i| i.key_pressed(egui::Key::F5)) && self.ed.is_some() && !ctx.egui_wants_keyboard_input() {
+            self.toggle_presentation(ctx);
+            return;
+        }
         // #304: the Options dialog is MODAL — while it is up the
         // application shortcuts (Ctrl+Z/N/S…) never fire and keytips
         // stand down; the dialog's own fields own the keyboard (a
@@ -9347,6 +9380,7 @@ impl App {
             Action::ClearFormatting => self.clear_formatting(),
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
+            Action::PresentationMode => self.present_toggle_pending = true,
             Action::AutoSize => {
                 if let Some(page) = self.page_id() {
                     let on = self
@@ -11606,7 +11640,8 @@ impl App {
             // While the in-place text editor is open (#22) the canvas
             // is interaction-locked: a plain click ends the edit and
             // nothing else reports (no select/marquee/dbl-click).
-            self.text_edit.is_some(),
+            // Presentation Mode locks it too.
+            self.text_edit.is_some() || self.present.is_some(),
         );
         self.mouse_page = mouse;
         self.canvas_rect = out.canvas_rect;
@@ -15137,6 +15172,27 @@ impl App {
         }
     }
 
+    /// View ▸ Presentation Mode (F5): full screen, only the page, fitted;
+    /// arrows / PageUp / PageDown / Space change page, Esc ends.
+    fn toggle_presentation(&mut self, ctx: &Context) {
+        match self.present.take() {
+            Some((rulers, grid)) => {
+                self.view.show_rulers = rulers;
+                self.view.show_grid = grid;
+                ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(false));
+            }
+            None => {
+                self.present = Some((self.view.show_rulers, self.view.show_grid));
+                self.view.show_rulers = false;
+                self.view.show_grid = false;
+                self.set_selection(None);
+                self.sel_set.clear();
+                ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(true));
+            }
+        }
+        self.view.fit_pending = true;
+    }
+
     /// Toggle one Character Style bit (1 bold, 2 italic, 4 underline)
     /// on the selection, keyed off the primary shape's current state.
     fn toggle_char_style(&mut self, bit: i64) {
@@ -18281,8 +18337,13 @@ impl App {
             return;
         }
 
+        if std::mem::take(&mut self.present_toggle_pending) {
+            self.toggle_presentation(&ctx);
+        }
         // Shell order: top bands, bottom bands, side panels, canvas.
         let t = theme::shell_tokens(ui.visuals());
+        let presenting = self.present.is_some();
+        if !presenting {
         self.tab_strip(ui);
         egui::Panel::top("ribbon_content")
             .frame(
@@ -18313,11 +18374,13 @@ impl App {
                     .inner_margin(egui::Margin::same(2)),
             )
             .show(ui, |ui| self.page_tabs(ui));
+        }
         // The pane lists the document's masters plus every open
         // stencil (#63): it stays up once a stencil is open, even for
         // a master-less document — but it needs a document to render
         // against (the pane body draws nothing without an editor).
-        let pane_wanted = !self.hide_shapes_pane
+        let pane_wanted = !presenting
+            && !self.hide_shapes_pane
             && self
                 .ed()
                 .map(|ed| !ed.doc.masters.is_empty() || !self.stencils.is_empty())
@@ -18410,7 +18473,7 @@ impl App {
                     });
                 });
         }
-        if self.format_pane_open && self.sel.is_some() {
+        if self.format_pane_open && self.sel.is_some() && !presenting {
             if crate::i18n::rtl() {
                 egui::Panel::left("format_pane")
             } else {
