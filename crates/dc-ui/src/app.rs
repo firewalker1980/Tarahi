@@ -284,6 +284,8 @@ pub struct App {
     /// View ▸ Task Panes: the menu, the Shapes pane switch, and the
     /// Size & Position window with its edit buffers.
     panes_menu: bool,
+    /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
+    stamp: bool,
     /// Review ▸ Shape Report (all pages or this one) and Word Count.
     report_open: bool,
     report_all: bool,
@@ -850,6 +852,7 @@ impl App {
             container_menu: None,
             font_menu: None,
             panes_menu: false,
+            stamp: false,
             report_open: false,
             report_all: true,
             wordcount_open: false,
@@ -3336,6 +3339,10 @@ impl App {
                             | Tool::Draw(_)
                     ) {
                         self.tool = Tool::Pointer;
+                    }
+                    if self.stamp {
+                        self.stamp = false;
+                        self.stencil.armed = None;
                     }
                     self.connpt_sel = None;
                     if self.painter_armed.is_some() {
@@ -8795,7 +8802,10 @@ impl App {
         }
         // Stencil placement takes priority.
         if let Some(key) = self.stencil.armed {
-            self.stencil.armed = None;
+            // the Stamp tool keeps the master armed for the next click
+            if !self.stamp {
+                self.stencil.armed = None;
+            }
             self.ctx_menu = None;
             self.placed_last_click = true;
             if let Some(nid) = self.place_master(key, page_pos) {
@@ -9084,6 +9094,13 @@ impl App {
             }
             Action::ContainerMenu(n) => self.container_menu = Some(n),
             Action::TaskPanes => self.panes_menu = !self.panes_menu,
+            Action::StampTool => {
+                self.stamp = !self.stamp;
+                if self.stamp {
+                    self.status = crate::i18n::strs().msg_stamp_tool_tip();
+                }
+            }
+            Action::ClearFormatting => self.clear_formatting(),
             Action::ShapeReport => self.report_open = !self.report_open,
             Action::WordCount => self.wordcount_open = !self.wordcount_open,
             Action::ToggleDocStencil => {
@@ -9769,6 +9786,7 @@ impl App {
             show_grid: self.view.show_grid,
             show_comments: self.show_comments,
             show_guides: self.view.show_guides,
+            stamp: self.stamp,
             doc_stencil: self.stencil.doc_stencil_visible,
             show_conn_points: self.view.show_conn_points,
             autoconnect: self.view.autoconnect,
@@ -14810,6 +14828,40 @@ impl App {
         }
         if !cmds.is_empty() {
             self.apply(Macro::new(format!("flip {cell}"), cmds));
+        }
+    }
+
+    /// Home ▸ Clear: drop the selection's local line, fill, shadow and
+    /// text formatting so its style and master show through (Visio's
+    /// Clear Formatting); one undo step.
+    fn clear_formatting(&mut self) {
+        const CELLS: [&str; 18] = [
+            "LineWeight", "LineColor", "LinePattern", "LineCap", "Rounding", "BeginArrow", "EndArrow",
+            "BeginArrowSize", "EndArrowSize", "LineColorTrans", "FillForegnd", "FillBkgnd", "FillPattern",
+            "FillForegndTrans", "FillBkgndTrans", "ShdwForegnd", "ShdwPattern", "ShapeShdwType",
+        ];
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
+        for (page, shape) in self.sel_set.clone() {
+            let scope = Scope::Shape { page, shape };
+            for c in CELLS {
+                cmds.push(Box::new(dc_core::ClearCell::new(scope.clone(), c)));
+            }
+            // only sections the shape itself carries (master rows stay)
+            let own: Vec<&str> = ["Character", "Paragraph"]
+                .into_iter()
+                .filter(|sec| {
+                    self.ed()
+                        .and_then(|ed| ed.doc.pages.iter().find(|p| p.id == page))
+                        .and_then(|p| vsdx::model::find_shape_by_id(&p.shapes, shape))
+                        .is_some_and(|s| s.sheet.sections_named(sec).iter().any(|x| x.ix == 0))
+                })
+                .collect();
+            for sec in own {
+                cmds.push(Box::new(dc_core::commands::SetSectionRows::new(scope.clone(), sec, 0, vec![])));
+            }
+        }
+        if !cmds.is_empty() {
+            self.apply(Macro::new(crate::i18n::strs().msg_clear(), cmds));
         }
     }
 

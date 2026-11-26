@@ -10997,3 +10997,37 @@ fn shape_report_csv_and_word_count() {
     h.run();
     assert!(h.query_by_label("3").is_some(), "three words");
 }
+
+/// Home ▸ Clear drops local formatting (one undo); the Stamp tool keeps
+/// the picked master armed so each click places another copy.
+#[test]
+fn clear_formatting_and_stamp_tool() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.get_by_label("Bold").click();
+    h.run();
+    assert_eq!(h.state().debug_cell_for_test(sid, "Char.Style").as_deref(), Some("1"));
+    h.get_by_label("Clear").click();
+    h.run();
+    assert_ne!(h.state().debug_cell_for_test(sid, "Char.Style").as_deref(), Some("1"), "bold cleared");
+
+    // Stamp: arm master 2 once, click three times
+    h.get_by_label("Stamp Tool").click();
+    h.run();
+    let n = h.state().debug_shape_count();
+    let cell = h.state().debug_master_cells().into_iter().find(|(id, _)| *id == (dc_ui::stencil::StencilId::Document, 2)).unwrap().1;
+    click_at(&mut h, cell.center(), egui::PointerButton::Primary);
+    h.run();
+    let c = h.state().debug_canvas_rect().center();
+    for dx in [-200.0, -100.0, 100.0] {
+        click_at(&mut h, c + egui::vec2(dx, 150.0), egui::PointerButton::Primary);
+        h.run();
+    }
+    assert_eq!(h.state().debug_shape_count(), n + 3, "three stamps");
+    h.key_press(egui::Key::Escape);
+    h.run();
+    click_at(&mut h, c + egui::vec2(200.0, 150.0), egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), n + 3, "Esc ended stamping");
+}

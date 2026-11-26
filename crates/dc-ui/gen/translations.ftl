@@ -109,7 +109,6 @@ checking-the-clipboard-for-a-pic = Die Zwischenablage wird auf ein Bild geprüft
 choose-the-display-language-for = Die Anzeigesprache für Menüband, Menüs und Dialoge wählen
 classic-arrow = Klassischer Pfeil
 clear = Löschen
-clear-planned-later-milestone = Löschen — geplant (späterer Meilenstein)
 click-a-shape-to-add-a-connectio = Klicken Sie auf eine Form, um einen Verbindungspunkt hinzuzufügen
 clipboard = Zwischenablage
 clipboard-image-could-not-be-enc = Das Zwischenablage-Bild konnte nicht kodiert werden
@@ -866,7 +865,6 @@ ss-section-text-transform = Texttransformation
 ss-section-user-defined-cells = Benutzerdefinierte Zellen
 ss-shape-not-found = Form nicht gefunden
 stamp-tool = Stempelwerkzeug
-stamp-tool-planned = Stempelwerkzeug — geplant
 start-an-empty-drawing = Eine leere Zeichnung beginnen
 start-an-empty-drawing-on-a-lett = Eine leere Zeichnung auf einer Letter-Seite beginnen.
 start-an-empty-us-letter-drawing = Eine leere Zeichnung im US-Letter-Format beginnen (Strg+N)
@@ -1118,6 +1116,8 @@ save-as-csv = Als CSV speichern…
 report-empty = Keine Form auf diesen Seiten hat Formdaten
 shape-report-tip = Die Formdaten aller Formen in einer Tabelle, als CSV speicherbar
 word-count-tip = Wörter im Text der Formen zählen
+clear-formatting-tip = Eigene Linien-, Füll- und Textformatierung der Auswahl entfernen
+stamp-tool-tip = Form im Formenbereich wählen, dann auf die Seite klicken, um Kopien zu platzieren (Esc beendet)
 
 
 ## ########## Resource: app ###############
@@ -1237,7 +1237,6 @@ checking-the-clipboard-for-a-pic = checking the clipboard for a picture…
 choose-the-display-language-for = Choose the display language for the ribbon, menus, and dialogs
 classic-arrow = Classic Arrow
 clear = Clear
-clear-planned-later-milestone = Clear — planned (later milestone)
 click-a-shape-to-add-a-connectio = click a shape to add a connection point
 clipboard = Clipboard
 clipboard-image-could-not-be-enc = clipboard image could not be encoded
@@ -2057,7 +2056,6 @@ ss-section-text-transform = Text Transform
 ss-section-user-defined-cells = User-defined Cells
 ss-shape-not-found = shape not found
 stamp-tool = Stamp Tool
-stamp-tool-planned = Stamp tool — planned
 start-an-empty-drawing = Start an empty drawing
 start-an-empty-drawing-on-a-lett = Start an empty drawing on a letter-size page.
 start-an-empty-us-letter-drawing = Start an empty US-Letter drawing (Ctrl+N)
@@ -2314,6 +2312,8 @@ save-as-csv = Save as CSV…
 report-empty = No shape on these pages has Shape Data
 shape-report-tip = Every shape's Shape Data in one table, saved as CSV
 word-count-tip = Count the words in the shapes' text
+clear-formatting-tip = Remove the selection's own line, fill and text formatting
+stamp-tool-tip = Pick a shape in the Shapes pane, then click the page to place copies (Esc ends)
 
 
 ## ########## Resource: app ###############
@@ -2431,7 +2431,6 @@ checking-the-clipboard-for-a-pic = comprobando el portapapeles en busca de una i
 choose-the-display-language-for = Elija el idioma de presentación de la cinta de opciones, los menús y los cuadros de diálogo
 classic-arrow = Flecha clásica
 clear = Borrar
-clear-planned-later-milestone = Borrar — planeado (hito posterior)
 click-a-shape-to-add-a-connectio = haga clic en una forma para agregar un punto de conexión
 clipboard = Portapapeles
 clipboard-image-could-not-be-enc = no se pudo codificar la imagen del portapapeles
@@ -3248,7 +3247,6 @@ ss-section-text-transform = Transformación de texto
 ss-section-user-defined-cells = Celdas definidas por el usuario
 ss-shape-not-found = forma no encontrada
 stamp-tool = Herramienta Sello
-stamp-tool-planned = Herramienta Sello — planeado
 start-an-empty-drawing = Iniciar un dibujo vacío
 start-an-empty-drawing-on-a-lett = Iniciar un dibujo vacío en una página tamaño carta.
 start-an-empty-us-letter-drawing = Iniciar un dibujo vacío tamaño carta de EE. UU. (Ctrl+N)
@@ -3505,6 +3503,8 @@ save-as-csv = Guardar como CSV…
 report-empty = Ninguna forma de estas páginas tiene datos de forma
 shape-report-tip = Los datos de forma de todas las formas en una tabla, guardable como CSV
 word-count-tip = Contar las palabras del texto de las formas
+clear-formatting-tip = Quitar el formato propio de línea, relleno y texto de la selección
+stamp-tool-tip = Elija una forma en el panel Formas y haga clic en la página para colocar copias (Esc termina)
 
 
 ## ########## Resource: app ###############
@@ -3617,7 +3617,6 @@ checking-the-clipboard-for-a-pic = بررسی کلیپ‌بورد برای تص�
 choose-the-display-language-for = زبان نمایش نوار، منوها و گفت‌وگوها را انتخاب کنید
 classic-arrow = پیکان کلاسیک
 clear = پاک‌کردن
-clear-planned-later-milestone = پاک‌کردن — برنامه‌ریزی شده (نقطهٔ عطف بعدی)
 click-a-shape-to-add-a-connectio = برای افزودن نقطهٔ اتصال روی یک شکل کلیک کنید
 clipboard = کلیپ‌بورد
 clipboard-image-could-not-be-enc = تصویر کلیپ‌بورد کدگذاری نشد
@@ -4374,7 +4373,6 @@ ss-section-text-transform = تبدیل متن
 ss-section-user-defined-cells = سلول‌های تعریف‌شدهٔ کاربر
 ss-shape-not-found = شکل پیدا نشد
 stamp-tool = ابزار مهر
-stamp-tool-planned = ابزار مهر — برنامه‌ریزی شده
 start-an-empty-drawing = آغاز یک نقاشی خالی
 start-an-empty-drawing-on-a-lett = آغاز یک نقاشی خالی روی صفحهٔ اندازهٔ Letter.
 start-an-empty-us-letter-drawing = آغاز یک نقاشی خالی US-Letter (Ctrl+N)
@@ -4626,6 +4624,8 @@ save-as-csv = ذخیره به‌صورت CSV…
 report-empty = هیچ شکلی در این صفحه‌ها دادهٔ شکل ندارد
 shape-report-tip = دادهٔ همهٔ شکل‌ها در یک جدول، قابل ذخیره به‌صورت CSV
 word-count-tip = شمارش واژه‌های متن شکل‌ها
+clear-formatting-tip = حذف قالب‌بندی خط، پرکردن و متنِ خودِ انتخاب
+stamp-tool-tip = شکلی را در پنل شکل‌ها برگزینید، سپس برای گذاشتن نسخه‌ها روی صفحه کلیک کنید (Esc پایان)
 
 
 ## ########## Resource: app ###############
@@ -4730,7 +4730,6 @@ checking-the-clipboard-for-a-pic = クリップボードの画像を確認して
 choose-the-display-language-for = リボン、メニュー、ダイアログの表示言語を選択します
 classic-arrow = クラシック矢印
 clear = 消去
-clear-planned-later-milestone = 消去 — 予定（後のマイルストーン）
 click-a-shape-to-add-a-connectio = 図形をクリックして接続点を追加します
 clipboard = クリップボード
 clipboard-image-could-not-be-enc = クリップボードの画像をエンコードできませんでした
@@ -5427,7 +5426,6 @@ ss-section-text-transform = 文字変換
 ss-section-user-defined-cells = ユーザー定義セル
 ss-shape-not-found = 図形が見つかりません
 stamp-tool = スタンプ ツール
-stamp-tool-planned = スタンプ ツール — 予定
 start-an-empty-drawing = 空の図面を開始します
 start-an-empty-drawing-on-a-lett = レター サイズのページで空の図面を開始します。
 start-an-empty-us-letter-drawing = 空の US レター図面を開始します（Ctrl+N）
@@ -5644,6 +5642,8 @@ save-as-csv = CSV として保存…
 report-empty = これらのページにはシェイプ データを持つ図形がありません
 shape-report-tip = すべての図形のシェイプ データを 1 つの表にまとめ、CSV で保存
 word-count-tip = 図形のテキストの単語数を数える
+clear-formatting-tip = 選択範囲の線・塗りつぶし・テキストの書式を解除
+stamp-tool-tip = 図形ウィンドウで図形を選び、ページをクリックしてコピーを配置 (Esc で終了)
 
 
 ## ########## Resource: app ###############
@@ -5749,7 +5749,6 @@ checking-the-clipboard-for-a-pic = 클립보드에서 그림을 확인하는 중
 choose-the-display-language-for = 리본, 메뉴, 대화 상자의 표시 언어를 선택합니다
 classic-arrow = 클래식 화살표
 clear = 지우기
-clear-planned-later-milestone = 지우기 — 예정(이후 마일스톤)
 click-a-shape-to-add-a-connectio = 셰이프를 클릭하여 연결 지점을 추가합니다
 clipboard = 클립보드
 clipboard-image-could-not-be-enc = 클립보드 이미지를 인코딩하지 못했습니다
@@ -6446,7 +6445,6 @@ ss-section-text-transform = 텍스트 변환
 ss-section-user-defined-cells = 사용자 정의 셀
 ss-shape-not-found = 셰이프를 찾을 수 없습니다
 stamp-tool = 스탬프 도구
-stamp-tool-planned = 스탬프 도구 — 예정
 start-an-empty-drawing = 빈 드로잉을 시작합니다
 start-an-empty-drawing-on-a-lett = 레터 크기 페이지에서 빈 드로잉을 시작합니다.
 start-an-empty-us-letter-drawing = 빈 US 레터 드로잉을 시작합니다(Ctrl+N)
@@ -6663,6 +6661,8 @@ save-as-csv = CSV로 저장…
 report-empty = 이 페이지에는 도형 데이터가 있는 도형이 없습니다
 shape-report-tip = 모든 도형의 도형 데이터를 하나의 표로, CSV로 저장
 word-count-tip = 도형 텍스트의 단어 수 세기
+clear-formatting-tip = 선택 영역의 선, 채우기, 텍스트 서식 제거
+stamp-tool-tip = 도형 창에서 도형을 고른 뒤 페이지를 클릭해 복사본 배치 (Esc로 종료)
 
 
 ## ########## Resource: app ###############
@@ -6766,7 +6766,6 @@ checking-the-clipboard-for-a-pic = 正在检查剪贴板中的图片…
 choose-the-display-language-for = 选择功能区、菜单和对话框的显示语言
 classic-arrow = 经典箭头
 clear = 清除
-clear-planned-later-milestone = 清除 — 计划中（后期里程碑）
 click-a-shape-to-add-a-connectio = 单击形状以添加连接点
 clipboard = 剪贴板
 clipboard-image-could-not-be-enc = 剪贴板图像无法编码
@@ -7469,7 +7468,6 @@ ss-section-text-transform = 文本转换
 ss-section-user-defined-cells = 用户定义的单元格
 ss-shape-not-found = 未找到形状
 stamp-tool = 图章工具
-stamp-tool-planned = 图章工具 — 计划中
 start-an-empty-drawing = 开始一幅空白绘图
 start-an-empty-drawing-on-a-lett = 在信纸大小的页面上开始一幅空白绘图。
 start-an-empty-us-letter-drawing = 开始一幅空白美制信纸绘图 (Ctrl+N)
@@ -7686,4 +7684,6 @@ save-as-csv = 另存为 CSV…
 report-empty = 这些页面上没有带形状数据的形状
 shape-report-tip = 所有形状的形状数据汇总为一张表,可保存为 CSV
 word-count-tip = 统计形状文本中的字数
+clear-formatting-tip = 清除所选内容自身的线条、填充和文本格式
+stamp-tool-tip = 在形状窗格中选择形状,然后单击页面放置副本 (按 Esc 结束)
 

@@ -44,10 +44,10 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
                         .alt(s.msg_layers())
                         .enabled(ctx.has_doc)
                         .tip(s.msg_layer_properties_tip()),
-                    RibbonButton::new(Icon::Eraser, "", Action::Macros)
+                    RibbonButton::new(Icon::Eraser, "", Action::ClearFormatting)
                         .alt(s.msg_clear())
-                        .enabled(false)
-                        .tip(s.msg_clear_planned_later_milestone()),
+                        .enabled(ctx.has_sel)
+                        .tip(s.msg_clear_formatting_tip()),
                 ],
             ])],
         ),
@@ -270,10 +270,11 @@ fn tools_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super:
                     .tip(s.msg_line_tool_tip()),
             ],
             vec![
-                RibbonButton::new(Icon::Stamp, "", Action::Macros)
+                RibbonButton::new(Icon::Stamp, "", Action::StampTool)
                     .alt(s.msg_stamp_tool())
-                    .enabled(false)
-                    .tip(s.msg_stamp_tool_planned()),
+                    .enabled(ctx.has_doc)
+                    .selected(ctx.stamp)
+                    .tip(s.msg_stamp_tool_tip()),
             ],
         ]),
     ]

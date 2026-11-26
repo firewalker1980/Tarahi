@@ -55,6 +55,7 @@ pub(crate) struct TabCtx {
     pub show_grid: bool,
     pub show_comments: bool,
     pub show_guides: bool,
+    pub stamp: bool,
     pub doc_stencil: bool,
     pub show_conn_points: bool,
     pub autoconnect: bool,
@@ -161,6 +162,9 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Home ▸ Clear (formatting) and the Stamp tool.
+    ClearFormatting,
+    StampTool,
     /// Review ▸ Word Count and Shape Report.
     WordCount,
     ShapeReport,

@@ -667,13 +667,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "clear-planned-later-milestone",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "click-a-shape-to-add-a-connectio",
         attribute: None,
         vars: &[],
@@ -5483,13 +5476,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "stamp-tool-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "start-an-empty-drawing",
         attribute: None,
         vars: &[],
@@ -6833,6 +6819,20 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "clear-formatting-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "stamp-tool-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6932,13 +6932,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48191,
-            Self::En => 48191..94691,
-            Self::Es => 94691..145898,
-            Self::Fa => 145898..206158,
-            Self::Ja => 206158..257815,
-            Self::Ko => 257815..305437,
-            Self::ZhHans => 305437..346780,
+            Self::De => 0..48268,
+            Self::En => 48268..94834,
+            Self::Es => 94834..146124,
+            Self::Fa => 146124..206472,
+            Self::Ja => 206472..258208,
+            Self::Ko => 258208..305898,
+            Self::ZhHans => 305898..347296,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7349,9 +7349,6 @@ impl L10nLanguage {
     }
     pub fn msg_clear(&self) -> String {
         self.0.msg("clear", None).unwrap()
-    }
-    pub fn msg_clear_planned_later_milestone(&self) -> String {
-        self.0.msg("clear-planned-later-milestone", None).unwrap()
     }
     pub fn msg_click_a_shape_to_add_a_connectio(&self) -> String {
         self.0
@@ -10005,9 +10002,6 @@ impl L10nLanguage {
     pub fn msg_stamp_tool(&self) -> String {
         self.0.msg("stamp-tool", None).unwrap()
     }
-    pub fn msg_stamp_tool_planned(&self) -> String {
-        self.0.msg("stamp-tool-planned", None).unwrap()
-    }
     pub fn msg_start_an_empty_drawing(&self) -> String {
         self.0.msg("start-an-empty-drawing", None).unwrap()
     }
@@ -10758,5 +10752,11 @@ impl L10nLanguage {
     }
     pub fn msg_word_count_tip(&self) -> String {
         self.0.msg("word-count-tip", None).unwrap()
+    }
+    pub fn msg_clear_formatting_tip(&self) -> String {
+        self.0.msg("clear-formatting-tip", None).unwrap()
+    }
+    pub fn msg_stamp_tool_tip(&self) -> String {
+        self.0.msg("stamp-tool-tip", None).unwrap()
     }
 }

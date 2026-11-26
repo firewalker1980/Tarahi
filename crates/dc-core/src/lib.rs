@@ -24,7 +24,7 @@ pub use commands::{
     place_master_from_stencil, scale_group_members, AddConnect, AddLayer, AddMasterInstance,
     AddPage, AddShape, DuplicateShape, FieldInsert, ImportMaster, InsertField, Macro, MovePage,
     RemoveConnect, RemoveLayer, RemovePage, RemoveShape, RenameLayer, RenamePage, ReorderShape,
-    ReplaceTextRange, SetCell, SetCellCache, SetGluedCell, SetRowCell, SetSectionRows, SetText,
+    ClearCell, ReplaceTextRange, SetCell, SetCellCache, SetGluedCell, SetRowCell, SetSectionRows, SetText,
 };
 pub use connects::{Connect, Connects, ConnectsOwner};
 pub use scope::{find_shape_mut, shape_chain, Scope};

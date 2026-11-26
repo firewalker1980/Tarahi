@@ -2344,6 +2344,50 @@ impl crate::Command for RemoveSectionRow {
     }
 }
 
+/// Remove one local cell so the value comes from the style or master
+/// again (Clear Formatting); undo puts the cell back where it was.
+#[derive(Debug, Clone)]
+pub struct ClearCell {
+    pub scope: Scope,
+    pub name: String,
+    old: Option<(usize, Cell)>,
+}
+
+impl ClearCell {
+    pub fn new(scope: Scope, name: impl Into<String>) -> ClearCell {
+        ClearCell { scope, name: name.into(), old: None }
+    }
+}
+
+impl crate::Command for ClearCell {
+    fn touched(&self, doc: &Document) -> crate::TouchList {
+        SetCell::new(self.scope.clone(), self.name.clone(), Cell::default()).touched(doc)
+    }
+    fn label(&self) -> String {
+        format!("clear {}:{}", self.scope, self.name)
+    }
+    fn apply(&mut self, doc: &mut Document) -> Result<()> {
+        let s = sheet_mut(doc, &self.scope)?;
+        let pos = s
+            .children
+            .iter()
+            .position(|c| matches!(c, vsdx::model::SheetChild::Cell(n, _) if *n == self.name));
+        self.old = pos.and_then(|i| match s.children.remove(i) {
+            vsdx::model::SheetChild::Cell(_, c) => Some((i, c)),
+            _ => None,
+        });
+        Ok(())
+    }
+    fn undo(&mut self, doc: &mut Document) -> Result<()> {
+        if let Some((i, c)) = self.old.take() {
+            let s = sheet_mut(doc, &self.scope)?;
+            let at = i.min(s.children.len());
+            s.children.insert(at, vsdx::model::SheetChild::Cell(self.name.clone(), c));
+        }
+        Ok(())
+    }
+}
+
 /// Replace ALL rows of one sheet section in one undoable step (the
 /// #303 connector work: growing a rerouted connector's Geometry to
 /// the full route — Visio adds the row rather than bending the last
