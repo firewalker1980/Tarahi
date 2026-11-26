@@ -286,6 +286,8 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Review ▸ Set Proofing Language picker.
+    proof_lang_open: bool,
     /// Developer ▸ Operations menu.
     ops_menu: bool,
     /// Developer ▸ Behavior dialog.
@@ -884,6 +886,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            proof_lang_open: false,
             ops_menu: false,
             behavior_open: false,
             explorer_open: false,
@@ -6169,6 +6172,34 @@ impl App {
         }
     }
 
+    /// Review ▸ Set Proofing Language: the dictionaries the spell checker
+    /// has; the pick is the language Check Spelling uses from now on.
+    fn proof_lang_window(&mut self, ctx: &egui::Context) {
+        if !self.proof_lang_open {
+            return;
+        }
+        let s = crate::i18n::strs();
+        let langs = dc::spellcheck::available();
+        let mut open = true;
+        let mut pick = None;
+        egui::Window::new(s.msg_set_proofing_language()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            egui::ScrollArea::vertical().max_height(320.0).show(ui, |ui| {
+                for e in &langs {
+                    let on = self.spell.lang == e.stem;
+                    if ui.selectable_label(on, format!("{}  ({})", e.display_name(), e.stem)).clicked() {
+                        pick = Some(e.stem.clone());
+                    }
+                }
+            });
+        });
+        self.proof_lang_open &= open;
+        if let Some(stem) = pick {
+            self.status = s.msg_proofing_language_set(stem.clone());
+            self.spell.lang = stem;
+            self.proof_lang_open = false;
+        }
+    }
+
     /// Developer ▸ Operations: Union / Combine / Fragment / Intersect /
     /// Subtract on the selected shapes (selection order; the first one
     /// gives the formatting and is what Subtract cuts from). The results
@@ -10032,6 +10063,13 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::ProofingLanguage => self.proof_lang_open = !self.proof_lang_open,
+            Action::LanguageOptions => {
+                self.open_options_dialog();
+                if let (Some(d), Some(p)) = (self.options_draft.as_mut(), crate::options::Page::from_test_name("language")) {
+                    d.page = p;
+                }
+            }
             Action::Operations => self.ops_menu = !self.ops_menu,
             Action::Behavior => self.behavior_open = !self.behavior_open,
             Action::DrawingExplorer => self.explorer_open = !self.explorer_open,
@@ -18998,6 +19036,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.proof_lang_window(&ctx);
         self.operations_window(&ctx);
         self.behavior_window(&ctx);
         self.explorer_window(&ctx);

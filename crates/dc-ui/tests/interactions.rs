@@ -11407,3 +11407,23 @@ fn operations_union_two_rectangles() {
     h.run();
     assert_eq!(h.state().debug_shape_count(), 2, "undo");
 }
+
+/// Review ▸ Language opens the Options dialog; Set Proofing Language
+/// lists the spell-check dictionaries and picks one.
+#[test]
+fn review_language_and_proofing_language() {
+    let mut h = harness_with_blank();
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Review);
+    h.run();
+    h.get_by_label("Set Proofing Language").click();
+    h.run();
+    h.run();
+    let first = h.get_all_by_label_contains("(en").next().expect("an English dictionary");
+    first.click();
+    h.run();
+    assert!(h.state().debug_status().contains("en"), "{}", h.state().debug_status());
+    h.get_by_label("Language").click();
+    h.run();
+    assert!(h.state().debug_options_open());
+}

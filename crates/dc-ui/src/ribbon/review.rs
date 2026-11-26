@@ -45,15 +45,15 @@ fn proofing_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<sup
 
 fn language_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![stack(vec![
-        RibbonButton::new(Icon::FontA, s.msg_language(), Action::Macros)
-            .enabled(false)
-            .tip(s.msg_language_settings_planned()),
+        RibbonButton::new(Icon::FontA, s.msg_language(), Action::LanguageOptions)
+            .enabled(true)
+            .tip(s.msg_language_options_tip()),
         RibbonButton::new(Icon::Shapes, s.msg_translate(), Action::Macros)
             .enabled(false)
             .tip(s.msg_translate_planned()),
-        RibbonButton::new(Icon::Units, s.msg_set_proofing_language(), Action::Macros)
-            .enabled(false)
-            .tip(s.msg_set_proofing_language_planned()),
+        RibbonButton::new(Icon::Units, s.msg_set_proofing_language(), Action::ProofingLanguage)
+            .enabled(true)
+            .tip(s.msg_proofing_language_tip()),
     ])]
 }
 

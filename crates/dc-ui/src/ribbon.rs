@@ -165,6 +165,10 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Review ▸ Language (Options' language page) and Set Proofing
+    /// Language (the spell-check dictionary).
+    LanguageOptions,
+    ProofingLanguage,
     /// Developer ▸ Operations (shape booleans).
     Operations,
     /// Developer ▸ Behavior.

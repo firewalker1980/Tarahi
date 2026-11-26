@@ -432,7 +432,6 @@ label-not-a-number = { $label }: keine Zahl
 landscape = Querformat
 language = Sprache
 language-name = Deutsch
-language-settings-planned = Spracheinstellungen — geplant
 lasso-select = Lasso-Auswahl
 lasso-select-drag-a-freehand-tra = Lasso: eine freihändige Linie um Formen ziehen (Esc beendet)
 lasso-select-off = Lasso aus
@@ -762,7 +761,6 @@ set-as-background = Als Hintergrund festlegen
 set-connector-route-style = Verbinderroutenstil festlegen
 set-page-size = Seitengröße festlegen
 set-proofing-language = Prüfsprache festlegen
-set-proofing-language-planned = Prüfsprache festlegen — geplant
 shape-data = Formdaten
 shape-data-menu = Formdaten …
 shape-data-window = Formdatenfenster
@@ -1168,6 +1166,10 @@ op-intersect = Schneiden
 op-subtract = Subtrahieren
 op-needs-filled-shapes = Operationen brauchen zwei oder mehr gefüllte Formen
 operations-tip = Ausgewählte Formen zu neuen Formen vereinen, schneiden oder überlagern
+language-options-tip = Sprache der Oberfläche wählen
+proofing-language-tip = Wörterbuch für die Rechtschreibprüfung wählen
+# $lang (String) - dictionary stem
+proofing-language-set = Korrektursprache: { $lang }
 
 
 ## ########## Resource: app ###############
@@ -1637,7 +1639,6 @@ label-not-a-number = { $label }: not a number
 landscape = Landscape
 language = Language
 language-name = English
-language-settings-planned = Language settings — planned
 lasso-select = Lasso Select
 lasso-select-drag-a-freehand-tra = Lasso Select: drag a freehand trail around shapes (Esc to finish)
 lasso-select-off = lasso select off
@@ -1992,7 +1993,6 @@ set-as-background = Set as Background
 set-connector-route-style = set connector route style
 set-page-size = set page size
 set-proofing-language = Set Proofing Language
-set-proofing-language-planned = Set proofing language — planned
 shape-data = Shape Data
 shape-data-menu = Shape Data…
 shape-data-window = Shape Data Window
@@ -2414,6 +2414,10 @@ op-intersect = Intersect
 op-subtract = Subtract
 op-needs-filled-shapes = Operations work on two or more filled shapes
 operations-tip = Join, cut or overlap the selected shapes into new shapes
+language-options-tip = Choose the language Tarahi shows
+proofing-language-tip = Choose the dictionary Check Spelling uses
+# $lang (String) - dictionary stem
+proofing-language-set = Proofing language: { $lang }
 
 
 ## ########## Resource: app ###############
@@ -2881,7 +2885,6 @@ label-not-a-number = { $label }: no es un número
 landscape = Horizontal
 language = Idioma
 language-name = Español
-language-settings-planned = Configuración de idioma — planeado
 lasso-select = Selección con lazo
 lasso-select-drag-a-freehand-tra = Selección con lazo: arrastre un trazo a mano alzada alrededor de las formas (Esc para terminar)
 lasso-select-off = selección con lazo desactivada
@@ -3235,7 +3238,6 @@ set-as-background = Establecer como fondo
 set-connector-route-style = establecer el estilo de ruta del conector
 set-page-size = establecer el tamaño de página
 set-proofing-language = Establecer idioma de corrección
-set-proofing-language-planned = Establecer idioma de corrección — planeado
 shape-data = Datos de forma
 shape-data-menu = Datos de forma…
 shape-data-window = Ventana de datos de forma
@@ -3655,6 +3657,10 @@ op-intersect = Intersecar
 op-subtract = Restar
 op-needs-filled-shapes = Las operaciones necesitan dos o más formas con relleno
 operations-tip = Unir, cortar o superponer las formas seleccionadas en formas nuevas
+language-options-tip = Elegir el idioma de Tarahi
+proofing-language-tip = Elegir el diccionario de la revisión ortográfica
+# $lang (String) - dictionary stem
+proofing-language-set = Idioma de corrección: { $lang }
 
 
 ## ########## Resource: app ###############
@@ -4090,7 +4096,6 @@ label-not-a-number = { $label }: عدد نیست
 landscape = افقی
 language = زبان
 language-name = فارسی
-language-settings-planned = تنظیمات زبان — برنامه‌ریزی شده
 lasso-select = گزینش با لاسو
 lasso-select-drag-a-freehand-tra = گزینش با لاسو: دور شکل‌ها یک مسیر دست‌آزاد بکشید (Esc برای پایان)
 lasso-select-off = گزینش لاسو خاموش است
@@ -4420,7 +4425,6 @@ set-as-background = تنظیم به‌عنوان پس‌زمینه
 set-connector-route-style = تنظیم سبک مسیر اتصال‌دهنده
 set-page-size = تنظیم اندازهٔ صفحه
 set-proofing-language = تنظیم زبان بازخوانی
-set-proofing-language-planned = تنظیم زبان بازخوانی — برنامه‌ریزی شده
 shape-data = دادهٔ شکل
 shape-data-menu = دادهٔ شکل…
 shape-data-window = پنجرهٔ دادهٔ شکل
@@ -4826,6 +4830,10 @@ op-intersect = اشتراک
 op-subtract = تفریق
 op-needs-filled-shapes = عملیات به دو یا چند شکل پرشده نیاز دارد
 operations-tip = پیوستن، بریدن یا هم‌پوشانی شکل‌های انتخاب‌شده به شکل‌های تازه
+language-options-tip = انتخاب زبان رابط Tarahi
+proofing-language-tip = انتخاب واژه‌نامهٔ بررسی املا
+# $lang (String) - dictionary stem
+proofing-language-set = زبان بازبینی: { $lang }
 
 
 ## ########## Resource: app ###############
@@ -5234,7 +5242,6 @@ label-not-a-number = { $label }: 数値ではありません
 landscape = 横向き
 language = 言語
 language-name = 日本語
-language-settings-planned = 言語設定 — 予定
 lasso-select = なげなわ選択
 lasso-select-drag-a-freehand-tra = なげなわ選択: 図形の周囲を自由な軌跡でドラッグします（Esc で終了）
 lasso-select-off = なげなわ選択をオフにしました
@@ -5524,7 +5531,6 @@ set-as-background = 背景として設定
 set-connector-route-style = コネクタの経路スタイルを設定
 set-page-size = ページ サイズを設定
 set-proofing-language = 校閲用言語の設定
-set-proofing-language-planned = 校閲用言語の設定 — 予定
 shape-data = 図形データ
 shape-data-menu = 図形データ…
 shape-data-window = 図形データ ウィンドウ
@@ -5893,6 +5899,10 @@ op-intersect = 交差
 op-subtract = 型抜き
 op-needs-filled-shapes = 図形の操作には塗りつぶされた図形が 2 つ以上必要です
 operations-tip = 選択した図形を結合・切り抜き・重ね合わせて新しい図形に
+language-options-tip = Tarahi の表示言語を選択
+proofing-language-tip = スペル チェックの辞書を選択
+# $lang (String) - dictionary stem
+proofing-language-set = 校正言語: { $lang }
 
 
 ## ########## Resource: app ###############
@@ -6302,7 +6312,6 @@ label-not-a-number = { $label }: 숫자가 아닙니다
 landscape = 가로
 language = 언어
 language-name = 한국어
-language-settings-planned = 언어 설정 — 예정
 lasso-select = 올가미 선택
 lasso-select-drag-a-freehand-tra = 올가미 선택: 셰이프 주위를 자유 궤적으로 끕니다(Esc로 끝내기)
 lasso-select-off = 올가미 선택을 해제했습니다
@@ -6592,7 +6601,6 @@ set-as-background = 배경으로 설정
 set-connector-route-style = 커넥터 경로 스타일 설정
 set-page-size = 페이지 크기 설정
 set-proofing-language = 언어 교정 언어 설정
-set-proofing-language-planned = 언어 교정 언어 설정 — 예정
 shape-data = 셰이프 데이터
 shape-data-menu = 셰이프 데이터…
 shape-data-window = 셰이프 데이터 창
@@ -6961,6 +6969,10 @@ op-intersect = 교차
 op-subtract = 빼기
 op-needs-filled-shapes = 작업에는 채워진 도형이 두 개 이상 필요합니다
 operations-tip = 선택한 도형을 합치거나 자르거나 겹쳐 새 도형으로
+language-options-tip = Tarahi 표시 언어 선택
+proofing-language-tip = 맞춤법 검사 사전 선택
+# $lang (String) - dictionary stem
+proofing-language-set = 교정 언어: { $lang }
 
 
 ## ########## Resource: app ###############
@@ -7369,7 +7381,6 @@ label-not-a-number = { $label }：不是数字
 landscape = 横向
 language = 语言
 language-name = 简体中文
-language-settings-planned = 语言设置 — 计划中
 lasso-select = 套索选择
 lasso-select-drag-a-freehand-tra = 套索选择：在形状周围拖出徒手轨迹（按 Esc 结束）
 lasso-select-off = 套索选择已关闭
@@ -7664,7 +7675,6 @@ set-as-background = 设为背景
 set-connector-route-style = 设置连接符布线样式
 set-page-size = 设置页面大小
 set-proofing-language = 设置校对语言
-set-proofing-language-planned = 设置校对语言 — 计划中
 shape-data = 形状数据
 shape-data-menu = 形状数据…
 shape-data-window = 形状数据窗口
@@ -8033,4 +8043,8 @@ op-intersect = 相交
 op-subtract = 剪除
 op-needs-filled-shapes = 操作需要两个或更多填充形状
 operations-tip = 将所选形状合并、剪切或重叠为新形状
+language-options-tip = 选择 Tarahi 的显示语言
+proofing-language-tip = 选择拼写检查使用的词典
+# $lang (String) - dictionary stem
+proofing-language-set = 校对语言:{ $lang }
 

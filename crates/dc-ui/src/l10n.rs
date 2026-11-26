@@ -2753,13 +2753,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "language-settings-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "lasso-select",
         attribute: None,
         vars: &[],
@@ -4756,13 +4749,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "set-proofing-language",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "set-proofing-language-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -7141,6 +7127,27 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "language-options-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "proofing-language-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "proofing-language-set",
+        attribute: None,
+        vars: &["lang"],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7240,13 +7247,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50306,
-            Self::En => 50306..98736,
-            Self::Es => 98736..152116,
-            Self::Fa => 152116..214853,
-            Self::Ja => 214853..268863,
-            Self::Ko => 268863..318573,
-            Self::ZhHans => 318573..361654,
+            Self::De => 0..50395,
+            Self::En => 50395..98911,
+            Self::Es => 98911..152364,
+            Self::Fa => 152364..215144,
+            Self::Ja => 215144..269237,
+            Self::Ko => 269237..319013,
+            Self::ZhHans => 319013..362167,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -8807,9 +8814,6 @@ impl L10nLanguage {
     pub fn msg_language_name(&self) -> String {
         self.0.msg("language-name", None).unwrap()
     }
-    pub fn msg_language_settings_planned(&self) -> String {
-        self.0.msg("language-settings-planned", None).unwrap()
-    }
     pub fn msg_lasso_select(&self) -> String {
         self.0.msg("lasso-select", None).unwrap()
     }
@@ -9936,9 +9940,6 @@ impl L10nLanguage {
     }
     pub fn msg_set_proofing_language(&self) -> String {
         self.0.msg("set-proofing-language", None).unwrap()
-    }
-    pub fn msg_set_proofing_language_planned(&self) -> String {
-        self.0.msg("set-proofing-language-planned", None).unwrap()
     }
     pub fn msg_shape_data(&self) -> String {
         self.0.msg("shape-data", None).unwrap()
@@ -11198,5 +11199,17 @@ impl L10nLanguage {
     }
     pub fn msg_operations_tip(&self) -> String {
         self.0.msg("operations-tip", None).unwrap()
+    }
+    pub fn msg_language_options_tip(&self) -> String {
+        self.0.msg("language-options-tip", None).unwrap()
+    }
+    pub fn msg_proofing_language_tip(&self) -> String {
+        self.0.msg("proofing-language-tip", None).unwrap()
+    }
+    /// $lang (String) - dictionary stem
+    pub fn msg_proofing_language_set<F0: AsRef<str>>(&self, lang: F0) -> String {
+        let mut _args = FluentArgs::new();
+        _args.set("lang", lang.as_ref());
+        self.0.msg("proofing-language-set", Some(_args)).unwrap()
     }
 }
