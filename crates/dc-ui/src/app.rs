@@ -6503,7 +6503,7 @@ impl App {
         let mut id = dc_core::commands::next_shape_id(&ed.doc, page_id);
         let mut ids = Vec::new();
         let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
-        let mut add = |shape: Shape, cmds: &mut Vec<Box<dyn dc_core::Command>>, ids: &mut Vec<i64>| {
+        let add = |shape: Shape, cmds: &mut Vec<Box<dyn dc_core::Command>>, ids: &mut Vec<i64>| {
             ids.push(shape.id);
             cmds.push(Box::new(dc_core::AddShape { page: page_id, parent: None, shape }));
         };
@@ -10415,6 +10415,33 @@ impl App {
             Action::SaveAs => self.do_save(true),
             Action::Undo => self.do_undo(),
             Action::Redo => self.do_redo(),
+            Action::NewBackgroundPage => {
+                // a page marked Background (pages index, as Visio writes it),
+                // and the current page shows it behind its shapes
+                let fg = self.page_id().filter(|p| !self.is_background_page(*p));
+                let n = self.ed().map_or(0, |e| e.doc.pages.iter().filter(|p| p.attrs.iter().any(|(k, v)| k == "Background" && v == "1")).count());
+                let name = format!("{}-{}", crate::i18n::strs().msg_background(), n + 1);
+                let add = match self.page_id() {
+                    Some(id) => AddPage::seeded_from(name, id),
+                    None => AddPage::new(name),
+                };
+                self.apply(add);
+                if let Some(ed) = self.ed.as_mut() {
+                    if let Some(bg) = ed.doc.pages.last_mut() {
+                        bg.attrs.retain(|(k, _)| k != "Background" && k != "BackPage");
+                        bg.attrs.push(("Background".into(), "1".into()));
+                        let bg_id = bg.id;
+                        if let Some(fg) = fg.and_then(|f| ed.doc.pages.iter_mut().find(|p| p.id == f)) {
+                            fg.attrs.retain(|(k, _)| k != "BackPage");
+                            fg.attrs.push(("BackPage".into(), bg_id.to_string()));
+                        }
+                    }
+                    self.page_idx = ed.doc.pages.len() - 1;
+                    self.view.fit_pending = true;
+                    self.tab_scroll_to_active = true;
+                    self.version += 1;
+                }
+            }
             Action::NewPage => {
                 // #68: like the tab menu's Insert Page, the new sheet
                 // copies the active page's setup.
@@ -17821,6 +17848,14 @@ impl App {
         vsdx::model::find_shape_by_id(&p.shapes, shape).and_then(|s| s.sheet.text.clone())
     }
 
+    /// kittest: every page's index attributes as (page id, name, value).
+    pub fn debug_pages_index_attrs(&self) -> Vec<(i64, String, String)> {
+        self.ed
+            .as_ref()
+            .map(|ed| ed.doc.pages.iter().flat_map(|p| p.attrs.iter().map(move |(k, v)| (p.id, k.clone(), v.clone()))).collect())
+            .unwrap_or_default()
+    }
+    #[doc(hidden)]
     pub fn debug_shape_count(&self) -> usize {
         self.ed
             .as_ref()

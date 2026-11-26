@@ -187,7 +187,6 @@ could-not-open-address-e = no se pudo abrir { $address }: { $e }
 # $path - ruta del archivo
 # $e - texto del error
 could-not-read-path = no se pudo leer { $path }: { $e }
-create-a-background-page-planned = Crear una página de fondo — planeado (Diseño ▸ Fondos lo asigna hoy)
 create-new-data-graphic = Crear un nuevo gráfico de datos
 cross-functional = Función cruzada
 crow-s-foot = Pata de gallo
@@ -211,7 +210,6 @@ decrease-indent = Disminuir sangría
 # $e - texto del error
 default-stencil-failed = la galería predeterminada { $entry } no se pudo cargar: { $e }
 define-shape-data = Definir datos de forma
-define-shape-data-m6 = Definir datos de forma (M6)
 delete = Eliminar
 delete-comment = Eliminar comentario
 delete-page = Eliminar página
@@ -1250,3 +1248,5 @@ dg-color-by-value = Color por valor
 data-graphics-tip = Mostrar los datos de forma en las formas: como texto o como colores de relleno por valor
 legend-tip = Una leyenda para el gráfico de datos de color por valor de la página
 legend-needs-color-by-value = Aplique primero un gráfico de datos de color por valor
+new-background-page-tip = Agregar una página de fondo; la página actual la muestra detrás de sus formas
+define-shape-data-tip = Agregar sus propios campos de datos de forma (en la ventana Datos de formas)

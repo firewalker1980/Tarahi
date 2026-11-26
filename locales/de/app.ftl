@@ -168,7 +168,6 @@ could-not-open-address-e = { $address } konnte nicht geöffnet werden: { $e }
 # $path - Dateipfad
 # $e - Fehlertext
 could-not-read-path = { $path } konnte nicht gelesen werden: { $e }
-create-a-background-page-planned = Eine Hintergrundseite erstellen — geplant (Design ▸ Hintergründe weist heute zu)
 create-new-data-graphic = Neue Datengrafik erstellen
 cross-functional = Funktionsübergreifend
 crow-s-foot = Krallenfuß
@@ -191,7 +190,6 @@ decrease-indent = Einzug verkleinern
 # $e - Fehlertext
 default-stencil-failed = Standardschablone { $entry } konnte nicht geladen werden: { $e }
 define-shape-data = Formdaten definieren
-define-shape-data-m6 = Formdaten definieren (M6)
 delete = Löschen
 delete-comment = Kommentar löschen
 delete-page = Seite löschen
@@ -1180,3 +1178,5 @@ dg-color-by-value = Farbe nach Wert
 data-graphics-tip = Formdaten auf den Formen zeigen: als Text oder als Füllfarbe nach Wert
 legend-tip = Legende zur Datengrafik „Farbe nach Wert“ der Seite
 legend-needs-color-by-value = Zuerst eine Datengrafik „Farbe nach Wert“ anwenden
+new-background-page-tip = Eine Hintergrundseite hinzufügen; die aktuelle Seite zeigt sie hinter ihren Formen
+define-shape-data-tip = Eigene Formdatenfelder hinzufügen (im Fenster „Formdaten“)

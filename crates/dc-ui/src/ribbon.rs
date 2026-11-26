@@ -173,6 +173,8 @@ pub enum Action {
     LayoutSize,
     /// Design ▸ Scale (drawing scale).
     DrawingScale,
+    /// Insert ▸ New Background Page.
+    NewBackgroundPage,
     /// Data ▸ Data Graphics (also Create New / Edit) and Insert ▸ Legend.
     DataGraphics,
     InsertLegend,

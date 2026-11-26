@@ -168,7 +168,6 @@ could-not-open-address-e = بازکردن { $address } ممکن نشد: { $e }
 # $path - مسیر پرونده
 # $e - متن خطا
 could-not-read-path = خواندن { $path } ممکن نشد: { $e }
-create-a-background-page-planned = ساخت صفحهٔ پس‌زمینه — برنامه‌ریزی‌شده (امروز از طریق Design ▸ Backgrounds منتسب می‌شود)
 create-new-data-graphic = ساخت نمودار دادهٔ جدید
 cross-functional = میان‌کارکردی
 crow-s-foot = پای کلاغی
@@ -191,7 +190,6 @@ decrease-indent = کاهش تودرتو
 # $e - متن خطا
 default-stencil-failed = بارگذاری شابلون پیش‌فرض { $entry } شکست خورد: { $e }
 define-shape-data = تعریف دادهٔ شکل
-define-shape-data-m6 = تعریف دادهٔ شکل (M6)
 delete = حذف
 delete-comment = حذف نظر
 delete-page = حذف صفحه
@@ -1180,3 +1178,5 @@ dg-color-by-value = رنگ بر پایهٔ مقدار
 data-graphics-tip = نمایش دادهٔ شکل روی شکل‌ها: به‌صورت متن یا رنگ پرکردن بر پایهٔ مقدار
 legend-tip = راهنمای نگارهٔ دادهٔ رنگ بر پایهٔ مقدارِ صفحه
 legend-needs-color-by-value = نخست یک نگارهٔ دادهٔ رنگ بر پایهٔ مقدار اعمال کنید
+new-background-page-tip = افزودن صفحهٔ پس‌زمینه؛ صفحهٔ کنونی آن را پشت شکل‌هایش نشان می‌دهد
+define-shape-data-tip = افزودن فیلدهای دادهٔ شکل خودتان (در پنجرهٔ دادهٔ شکل)

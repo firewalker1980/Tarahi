@@ -1066,13 +1066,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "create-a-background-page-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "create-new-data-graphic",
         attribute: None,
         vars: &[],
@@ -1207,13 +1200,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "define-shape-data",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "define-shape-data-m6",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -7232,6 +7218,20 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "new-background-page-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "define-shape-data-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7331,13 +7331,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50999,
-            Self::En => 50999..100078,
-            Self::Es => 100078..154153,
-            Self::Fa => 154153..217498,
-            Self::Ja => 217498..272171,
-            Self::Ko => 272171..322544,
-            Self::ZhHans => 322544..366118,
+            Self::De => 0..51027,
+            Self::En => 51027..100124,
+            Self::Es => 100124..154246,
+            Self::Fa => 154246..217620,
+            Self::Ja => 217620..272363,
+            Self::Ko => 272363..322775,
+            Self::ZhHans => 322775..366357,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -8024,11 +8024,6 @@ impl L10nLanguage {
         _args.set("e", e.as_ref());
         self.0.msg("could-not-read-path", Some(_args)).unwrap()
     }
-    pub fn msg_create_a_background_page_planned(&self) -> String {
-        self.0
-            .msg("create-a-background-page-planned", None)
-            .unwrap()
-    }
     pub fn msg_create_new_data_graphic(&self) -> String {
         self.0.msg("create-new-data-graphic", None).unwrap()
     }
@@ -8105,9 +8100,6 @@ impl L10nLanguage {
     }
     pub fn msg_define_shape_data(&self) -> String {
         self.0.msg("define-shape-data", None).unwrap()
-    }
-    pub fn msg_define_shape_data_m6(&self) -> String {
-        self.0.msg("define-shape-data-m6", None).unwrap()
     }
     pub fn msg_delete(&self) -> String {
         self.0.msg("delete", None).unwrap()
@@ -11332,5 +11324,11 @@ impl L10nLanguage {
     }
     pub fn msg_legend_needs_color_by_value(&self) -> String {
         self.0.msg("legend-needs-color-by-value", None).unwrap()
+    }
+    pub fn msg_new_background_page_tip(&self) -> String {
+        self.0.msg("new-background-page-tip", None).unwrap()
+    }
+    pub fn msg_define_shape_data_tip(&self) -> String {
+        self.0.msg("define-shape-data-tip", None).unwrap()
     }
 }

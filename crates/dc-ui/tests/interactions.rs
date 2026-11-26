@@ -11710,3 +11710,33 @@ fn data_graphics_color_by_value_and_legend() {
     h.run();
     assert_eq!(h.state().debug_shape_count(), before);
 }
+
+/// Insert ▸ New Background Page: a page marked Background, which the
+/// page it was made from shows behind its shapes (BG_OUT saves it).
+#[test]
+fn new_background_page_is_assigned() {
+    let mut h = harness_with_blank();
+    h.run();
+    place_master(&mut h, 2);
+    let fg = h.state().debug_page_ids()[0];
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    h.get_by_label("New Background Page").click();
+    h.run();
+    let ids = h.state().debug_page_ids();
+    assert_eq!(ids.len(), 2);
+    let xml = h.state().debug_pages_index_attrs();
+    assert!(xml.iter().any(|(id, k, v)| *id == ids[1] && k == "Background" && v == "1"), "{xml:?}");
+    assert!(xml.iter().any(|(id, k, v)| *id == fg && k == "BackPage" && *v == ids[1].to_string()), "{xml:?}");
+    if let Some(out) = std::env::var_os("BG_OUT") {
+        place_master(&mut h, 4);
+        h.state_mut().preset_save_as_for_test(Some(std::path::PathBuf::from(out.clone())));
+        h.key_press_modifiers(egui::Modifiers::COMMAND | egui::Modifiers::SHIFT, egui::Key::S);
+        for _ in 0..30 {
+            h.run();
+            if std::path::Path::new(&out).exists() {
+                break;
+            }
+        }
+    }
+}

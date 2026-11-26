@@ -63,10 +63,10 @@ fn shape_data_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<s
         stack(vec![RibbonButton::new(
             Icon::Field,
             s.msg_define_shape_data(),
-            Action::Macros,
+            Action::ShapeDataWindow,
         )
-        .enabled(false)
-        .tip(s.msg_define_shape_data_m6())]),
+        .enabled(ctx.has_sel)
+        .tip(s.msg_define_shape_data_tip())]),
     ]
 }
 

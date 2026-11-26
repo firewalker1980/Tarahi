@@ -189,7 +189,6 @@ could-not-open-address-e = could not open { $address }: { $e }
 # $path (String) - file path
 # $e (String) - error text
 could-not-read-path = could not read { $path }: { $e }
-create-a-background-page-planned = Create a background page — planned (Design ▸ Backgrounds assigns today)
 create-new-data-graphic = Create New Data Graphic
 cross-functional = Cross-functional
 crow-s-foot = Crow's Foot
@@ -213,7 +212,6 @@ decrease-indent = Decrease Indent
 # $e (String) - error text
 default-stencil-failed = default stencil { $entry } failed to load: { $e }
 define-shape-data = Define Shape Data
-define-shape-data-m6 = Define shape data (M6)
 delete = Delete
 delete-comment = Delete Comment
 delete-page = Delete Page
@@ -1255,3 +1253,5 @@ dg-color-by-value = Color by value
 data-graphics-tip = Show shape data on the shapes: as text, or as fill colours by value
 legend-tip = A key for the page's colour-by-value data graphic
 legend-needs-color-by-value = Apply a colour-by-value data graphic first
+new-background-page-tip = Add a background page; the current page shows it behind its shapes
+define-shape-data-tip = Add your own Shape Data fields (in the Shape Data window)

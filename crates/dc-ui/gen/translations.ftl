@@ -171,7 +171,6 @@ could-not-open-address-e = { $address } konnte nicht geöffnet werden: { $e }
 # $path - Dateipfad
 # $e - Fehlertext
 could-not-read-path = { $path } konnte nicht gelesen werden: { $e }
-create-a-background-page-planned = Eine Hintergrundseite erstellen — geplant (Design ▸ Hintergründe weist heute zu)
 create-new-data-graphic = Neue Datengrafik erstellen
 cross-functional = Funktionsübergreifend
 crow-s-foot = Krallenfuß
@@ -194,7 +193,6 @@ decrease-indent = Einzug verkleinern
 # $e - Fehlertext
 default-stencil-failed = Standardschablone { $entry } konnte nicht geladen werden: { $e }
 define-shape-data = Formdaten definieren
-define-shape-data-m6 = Formdaten definieren (M6)
 delete = Löschen
 delete-comment = Kommentar löschen
 delete-page = Seite löschen
@@ -1183,6 +1181,8 @@ dg-color-by-value = Farbe nach Wert
 data-graphics-tip = Formdaten auf den Formen zeigen: als Text oder als Füllfarbe nach Wert
 legend-tip = Legende zur Datengrafik „Farbe nach Wert“ der Seite
 legend-needs-color-by-value = Zuerst eine Datengrafik „Farbe nach Wert“ anwenden
+new-background-page-tip = Eine Hintergrundseite hinzufügen; die aktuelle Seite zeigt sie hinter ihren Formen
+define-shape-data-tip = Eigene Formdatenfelder hinzufügen (im Fenster „Formdaten“)
 
 
 ## ########## Resource: app ###############
@@ -1378,7 +1378,6 @@ could-not-open-address-e = could not open { $address }: { $e }
 # $path (String) - file path
 # $e (String) - error text
 could-not-read-path = could not read { $path }: { $e }
-create-a-background-page-planned = Create a background page — planned (Design ▸ Backgrounds assigns today)
 create-new-data-graphic = Create New Data Graphic
 cross-functional = Cross-functional
 crow-s-foot = Crow's Foot
@@ -1402,7 +1401,6 @@ decrease-indent = Decrease Indent
 # $e (String) - error text
 default-stencil-failed = default stencil { $entry } failed to load: { $e }
 define-shape-data = Define Shape Data
-define-shape-data-m6 = Define shape data (M6)
 delete = Delete
 delete-comment = Delete Comment
 delete-page = Delete Page
@@ -2444,6 +2442,8 @@ dg-color-by-value = Color by value
 data-graphics-tip = Show shape data on the shapes: as text, or as fill colours by value
 legend-tip = A key for the page's colour-by-value data graphic
 legend-needs-color-by-value = Apply a colour-by-value data graphic first
+new-background-page-tip = Add a background page; the current page shows it behind its shapes
+define-shape-data-tip = Add your own Shape Data fields (in the Shape Data window)
 
 
 ## ########## Resource: app ###############
@@ -2637,7 +2637,6 @@ could-not-open-address-e = no se pudo abrir { $address }: { $e }
 # $path - ruta del archivo
 # $e - texto del error
 could-not-read-path = no se pudo leer { $path }: { $e }
-create-a-background-page-planned = Crear una página de fondo — planeado (Diseño ▸ Fondos lo asigna hoy)
 create-new-data-graphic = Crear un nuevo gráfico de datos
 cross-functional = Función cruzada
 crow-s-foot = Pata de gallo
@@ -2661,7 +2660,6 @@ decrease-indent = Disminuir sangría
 # $e - texto del error
 default-stencil-failed = la galería predeterminada { $entry } no se pudo cargar: { $e }
 define-shape-data = Definir datos de forma
-define-shape-data-m6 = Definir datos de forma (M6)
 delete = Eliminar
 delete-comment = Eliminar comentario
 delete-page = Eliminar página
@@ -3700,6 +3698,8 @@ dg-color-by-value = Color por valor
 data-graphics-tip = Mostrar los datos de forma en las formas: como texto o como colores de relleno por valor
 legend-tip = Una leyenda para el gráfico de datos de color por valor de la página
 legend-needs-color-by-value = Aplique primero un gráfico de datos de color por valor
+new-background-page-tip = Agregar una página de fondo; la página actual la muestra detrás de sus formas
+define-shape-data-tip = Agregar sus propios campos de datos de forma (en la ventana Datos de formas)
 
 
 ## ########## Resource: app ###############
@@ -3874,7 +3874,6 @@ could-not-open-address-e = بازکردن { $address } ممکن نشد: { $e }
 # $path - مسیر پرونده
 # $e - متن خطا
 could-not-read-path = خواندن { $path } ممکن نشد: { $e }
-create-a-background-page-planned = ساخت صفحهٔ پس‌زمینه — برنامه‌ریزی‌شده (امروز از طریق Design ▸ Backgrounds منتسب می‌شود)
 create-new-data-graphic = ساخت نمودار دادهٔ جدید
 cross-functional = میان‌کارکردی
 crow-s-foot = پای کلاغی
@@ -3897,7 +3896,6 @@ decrease-indent = کاهش تودرتو
 # $e - متن خطا
 default-stencil-failed = بارگذاری شابلون پیش‌فرض { $entry } شکست خورد: { $e }
 define-shape-data = تعریف دادهٔ شکل
-define-shape-data-m6 = تعریف دادهٔ شکل (M6)
 delete = حذف
 delete-comment = حذف نظر
 delete-page = حذف صفحه
@@ -4886,6 +4884,8 @@ dg-color-by-value = رنگ بر پایهٔ مقدار
 data-graphics-tip = نمایش دادهٔ شکل روی شکل‌ها: به‌صورت متن یا رنگ پرکردن بر پایهٔ مقدار
 legend-tip = راهنمای نگارهٔ دادهٔ رنگ بر پایهٔ مقدارِ صفحه
 legend-needs-color-by-value = نخست یک نگارهٔ دادهٔ رنگ بر پایهٔ مقدار اعمال کنید
+new-background-page-tip = افزودن صفحهٔ پس‌زمینه؛ صفحهٔ کنونی آن را پشت شکل‌هایش نشان می‌دهد
+define-shape-data-tip = افزودن فیلدهای دادهٔ شکل خودتان (در پنجرهٔ دادهٔ شکل)
 
 
 ## ########## Resource: app ###############
@@ -5047,7 +5047,6 @@ copy-as-picture-menu = 図としてコピー…
 copy-picture = ピクチャのコピー
 could-not-open-address-e = { $address } を開けませんでした: { $e }
 could-not-read-path = { $path } を読み取れませんでした: { $e }
-create-a-background-page-planned = 背景ページの作成 — 予定（Design ▸ 背景で今日割り当てできます）
 create-new-data-graphic = 新しいデータ グラフィックの作成
 cross-functional = 組織横断
 crow-s-foot = クローズ フット
@@ -5068,7 +5067,6 @@ date-time = 日付と時刻
 decrease-indent = インデントを減らす
 default-stencil-failed = 既定のステンシル { $entry } を読み込めませんでした: { $e }
 define-shape-data = 図形データの定義
-define-shape-data-m6 = 図形データの定義（M6）
 delete = 削除
 delete-comment = コメントの削除
 delete-page = ページの削除
@@ -5968,6 +5966,8 @@ dg-color-by-value = 値で色分け
 data-graphics-tip = シェイプ データを図形に表示: テキスト、または値による塗りつぶし色
 legend-tip = ページの値による色分けの凡例
 legend-needs-color-by-value = 先に値による色分けのデータ グラフィックを適用してください
+new-background-page-tip = 背景ページを追加します。現在のページの図形の背後に表示されます
+define-shape-data-tip = 独自のシェイプ データ フィールドを追加します ([シェイプ データ] ウィンドウ)
 
 
 ## ########## Resource: app ###############
@@ -6130,7 +6130,6 @@ copy-as-picture-menu = 그림으로 복사…
 copy-picture = 그림 복사
 could-not-open-address-e = { $address }을(를) 열 수 없습니다: { $e }
 could-not-read-path = { $path }을(를) 읽을 수 없습니다: { $e }
-create-a-background-page-planned = 배경 페이지 만들기 — 예정(Design ▸ 배경에서 오늘 할당 가능)
 create-new-data-graphic = 새 데이터 그래픽 만들기
 cross-functional = 교차 기능
 crow-s-foot = 클로즈 풋
@@ -6151,7 +6150,6 @@ date-time = 날짜 및 시간
 decrease-indent = 내어쓰기
 default-stencil-failed = 기본 스텐실 { $entry }을(를) 로드하지 못했습니다: { $e }
 define-shape-data = 셰이프 데이터 정의
-define-shape-data-m6 = 셰이프 데이터 정의(M6)
 delete = 삭제
 delete-comment = 메모 삭제
 delete-page = 페이지 삭제
@@ -7051,6 +7049,8 @@ dg-color-by-value = 값별 색
 data-graphics-tip = 도형 데이터를 도형에 표시: 텍스트 또는 값별 채우기 색
 legend-tip = 페이지의 값별 색 데이터 그래픽 범례
 legend-needs-color-by-value = 먼저 값별 색 데이터 그래픽을 적용하세요
+new-background-page-tip = 배경 페이지를 추가합니다. 현재 페이지의 도형 뒤에 표시됩니다
+define-shape-data-tip = 고유한 도형 데이터 필드를 추가합니다(도형 데이터 창)
 
 
 ## ########## Resource: app ###############
@@ -7211,7 +7211,6 @@ copy-as-picture-menu = 复制为图片…
 copy-picture = 复制图片
 could-not-open-address-e = 无法打开 { $address }：{ $e }
 could-not-read-path = 无法读取 { $path }：{ $e }
-create-a-background-page-planned = 新建背景页 — 计划中（“设计 ▸ 背景”现已可指定）
 create-new-data-graphic = 新建数据图形
 cross-functional = 交叉功能
 crow-s-foot = 鸦爪
@@ -7232,7 +7231,6 @@ date-time = 日期和时间
 decrease-indent = 减少缩进
 default-stencil-failed = 默认模具 { $entry } 加载失败：{ $e }
 define-shape-data = 定义形状数据
-define-shape-data-m6 = 定义形状数据（M6）
 delete = 删除
 delete-comment = 删除批注
 delete-page = 删除页面
@@ -8138,4 +8136,6 @@ dg-color-by-value = 按值着色
 data-graphics-tip = 在形状上显示形状数据:文本或按值填充颜色
 legend-tip = 页面按值着色数据图形的图例
 legend-needs-color-by-value = 请先应用按值着色的数据图形
+new-background-page-tip = 添加背景页；当前页在其形状后面显示它
+define-shape-data-tip = 添加自己的形状数据字段(在"形状数据"窗口中)
 

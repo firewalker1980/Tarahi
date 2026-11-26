@@ -31,16 +31,14 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
 fn pages_cols(s: &'static crate::l10n::L10nLanguage, has_doc: bool) -> Vec<super::Col> {
     vec![
         big(RibbonButton::new(Icon::NewPage, s.msg_new_page(), Action::NewPage).enabled(has_doc)),
-        // Visio's New Page split: plain page / background page (the
-        // background variant is planned; assignment lives in
-        // Design ▸ Backgrounds today).
+        // Visio's New Page split: plain page / background page.
         stack(vec![RibbonButton::new(
             Icon::Picture,
             s.msg_new_background_page(),
-            Action::Macros,
+            Action::NewBackgroundPage,
         )
-        .enabled(false)
-        .tip(s.msg_create_a_background_page_planned())]),
+        .enabled(has_doc)
+        .tip(s.msg_new_background_page_tip())]),
     ]
 }
 
