@@ -1039,3 +1039,234 @@ mod tests {
         );
     }
 }
+
+const NAME_ATTR: &str = "Name";
+
+/// A new stencil master made from shape `sid` on `page_id` of `doc`
+/// (Developer ▸ Edit Stencil, Visio's drag-into-stencil): the shape
+/// flattened (master folded in), moved so its box starts at the master
+/// page's origin, the page sized to it; pictures are copied with fresh
+/// rIds into `media` (owned by the new master part). `id` is the
+/// master id (and part number); `media_n` numbers media parts.
+pub fn master_from_shape(
+    doc: &vsdx::Document,
+    page_id: i64,
+    sid: i64,
+    id: i64,
+    media_n: &mut usize,
+) -> Option<(vsdx::model::Master, Vec<vsdx::model::MediaRef>)> {
+    use vsdx::model::{Cell, IndexChild, Master, MediaRef, Sheet};
+    let page = doc.pages.iter().find(|p| p.id == page_id)?;
+    let sh = page.shapes.iter().find(|s| s.id == sid)?;
+    let chain = dc_core::scope::shape_chain(doc, page_id, sid).ok()?;
+    let mut root = doc.flatten_instance(sh, &chain[..chain.len() - 1]);
+    let num = |s: &vsdx::Shape, n: &str| doc.resolve_cell(s, &chain, n).and_then(|c| c.numeric());
+    let (w, h) = (num(sh, "Width").unwrap_or(1.0), num(sh, "Height").unwrap_or(1.0));
+    let (px, py) = (num(sh, "PinX").unwrap_or(0.0), num(sh, "PinY").unwrap_or(0.0));
+    let (lx, ly) = (num(sh, "LocPinX").unwrap_or(w / 2.0), num(sh, "LocPinY").unwrap_or(h / 2.0));
+    let one_d = num(sh, "BeginX").is_some() && num(sh, "EndX").is_some();
+    let (dx, dy) = if one_d {
+        let bx = num(sh, "BeginX").unwrap_or(0.0).min(num(sh, "EndX").unwrap_or(0.0));
+        let by = num(sh, "BeginY").unwrap_or(0.0).min(num(sh, "EndY").unwrap_or(0.0));
+        (-bx, -by)
+    } else {
+        (lx - px, ly - py)
+    };
+    let shift = |s: &mut Sheet, n: &str, d: f64| {
+        if let Some(v) = s.cell(n).and_then(|c| c.numeric()) {
+            s.set_cell(n, Cell::value(format!("{:.10}", v + d)));
+        }
+    };
+    for (n, d) in [("PinX", dx), ("PinY", dy), ("BeginX", dx), ("EndX", dx), ("BeginY", dy), ("EndY", dy)] {
+        shift(&mut root.sheet, n, d);
+    }
+    // glue to drawing shapes means nothing in a stencil
+    for n in ["BeginX", "BeginY", "EndX", "EndY", "PinX", "PinY"] {
+        if let Some(c) = root.sheet.cell(n).cloned() {
+            if c.f.is_some() {
+                root.sheet.set_cell(n, Cell::value(c.v.clone().unwrap_or_default()));
+            }
+        }
+    }
+    // an instance keeps its master root's id: the master's sub-shapes
+    // refer to it (Sheet.N!) in their formulas
+    if let Some(src) = doc.instance_source(sh, &chain[..chain.len() - 1]) {
+        root.id = src.id;
+        if let Some(a) = root.attrs.iter_mut().find(|(k, _)| k == "ID") {
+            a.1 = src.id.to_string();
+        }
+    }
+    renumber_from_5(&mut root);
+    let part = format!("visio/masters/master{id}.xml");
+    // pictures: fresh rIds on the master part, bytes from where the
+    // original lived (the page for a plain picture, else the master)
+    let src_part = |orig: Option<&vsdx::Shape>| -> String {
+        match orig {
+            Some(o) if o.raw_children.iter().any(|r| r.name == "ForeignData") && sh.master.is_none() => page.part.clone(),
+            _ => sh.master.and_then(|m| doc.master(m)).map(|m| m.part.clone()).unwrap_or_else(|| page.part.clone()),
+        }
+    };
+    let mut media = Vec::new();
+    let mut rid_n = 0;
+    let mut stack: Vec<&mut vsdx::Shape> = vec![&mut root];
+    while let Some(s) = stack.pop() {
+        let orig = vsdx::model::find_shape_by_id(std::slice::from_ref(sh), s.id);
+        if let Some(fd) = s.raw_children.iter_mut().find(|r| r.name == "ForeignData") {
+            let rid = fd
+                .attrs
+                .iter()
+                .find(|(k, _)| k == "r:id")
+                .map(|(_, v)| v.clone())
+                .or_else(|| fd.inner.split("r:id=").nth(1).and_then(|x| x.get(1..)).and_then(|x| x.split(['"', '\'']).next()).map(String::from));
+            if let Some(rid) = rid {
+                if let Some((name, bytes)) = dc::svg::media_lookup(doc, &src_part(orig), &rid) {
+                    rid_n += 1;
+                    *media_n += 1;
+                    let new_rid = format!("rId{rid_n}");
+                    let ext = name.rsplit('.').next().unwrap_or("bin").to_ascii_lowercase();
+                    fd.inner = fd.inner.replace(&rid, &new_rid);
+                    if let Some(a) = fd.attrs.iter_mut().find(|(k, _)| k == "r:id") {
+                        a.1 = new_rid.clone();
+                    }
+                    media.push(MediaRef {
+                        part: format!("visio/media/image{}.{ext}", *media_n),
+                        bytes: bytes.to_vec(),
+                        page: -1,
+                        rid: new_rid,
+                        ext,
+                        owner: Some(part.clone()),
+                    });
+                }
+            }
+        }
+        stack.extend(s.sub_shapes.iter_mut());
+    }
+    let name = sh
+        .sheet
+        .text
+        .as_deref()
+        .or(root.sheet.text.as_deref())
+        .and_then(|t| t.lines().map(str::trim).find(|l| !l.is_empty()))
+        .map(String::from)
+        .or_else(|| sh.name_u.as_deref().map(|n| n.rsplit_once('.').filter(|(_, d)| d.chars().all(|c| c.is_ascii_digit())).map_or(n, |(b, _)| b).to_string()))
+        .unwrap_or_else(|| format!("Master.{id}"));
+    let mut page_sheet = Sheet::default();
+    page_sheet.set_cell("PageWidth", Cell::value(format!("{:.10}", if one_d { w.abs().max(0.25) } else { w })));
+    page_sheet.set_cell("PageHeight", Cell::value(format!("{:.10}", if one_d { h.abs().max(0.25) } else { h })));
+    page_sheet.set_cell("PageScale", Cell::value("1"));
+    page_sheet.set_cell("DrawingScale", Cell::value("1"));
+    let m = Master {
+        id,
+        name_u: Some(name.clone()),
+        attrs: {
+            // Visio drops only masters that carry these (MasterType 2,
+            // the GUID identities); values as in its own stencils
+            let guid = |salt: u64| {
+                let n = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_nanos() as u64);
+                let a = n ^ (id as u64).rotate_left(17) ^ salt.wrapping_mul(0x9E37_79B9_7F4A_7C15);
+                let b = a.wrapping_mul(0xBF58_476D_1CE4_E5B9) ^ (a >> 31);
+                format!(
+                    "{{{:08X}-{:04X}-4{:03X}-{:04X}-{:012X}}}",
+                    (b >> 32) as u32,
+                    (b >> 16) as u16,
+                    (b & 0xfff) as u16,
+                    0x8000 | ((a >> 48) as u16 & 0x3fff),
+                    a & 0xffff_ffff_ffff
+                )
+            };
+            vec![
+                ("ID".into(), id.to_string()),
+                ("NameU".into(), name.clone()),
+                ("IsCustomNameU".into(), "1".into()),
+                // the Master element's Name attribute (.vsdx vocabulary)
+                (NAME_ATTR.into(), name.clone()),
+                ("IsCustomName".into(), "1".into()),
+                ("IconSize".into(), "1".into()),
+                ("AlignName".into(), "2".into()),
+                ("MatchByName".into(), "0".into()),
+                ("IconUpdate".into(), "1".into()),
+                ("UniqueID".into(), guid(1)),
+                ("BaseID".into(), guid(2)),
+                ("PatternFlags".into(), "0".into()),
+                ("Hidden".into(), "0".into()),
+                ("MasterType".into(), "2".into()),
+            ]
+        },
+        children: vec![IndexChild::Sheet { tag: "PageSheet".into(), sheet: page_sheet }],
+        shapes: vec![root],
+        part,
+        ..Master::default()
+    };
+    Some((m, media))
+}
+
+/// Visio ignores master shapes with IDs 1-4 (its own masters number from
+/// 5; a master whose root is ID 1 opens with no shapes and can't be
+/// dropped). Shift the tree's IDs up when needed, `Sheet.N!` formula
+/// references included.
+fn renumber_from_5(root: &mut vsdx::Shape) {
+    fn ids(s: &vsdx::Shape, out: &mut Vec<i64>) {
+        out.push(s.id);
+        for c in &s.sub_shapes {
+            ids(c, out);
+        }
+    }
+    let mut all = Vec::new();
+    ids(root, &mut all);
+    let Some(&min) = all.iter().min() else { return };
+    if min >= 5 {
+        return;
+    }
+    let off = 5 - min;
+    fn fix_f(f: &mut Option<String>, map: &[i64], off: i64) {
+        if let Some(text) = f {
+            // longest ids first so Sheet.1! never rewrites Sheet.12!
+            let mut ids: Vec<i64> = map.to_vec();
+            ids.sort_by(|a, b| b.cmp(a));
+            for id in ids {
+                *text = text.replace(&format!("Sheet.{id}!"), &format!("Sheet.\u{0}{}!", id + off));
+            }
+            *text = text.replace("Sheet.\u{0}", "Sheet.");
+        }
+    }
+    fn walk(s: &mut vsdx::Shape, map: &[i64], off: i64) {
+        s.id += off;
+        if let Some(a) = s.attrs.iter_mut().find(|(k, _)| k == "ID") {
+            a.1 = s.id.to_string();
+        }
+        for ch in &mut s.sheet.children {
+            match ch {
+                vsdx::model::SheetChild::Cell(_, c) => fix_f(&mut c.f, map, off),
+                vsdx::model::SheetChild::Section(sec) => {
+                    for (_, c) in &mut sec.cells {
+                        fix_f(&mut c.f, map, off);
+                    }
+                    for r in &mut sec.rows {
+                        for (_, c) in &mut r.cells {
+                            fix_f(&mut c.f, map, off);
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        for c in &mut s.sub_shapes {
+            walk(c, map, off);
+        }
+    }
+    walk(root, &all, off);
+}
+
+#[cfg(test)]
+mod renumber_tests {
+    #[test]
+    fn ids_and_sheet_refs_shift_to_five() {
+        let mut child = vsdx::Shape { id: 2, ..Default::default() };
+        child.sheet.set_cell("Width", vsdx::Cell { v: Some("1".into()), f: Some("Sheet.1!Width*0.5+Sheet.12!Width".into()), ..Default::default() });
+        let mut root = vsdx::Shape { id: 1, sub_shapes: vec![child], ..Default::default() };
+        super::renumber_from_5(&mut root);
+        assert_eq!((root.id, root.sub_shapes[0].id), (5, 6));
+        assert_eq!(root.sub_shapes[0].sheet.cell("Width").unwrap().f.as_deref(), Some("Sheet.5!Width*0.5+Sheet.12!Width"));
+    }
+}
+

@@ -1094,13 +1094,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "create-a-stencil-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "create-new-data-graphic",
         attribute: None,
         vars: &[],
@@ -4552,13 +4545,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "save-the-stencil-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "saved-path",
         attribute: None,
         vars: &["path"],
@@ -5463,13 +5449,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "stencil",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "stencil-editing-planned-scope-ca",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6903,6 +6882,27 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "add-to-stencil-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "new-stencil-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "save-stencil-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7002,13 +7002,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48664,
-            Self::En => 48664..95626,
-            Self::Es => 95626..147405,
-            Self::Fa => 147405..208137,
-            Self::Ja => 208137..260328,
-            Self::Ko => 260328..308473,
-            Self::ZhHans => 308473..350172,
+            Self::De => 0..48681,
+            Self::En => 48681..95674,
+            Self::Es => 95674..147452,
+            Self::Fa => 147452..208225,
+            Self::Ja => 208225..260446,
+            Self::Ko => 260446..308622,
+            Self::ZhHans => 308622..350348,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7710,9 +7710,6 @@ impl L10nLanguage {
         self.0
             .msg("create-a-background-page-planned", None)
             .unwrap()
-    }
-    pub fn msg_create_a_stencil_planned(&self) -> String {
-        self.0.msg("create-a-stencil-planned", None).unwrap()
     }
     pub fn msg_create_new_data_graphic(&self) -> String {
         self.0.msg("create-new-data-graphic", None).unwrap()
@@ -9575,9 +9572,6 @@ impl L10nLanguage {
     pub fn msg_save_stencil(&self) -> String {
         self.0.msg("save-stencil", None).unwrap()
     }
-    pub fn msg_save_the_stencil_planned(&self) -> String {
-        self.0.msg("save-the-stencil-planned", None).unwrap()
-    }
     /// $path (String) - file path
     pub fn msg_saved_path<F0: AsRef<str>>(&self, path: F0) -> String {
         let mut _args = FluentArgs::new();
@@ -10070,11 +10064,6 @@ impl L10nLanguage {
     }
     pub fn msg_stencil(&self) -> String {
         self.0.msg("stencil", None).unwrap()
-    }
-    pub fn msg_stencil_editing_planned_scope_ca(&self) -> String {
-        self.0
-            .msg("stencil-editing-planned-scope-ca", None)
-            .unwrap()
     }
     pub fn msg_stencil_fallback(&self) -> String {
         self.0.msg("stencil-fallback", None).unwrap()
@@ -10856,5 +10845,14 @@ impl L10nLanguage {
     }
     pub fn msg_symbol_tip(&self) -> String {
         self.0.msg("symbol-tip", None).unwrap()
+    }
+    pub fn msg_add_to_stencil_tip(&self) -> String {
+        self.0.msg("add-to-stencil-tip", None).unwrap()
+    }
+    pub fn msg_new_stencil_tip(&self) -> String {
+        self.0.msg("new-stencil-tip", None).unwrap()
+    }
+    pub fn msg_save_stencil_tip(&self) -> String {
+        self.0.msg("save-stencil-tip", None).unwrap()
     }
 }

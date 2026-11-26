@@ -81,17 +81,17 @@ fn shape_design_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
 fn stencil_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super::Col> {
     vec![grid(vec![
         vec![
-            RibbonButton::new(Icon::Shapes, s.msg_edit_stencil(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_stencil_editing_planned_scope_ca()),
-            RibbonButton::new(Icon::New, s.msg_new_stencil(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_create_a_stencil_planned()),
+            RibbonButton::new(Icon::Shapes, s.msg_edit_stencil(), Action::AddToStencil)
+                .enabled(ctx.has_sel)
+                .tip(s.msg_add_to_stencil_tip()),
+            RibbonButton::new(Icon::New, s.msg_new_stencil(), Action::NewStencil)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_new_stencil_tip()),
         ],
         vec![
-            RibbonButton::new(Icon::Save, s.msg_save_stencil(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_save_the_stencil_planned()),
+            RibbonButton::new(Icon::Save, s.msg_save_stencil(), Action::SaveStencil)
+                .enabled(ctx.stencil_editing)
+                .tip(s.msg_save_stencil_tip()),
             RibbonButton::new(Icon::Units, s.msg_stencil_settings(), Action::Macros)
                 .enabled(false)
                 .tip(s.msg_stencil_settings_planned()),

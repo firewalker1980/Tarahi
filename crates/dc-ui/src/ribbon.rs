@@ -56,6 +56,7 @@ pub(crate) struct TabCtx {
     pub show_comments: bool,
     pub show_guides: bool,
     pub stamp: bool,
+    pub stencil_editing: bool,
     pub autosize: bool,
     pub doc_stencil: bool,
     pub show_conn_points: bool,
@@ -163,6 +164,11 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Developer ▸ New Stencil, Edit Stencil (add the selection as
+    /// masters), Save Stencil.
+    NewStencil,
+    AddToStencil,
+    SaveStencil,
     /// Insert ▸ Symbol.
     InsertSymbol,
     /// Insert ▸ Callout, Title (false) / Border & Title (true).

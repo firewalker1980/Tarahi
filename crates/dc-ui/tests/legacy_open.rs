@@ -7,6 +7,7 @@
 //!     TARAHI_VSD_CORPUS=~/stencils cargo test -p dc-ui --test legacy_open
 
 use dc_ui::app::App;
+use egui_kittest::kittest::Queryable;
 use egui_kittest::Harness;
 use std::path::{Path, PathBuf};
 
@@ -115,6 +116,25 @@ fn scaled_master_drops_at_page_size() {
     let (_, sid) = h.state().debug_sel().expect("placed");
     let w: f64 = h.state().debug_cell_for_test(sid, "Width").expect("Width").parse().unwrap();
     assert!((w - 1.27).abs() < 0.01, "width {w}");
+    // STENCIL_OUT: make a stencil from the placed router (picture
+    // master) for a Visio check
+    if let Some(out) = std::env::var_os("STENCIL_OUT") {
+        h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Developer);
+        h.run();
+        h.get_by_label("New Stencil").click();
+        h.run();
+        h.get_by_label("Edit Stencil").click();
+        h.run();
+        h.state_mut().preset_file_dialog_for_test(Some(PathBuf::from(out.clone())));
+        h.get_by_label("Save Stencil").click();
+        for _ in 0..30 {
+            h.run();
+            if Path::new(&out).exists() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(30));
+        }
+    }
     // DROPSCALE_OUT: save the drawing for a visual check (Tarahi / Visio)
     if let Some(out) = std::env::var_os("DROPSCALE_OUT") {
         h.state_mut().preset_save_as_for_test(Some(PathBuf::from(out.clone())));

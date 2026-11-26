@@ -175,7 +175,6 @@ could-not-open-address-e = { $address } konnte nicht geöffnet werden: { $e }
 # $e - Fehlertext
 could-not-read-path = { $path } konnte nicht gelesen werden: { $e }
 create-a-background-page-planned = Eine Hintergrundseite erstellen — geplant (Design ▸ Hintergründe weist heute zu)
-create-a-stencil-planned = Eine Schablone erstellen — geplant
 create-new-data-graphic = Neue Datengrafik erstellen
 cross-functional = Funktionsübergreifend
 crow-s-foot = Krallenfuß
@@ -720,7 +719,6 @@ save-ctrl-s = Speichern (Strg+S)
 save-failed-e = Speichern fehlgeschlagen: { $e }
 save-new = Speichern & Neu
 save-stencil = Schablone speichern
-save-the-stencil-planned = Die Schablone speichern — geplant
 # $path - Dateipfad
 saved-path = { $path } gespeichert
 scale = Skalieren
@@ -864,7 +862,6 @@ start-an-empty-us-letter-drawing = Eine leere Zeichnung im US-Letter-Format begi
 status = Status
 stealth-dart = Tarnpfeil
 stencil = Schablone
-stencil-editing-planned-scope-ca = Schablonenbearbeitung — geplant (Rahmenentscheid zu #252)
 stencil-fallback = Schablone
 stencil-settings = Schabloneneinstellungen
 stencil-settings-planned = Schabloneneinstellungen — geplant
@@ -1128,6 +1125,9 @@ callout-tip = Ein Textfeld mit Verbindungslinie zur ausgewählten Form
 title-tip = Ein großer Titel oben auf der Seite
 border-title-tip = Ein Rahmen um die Seite mit Titel
 symbol-tip = Ein Symbol in den Text der Form einfügen
+add-to-stencil-tip = Ausgewählte Formen als Master zur bearbeiteten Schablone hinzufügen
+new-stencil-tip = Eine leere Schablone im Formenbereich anlegen
+save-stencil-tip = Die bearbeitete Schablone speichern (eine neue in Eigene Formen)
 
 
 ## ########## Resource: app ###############
@@ -1327,7 +1327,6 @@ could-not-open-address-e = could not open { $address }: { $e }
 # $e (String) - error text
 could-not-read-path = could not read { $path }: { $e }
 create-a-background-page-planned = Create a background page — planned (Design ▸ Backgrounds assigns today)
-create-a-stencil-planned = Create a stencil — planned
 create-new-data-graphic = Create New Data Graphic
 cross-functional = Cross-functional
 crow-s-foot = Crow's Foot
@@ -1909,7 +1908,6 @@ save-ctrl-s = Save (Ctrl+S)
 save-failed-e = save failed: { $e }
 save-new = Save & New
 save-stencil = Save Stencil
-save-the-stencil-planned = Save the stencil — planned
 # $path (String) - file path
 saved-path = saved { $path }
 scale = Scale
@@ -2065,7 +2063,6 @@ start-an-empty-us-letter-drawing = Start an empty US-Letter drawing (Ctrl+N)
 status = Status
 stealth-dart = Stealth Dart
 stencil = Stencil
-stencil-editing-planned-scope-ca = Stencil editing — planned (scope call on #252)
 stencil-fallback = stencil
 stencil-settings = Stencil Settings
 stencil-settings-planned = Stencil settings — planned
@@ -2334,6 +2331,9 @@ callout-tip = A text box with a leader line to the selected shape
 title-tip = A large title at the top of the page
 border-title-tip = A frame around the page with a title
 symbol-tip = Insert a symbol into the shape's text
+add-to-stencil-tip = Add the selected shapes to the stencil you're editing as masters
+new-stencil-tip = Start an empty stencil in the Shapes pane
+save-stencil-tip = Save the stencil you're editing (a new one goes to My Shapes)
 
 
 ## ########## Resource: app ###############
@@ -2531,7 +2531,6 @@ could-not-open-address-e = no se pudo abrir { $address }: { $e }
 # $e - texto del error
 could-not-read-path = no se pudo leer { $path }: { $e }
 create-a-background-page-planned = Crear una página de fondo — planeado (Diseño ▸ Fondos lo asigna hoy)
-create-a-stencil-planned = Crear una galería de símbolos — planeado
 create-new-data-graphic = Crear un nuevo gráfico de datos
 cross-functional = Función cruzada
 crow-s-foot = Pata de gallo
@@ -3112,7 +3111,6 @@ save-ctrl-s = Guardar (Ctrl+S)
 save-failed-e = falló el guardado: { $e }
 save-new = Guardar y nuevo
 save-stencil = Guardar galería
-save-the-stencil-planned = Guardar la galería — planeado
 # $path - ruta del archivo
 saved-path = se guardó { $path }
 scale = Escala
@@ -3266,7 +3264,6 @@ start-an-empty-us-letter-drawing = Iniciar un dibujo vacío tamaño carta de EE.
 status = Estado
 stealth-dart = Dardo sigiloso
 stencil = Galería
-stencil-editing-planned-scope-ca = Edición de galerías — planeado (decisión de alcance en #252)
 stencil-fallback = galería
 stencil-settings = Configuración de galería
 stencil-settings-planned = Configuración de galería — planeado
@@ -3535,6 +3532,9 @@ callout-tip = Un cuadro de texto con una línea guía a la forma seleccionada
 title-tip = Un título grande en la parte superior de la página
 border-title-tip = Un marco alrededor de la página con título
 symbol-tip = Insertar un símbolo en el texto de la forma
+add-to-stencil-tip = Agregar las formas seleccionadas como patrones a la galería que edita
+new-stencil-tip = Crear una galería vacía en el panel Formas
+save-stencil-tip = Guardar la galería que edita (una nueva va a Mis formas)
 
 
 ## ########## Resource: app ###############
@@ -3713,7 +3713,6 @@ could-not-open-address-e = بازکردن { $address } ممکن نشد: { $e }
 # $e - متن خطا
 could-not-read-path = خواندن { $path } ممکن نشد: { $e }
 create-a-background-page-planned = ساخت صفحهٔ پس‌زمینه — برنامه‌ریزی‌شده (امروز از طریق Design ▸ Backgrounds منتسب می‌شود)
-create-a-stencil-planned = ساخت شابلون — برنامه‌ریزی شده
 create-new-data-graphic = ساخت نمودار دادهٔ جدید
 cross-functional = میان‌کارکردی
 crow-s-foot = پای کلاغی
@@ -4258,7 +4257,6 @@ save-ctrl-s = ذخیره (Ctrl+S)
 save-failed-e = ذخیره شکست خورد: { $e }
 save-new = ذخیره و جدید
 save-stencil = ذخیرهٔ شابلون
-save-the-stencil-planned = ذخیرهٔ شابلون — برنامه‌ریزی شده
 # $path - مسیر پرونده
 saved-path = { $path } ذخیره شد
 scale = مقیاس
@@ -4402,7 +4400,6 @@ start-an-empty-us-letter-drawing = آغاز یک نقاشی خالی US-Letter (
 status = وضعیت
 stealth-dart = دارهٔ پنهان‌کار
 stencil = شابلون
-stencil-editing-planned-scope-ca = ویرایش شابلون — برنامه‌ریزی‌شده (تصمیم دامنه در #252)
 stencil-fallback = شابلون
 stencil-settings = تنظیمات شابلون
 stencil-settings-planned = تنظیمات شابلون — برنامه‌ریزی شده
@@ -4666,6 +4663,9 @@ callout-tip = کادر متن با خط راهنما به شکل انتخاب‌
 title-tip = عنوانی بزرگ در بالای صفحه
 border-title-tip = قابی دور صفحه همراه با عنوان
 symbol-tip = درج نماد در متن شکل
+add-to-stencil-tip = افزودن شکل‌های انتخاب‌شده به‌عنوان مستر به استنسیلی که ویرایش می‌کنید
+new-stencil-tip = ایجاد استنسیل خالی در پنل شکل‌ها
+save-stencil-tip = ذخیرهٔ استنسیلِ در حال ویرایش (جدید در شکل‌های من)
 
 
 ## ########## Resource: app ###############
@@ -4831,7 +4831,6 @@ copy-picture = ピクチャのコピー
 could-not-open-address-e = { $address } を開けませんでした: { $e }
 could-not-read-path = { $path } を読み取れませんでした: { $e }
 create-a-background-page-planned = 背景ページの作成 — 予定（Design ▸ 背景で今日割り当てできます）
-create-a-stencil-planned = ステンシルの作成 — 予定
 create-new-data-graphic = 新しいデータ グラフィックの作成
 cross-functional = 組織横断
 crow-s-foot = クローズ フット
@@ -5334,7 +5333,6 @@ save-ctrl-s = 上書き保存（Ctrl+S）
 save-failed-e = 保存できませんでした: { $e }
 save-new = 保存して新規
 save-stencil = ステンシルの保存
-save-the-stencil-planned = ステンシルの保存 — 予定
 saved-path = { $path } を保存しました
 scale = 縮尺
 screen-96-dpi = 画面（96 dpi）
@@ -5465,7 +5463,6 @@ start-an-empty-us-letter-drawing = 空の US レター図面を開始します�
 status = 状態
 stealth-dart = ステルス ダート
 stencil = ステンシル
-stencil-editing-planned-scope-ca = ステンシル編集 — 予定（#252 のスコープ判断）
 stencil-fallback = ステンシル
 stencil-settings = ステンシル設定
 stencil-settings-planned = ステンシル設定 — 予定
@@ -5694,6 +5691,9 @@ callout-tip = 選択した図形への引き出し線付きテキスト ボッ�
 title-tip = ページ上部の大きなタイトル
 border-title-tip = タイトル付きのページ枠
 symbol-tip = 図形のテキストに記号を挿入
+add-to-stencil-tip = 選択した図形を編集中のステンシルにマスターとして追加
+new-stencil-tip = 図形ウィンドウに空のステンシルを作成
+save-stencil-tip = 編集中のステンシルを保存 (新規はマイ図形へ)
 
 
 ## ########## Resource: app ###############
@@ -5860,7 +5860,6 @@ copy-picture = 그림 복사
 could-not-open-address-e = { $address }을(를) 열 수 없습니다: { $e }
 could-not-read-path = { $path }을(를) 읽을 수 없습니다: { $e }
 create-a-background-page-planned = 배경 페이지 만들기 — 예정(Design ▸ 배경에서 오늘 할당 가능)
-create-a-stencil-planned = 스텐실 만들기 — 예정
 create-new-data-graphic = 새 데이터 그래픽 만들기
 cross-functional = 교차 기능
 crow-s-foot = 클로즈 풋
@@ -6363,7 +6362,6 @@ save-ctrl-s = 저장(Ctrl+S)
 save-failed-e = 저장 실패: { $e }
 save-new = 저장하고 새로 만들기
 save-stencil = 스텐실 저장
-save-the-stencil-planned = 스텐실 저장 — 예정
 saved-path = { $path }을(를) 저장했습니다
 scale = 배율
 screen-96-dpi = 화면(96dpi)
@@ -6494,7 +6492,6 @@ start-an-empty-us-letter-drawing = 빈 US 레터 드로잉을 시작합니다(Ct
 status = 상태
 stealth-dart = 스텔스 다트
 stencil = 스텐실
-stencil-editing-planned-scope-ca = 스텐실 편집 — 예정(#252 범위 판단)
 stencil-fallback = 스텐실
 stencil-settings = 스텐실 설정
 stencil-settings-planned = 스텐실 설정 — 예정
@@ -6723,6 +6720,9 @@ callout-tip = 선택한 도형으로 지시선이 있는 텍스트 상자
 title-tip = 페이지 위쪽의 큰 제목
 border-title-tip = 제목이 있는 페이지 테두리
 symbol-tip = 도형 텍스트에 기호 삽입
+add-to-stencil-tip = 선택한 도형을 편집 중인 스텐실에 마스터로 추가
+new-stencil-tip = 도형 창에 빈 스텐실 만들기
+save-stencil-tip = 편집 중인 스텐실 저장 (새 스텐실은 내 도형에)
 
 
 ## ########## Resource: app ###############
@@ -6887,7 +6887,6 @@ copy-picture = 复制图片
 could-not-open-address-e = 无法打开 { $address }：{ $e }
 could-not-read-path = 无法读取 { $path }：{ $e }
 create-a-background-page-planned = 新建背景页 — 计划中（“设计 ▸ 背景”现已可指定）
-create-a-stencil-planned = 新建模具 — 计划中
 create-new-data-graphic = 新建数据图形
 cross-functional = 交叉功能
 crow-s-foot = 鸦爪
@@ -7391,7 +7390,6 @@ save-ctrl-s = 保存 (Ctrl+S)
 save-failed-e = 保存失败：{ $e }
 save-new = 保存并新建
 save-stencil = 保存模具
-save-the-stencil-planned = 保存模具 — 计划中
 saved-path = 已保存 { $path }
 scale = 比例
 screen-96-dpi = 屏幕（96 dpi）
@@ -7527,7 +7525,6 @@ start-an-empty-us-letter-drawing = 开始一幅空白美制信纸绘图 (Ctrl+N)
 status = 状态
 stealth-dart = 隐形飞镖
 stencil = 模具
-stencil-editing-planned-scope-ca = 模具编辑 — 计划中（#252 的范围裁定）
 stencil-fallback = 模具
 stencil-settings = 模具设置
 stencil-settings-planned = 模具设置 — 计划中
@@ -7756,4 +7753,7 @@ callout-tip = 带有指向所选形状的引线的文本框
 title-tip = 页面顶部的大标题
 border-title-tip = 带标题的页面边框
 symbol-tip = 在形状文本中插入符号
+add-to-stencil-tip = 将所选形状作为主控形状添加到正在编辑的模具
+new-stencil-tip = 在形状窗格中新建空模具
+save-stencil-tip = 保存正在编辑的模具 (新模具保存到“我的形状”)
 

@@ -286,6 +286,9 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// The stencil Developer ▸ Edit Stencil adds to (pane index).
+    edit_stencil: Option<usize>,
+    dirty_stencil: bool,
     /// Insert ▸ Symbol dialog: open, and the hex code field.
     symbol_open: bool,
     symbol_hex: String,
@@ -543,6 +546,7 @@ enum PendingDialog {
     /// Backstage Export Browse… (#35): the picked output file.
     ExportSave(Receiver<Option<PathBuf>>),
     ReportSave(Receiver<Option<PathBuf>>),
+    StencilSave(Receiver<Option<PathBuf>>),
 }
 
 #[derive(Clone, Copy)]
@@ -561,6 +565,8 @@ enum PendingKind {
     ExportSave(dc::export::Format),
     /// Review ▸ Shape Report's Save as CSV….
     ReportSave,
+    /// Developer ▸ Save Stencil for a new stencil (My Shapes).
+    StencilSave,
 }
 
 /// Backstage rail command.
@@ -863,6 +869,8 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            edit_stencil: None,
+            dirty_stencil: false,
             symbol_open: false,
             symbol_hex: String::new(),
             present: None,
@@ -2044,6 +2052,11 @@ impl App {
         // The native dialog is untestable headless (rfd opens GTK);
         // an armed preset answers in its place (tests only).
         let preset = self.dialog_preset_for_test.take();
+        let my_shapes = Self::my_shapes_dir();
+        let stencil_name = self
+            .edit_stencil
+            .and_then(|ix| self.stencils.get(ix))
+            .map_or_else(|| crate::i18n::strs().msg_new_stencil(), |s| s.title.clone());
         std::thread::spawn(move || {
             let picked = match preset {
                 Some(p) => p,
@@ -2090,6 +2103,13 @@ impl App {
                         .add_filter("CSV", &["csv"])
                         .set_file_name("shape-report.csv")
                         .save_file(),
+                    PendingKind::StencilSave => {
+                        let mut d = rfd::FileDialog::new().add_filter("Visio stencil", &["vssx"]).set_file_name(format!("{stencil_name}.vssx"));
+                        if let Some(dir) = my_shapes {
+                            d = d.set_directory(dir);
+                        }
+                        d.save_file()
+                    }
                 },
             };
             let _ = tx.send(picked);
@@ -2102,6 +2122,7 @@ impl App {
             PendingKind::HyperlinkAddress => PendingDialog::HyperlinkAddress(rx),
             PendingKind::ExportSave(_) => PendingDialog::ExportSave(rx),
             PendingKind::ReportSave => PendingDialog::ReportSave(rx),
+            PendingKind::StencilSave => PendingDialog::StencilSave(rx),
         });
     }
 
@@ -2151,6 +2172,7 @@ impl App {
             | PendingDialog::OpenPicture(rx)
             | PendingDialog::ExportSave(rx)
             | PendingDialog::ReportSave(rx)
+            | PendingDialog::StencilSave(rx)
             | PendingDialog::HyperlinkAddress(rx) => match rx.try_recv() {
                 Ok(picked) => (picked, false),
                 Err(mpsc::TryRecvError::Empty) => (None, true),
@@ -2179,6 +2201,12 @@ impl App {
             // The picked export target lands in the pane's path field
             // (#35); a typed/picked extension re-targets the format.
             PendingDialog::ExportSave(_) => self.export_pane.set_path(path.clone()),
+            PendingDialog::StencilSave(_) => {
+                if let Some(ix) = self.edit_stencil {
+                    let path = if path.extension().is_none() { path.with_extension("vssx") } else { path.clone() };
+                    self.write_stencil(ix, path);
+                }
+            }
             PendingDialog::ReportSave(_) => {
                 if let Some(ed) = self.ed() {
                     let pages: Vec<i64> = if self.report_all { vec![] } else { self.page_id().into_iter().collect() };
@@ -6052,6 +6080,65 @@ impl App {
         self.status = crate::i18n::strs().msg_shape_dup_id_connected_to_sid_au(dup_id, sid);
     }
 
+    /// Developer ▸ Edit Stencil: each selected top-level shape becomes a
+    /// master in the stencil being edited (a new one if none is).
+    fn add_selection_to_stencil(&mut self) {
+        let Some(page_id) = self.page_id() else { return };
+        let ids: Vec<i64> = self.sel_set.iter().filter(|(p, _)| *p == page_id).map(|(_, s)| *s).collect();
+        if ids.is_empty() {
+            return;
+        }
+        if self.edit_stencil.filter(|ix| self.stencils.get(*ix).is_some()).is_none() {
+            self.dispatch(Action::NewStencil);
+        }
+        let Some(ix) = self.edit_stencil else { return };
+        let (Some(ed), Some(st)) = (self.ed.as_ref(), self.stencils.get(ix)) else { return };
+        let mut doc = st.doc.clone();
+        // the masters use the drawing's styles and colours
+        if doc.stylesheets.is_empty() {
+            doc.stylesheets = ed.doc.stylesheets.clone();
+            doc.colors = ed.doc.colors.clone();
+            // the writer emits what the item list names
+            if !doc.colors.is_empty() {
+                doc.items.push(vsdx::model::DocItem::Colors);
+            }
+            doc.items.push(vsdx::model::DocItem::StyleSheets);
+        }
+        let mut media_n = doc.extra_media.len();
+        let mut added = 0;
+        for sid in ids {
+            let id = doc.masters.iter().map(|m| m.id).max().unwrap_or(1) + 1;
+            if let Some((m, media)) = crate::stencil::master_from_shape(&ed.doc, page_id, sid, id, &mut media_n) {
+                doc.masters.push(m);
+                doc.extra_media.extend(media);
+                added += 1;
+            }
+        }
+        if added > 0 {
+            if let Some(old) = self.stencils.replace_doc(ix, doc) {
+                self.stencil.evict(old);
+            }
+            self.dirty_stencil = true;
+            self.hide_shapes_pane = false;
+        }
+    }
+
+    /// Write the edited stencil `ix` to `path` (.vssx) and make the pane
+    /// entry that file.
+    fn write_stencil(&mut self, ix: usize, path: PathBuf) {
+        let Some(st) = self.stencils.get(ix) else { return };
+        let s = crate::i18n::strs();
+        match vsdx::write::save(&st.doc, &path) {
+            Ok(()) => {
+                let title = path.file_stem().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+                self.stencils.retarget(ix, path.clone(), title);
+                self.dirty_stencil = false;
+                self.status = s.msg_saved_path(path.display().to_string());
+            }
+            Err(e) => self.status = format!("{e:#}"),
+        }
+    }
+
     /// Insert ▸ Callout: a text box up and right of the selected shape,
     /// joined to it by a straight leader glued at both ends (it follows
     /// either shape); one undo step, the box opens for typing.
@@ -9543,6 +9630,30 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::NewStencil => {
+                let n = self.stencils.iter().filter(|(_, s)| s.origin == crate::stencil::Origin::New).count() + 1;
+                let title = format!("{} {n}", crate::i18n::strs().msg_new_stencil());
+                let (ix, _) = self.stencils.open_parsed(
+                    vsdx::Document::default(),
+                    PathBuf::from(format!("new/{n}")),
+                    title,
+                    crate::stencil::Origin::New,
+                );
+                self.edit_stencil = Some(ix);
+                self.hide_shapes_pane = false;
+            }
+            Action::AddToStencil => self.add_selection_to_stencil(),
+            Action::SaveStencil => {
+                if let Some(ix) = self.edit_stencil.filter(|ix| self.stencils.get(*ix).is_some()) {
+                    let st = self.stencils.get(ix).unwrap();
+                    if st.origin == crate::stencil::Origin::New {
+                        self.begin_dialog(PendingKind::StencilSave);
+                    } else {
+                        let path = st.source.clone();
+                        self.write_stencil(ix, path);
+                    }
+                }
+            }
             Action::InsertSymbol => self.symbol_open = !self.symbol_open,
             Action::InsertTitle(border) => self.insert_title(border),
             Action::PresentationMode => self.present_toggle_pending = true,
@@ -10253,6 +10364,7 @@ impl App {
             show_comments: self.show_comments,
             show_guides: self.view.show_guides,
             stamp: self.stamp,
+            stencil_editing: self.edit_stencil.is_some_and(|ix| self.stencils.get(ix).is_some()),
             autosize: self
                 .ed()
                 .and_then(|ed| ed.doc.pages.get(self.page_idx))

@@ -4229,21 +4229,30 @@ fn foreign_emf_svg(
 /// that page or — for a master imported from a stencil — that master
 /// part.
 fn media_bytes<'a>(doc: &'a Document, part: &str, rid: &str) -> Option<&'a [u8]> {
+    media_lookup(doc, part, rid).map(|(_, b)| b)
+}
+
+/// [`media_bytes`] with the media part's name (its extension says the
+/// format) — for copying a picture into another package.
+pub fn media_lookup<'a>(doc: &'a Document, part: &str, rid: &str) -> Option<(String, &'a [u8])> {
     if let Some(pkg) = &doc.package {
         let target = pkg
             .relationships(part)
             .into_iter()
             .find(|(id, ty, _)| id == rid && ty.ends_with("/image"))
             .map(|(_, _, t)| t);
-        if let Some(b) = target.and_then(|t| pkg.part(t.trim_start_matches('/'))) {
-            return Some(b);
+        if let Some(t) = target {
+            let name = t.trim_start_matches('/').to_string();
+            if let Some(b) = pkg.part(&name) {
+                return Some((name, b));
+            }
         }
     }
     let page_id = doc.pages.iter().find(|p| p.part == part).map(|p| p.id);
     doc.extra_media
         .iter()
         .find(|m| m.rid == rid && (m.owner.as_deref() == Some(part) || (m.owner.is_none() && Some(m.page) == page_id)))
-        .map(|m| m.bytes.as_slice())
+        .map(|m| (m.part.clone(), m.bytes.as_slice()))
 }
 
 /// The shape that owns a picture's `ForeignData` and the package part

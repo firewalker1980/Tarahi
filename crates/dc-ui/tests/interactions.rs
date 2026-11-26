@@ -11217,3 +11217,56 @@ fn insert_symbol_into_shape_text() {
     h.run();
     assert_eq!(h.state().debug_shape_plain_text(sid).as_deref(), Some("core→☃"));
 }
+
+/// Developer ▸ New Stencil / Edit Stencil / Save Stencil: a shape on
+/// the page becomes a master named after its text, the stencil saves
+/// as a .vssx that parses back with that master, and the master places.
+#[test]
+fn stencil_from_shapes_saves_and_places() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().debug_set_shape_text_for_test(sid, "Core switch");
+    h.run();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Developer);
+    h.run();
+    h.get_by_label("New Stencil").click();
+    h.run();
+    h.get_by_label("Edit Stencil").click();
+    h.run();
+    h.run();
+    let out = std::env::temp_dir().join(format!("tarahi-stencil-{}.vssx", std::process::id()));
+    let _ = std::fs::remove_file(&out);
+    h.state_mut().preset_file_dialog_for_test(Some(out.clone()));
+    h.get_by_label("Save Stencil").click();
+    for _ in 0..30 {
+        h.run();
+        if out.exists() {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    let doc = vsdx::parse::parse(&out).expect("saved stencil parses");
+    assert!(doc.pages.is_empty(), "a stencil");
+    assert_eq!(doc.masters.len(), 1);
+    assert_eq!(doc.masters[0].name_u.as_deref(), Some("Core switch"));
+    assert!(doc.masters[0].shapes[0].master.is_none(), "flattened");
+    assert_eq!(doc.masters[0].shapes[0].sheet.text.as_deref(), Some("Core switch"), "text travels with it");
+    let title = out.file_stem().unwrap().to_string_lossy().into_owned();
+    assert!(h.state().debug_stencil_entries().iter().any(|(t, _)| *t == title), "pane entry is the file now");
+
+    // place it from the pane
+    let key = h
+        .state()
+        .debug_master_cells()
+        .into_iter()
+        .map(|(k, _)| k)
+        .find(|k| matches!(k.0, dc_ui::stencil::StencilId::Open(_)))
+        .expect("stencil master in the pane");
+    h.state_mut().arm_master_for_test(key);
+    let n = h.state().debug_shape_count();
+    let to = h.state().debug_canvas_rect().center() + egui::vec2(150.0, 100.0);
+    click_at(&mut h, to, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), n + 1, "placed from the new stencil");
+}

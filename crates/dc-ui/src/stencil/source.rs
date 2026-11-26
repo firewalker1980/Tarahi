@@ -35,6 +35,9 @@ pub enum Origin {
     /// Opened from the built-in catalog (#87); `source` carries the
     /// catalog id as a `builtin/…` pseudo-path.
     Builtin,
+    /// Developer ▸ New Stencil: in memory until saved (`source` is a
+    /// `new/…` pseudo-path).
+    New,
 }
 
 /// One open stencil in the pane: its parsed package plus session
@@ -161,6 +164,28 @@ impl StencilSet {
             serial,
         });
         self.open.len() - 1
+    }
+
+    /// Swap an entry's document (stencil editing): a fresh serial, so
+    /// every cache keyed by the old one misses. Returns the old serial
+    /// for eviction.
+    pub fn replace_doc(&mut self, ix: usize, doc: vsdx::Document) -> Option<u64> {
+        let old = self.open.get(ix)?.serial;
+        self.next_serial += 1;
+        let st = &mut self.open[ix];
+        st.doc = doc;
+        st.serial = self.next_serial;
+        st.expanded = true;
+        Some(old)
+    }
+
+    /// A saved stencil's new home: it now opens/dedupes as that file.
+    pub fn retarget(&mut self, ix: usize, source: PathBuf, title: String) {
+        if let Some(st) = self.open.get_mut(ix) {
+            st.source = source;
+            st.title = title;
+            st.origin = Origin::File;
+        }
     }
 
     /// Close the entry at `ix`; later entries shift down (their pane

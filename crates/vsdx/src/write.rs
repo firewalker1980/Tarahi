@@ -647,7 +647,7 @@ pub fn build_parts(doc: &Document) -> BTreeMap<String, Vec<u8>> {
         reconcile_page_parts(&mut parts, doc, pkg);
         repair_page_content_types(&mut parts, doc);
         reconcile_master_parts(&mut parts, doc, pkg);
-        reconcile_media(&mut parts, doc, pkg);
+        reconcile_media(&mut parts, doc, Some(pkg));
         return parts;
     }
 
@@ -707,12 +707,27 @@ pub fn build_parts(doc: &Document) -> BTreeMap<String, Vec<u8>> {
             vec![
                 ("pages", pages_part.clone()),
                 ("masters", masters_part.clone()),
+                ("windows", WINDOWS_PART.to_string()),
             ],
         );
         generate_index_rels(&mut parts, &masters_part, &master_parts, "master");
     } else {
-        generate_rels(&mut parts, &doc_part, vec![("pages", pages_part.clone())]);
+        generate_rels(
+            &mut parts,
+            &doc_part,
+            vec![("pages", pages_part.clone()), ("windows", WINDOWS_PART.to_string())],
+        );
     }
+    // Visio refuses a package without a windows part (drawing or
+    // stencil); an empty one is what its own stencils carry.
+    parts.insert(
+        WINDOWS_PART.to_string(),
+        format!(
+            "{}<Windows ClientWidth=\"0\" ClientHeight=\"0\" xmlns=\"http://schemas.microsoft.com/office/visio/2012/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"/>",
+            decl()
+        )
+        .into_bytes(),
+    );
 
     generate_index_rels(&mut parts, &pages_part, &page_parts, "page");
 
@@ -720,8 +735,12 @@ pub fn build_parts(doc: &Document) -> BTreeMap<String, Vec<u8>> {
         "[Content_Types].xml".to_string(),
         content_types_xml(&parts, &doc_part, &pages_part, doc).into_bytes(),
     );
+    // runtime media (a new stencil's master pictures)
+    reconcile_media(&mut parts, doc, None);
     parts
 }
+
+const WINDOWS_PART: &str = "visio/windows.xml";
 
 fn rel_type(kind: &str) -> String {
     // pictures use the generic Office image relationship; Visio ignores
@@ -790,7 +809,8 @@ fn content_types_xml(
     pages_part: &str,
     doc: &Document,
 ) -> String {
-    let masters_part = doc.masters_part.clone();
+    // the masters index a fresh document gets (a new stencil names none)
+    let masters_part = effective_masters_part(doc);
     let mut page_set = std::collections::HashSet::new();
     page_set.insert(pages_part.to_string());
     for p in &doc.pages {
@@ -829,6 +849,9 @@ fn content_types_xml(
     }
     if let Some(mp) = &masters_part {
         override_part(mp, "application/vnd.ms-visio.masters+xml", &mut out);
+    }
+    if parts.contains_key(WINDOWS_PART) {
+        override_part(WINDOWS_PART, "application/vnd.ms-visio.windows+xml", &mut out);
     }
     for m in &doc.masters {
         if !m.part.is_empty() {
@@ -1082,7 +1105,7 @@ const CT_PAGES: &str = "application/vnd.ms-visio.pages+xml";
 fn reconcile_media(
     parts: &mut BTreeMap<String, Vec<u8>>,
     doc: &Document,
-    pkg: &crate::opc::Package,
+    pkg: Option<&crate::opc::Package>,
 ) {
     if doc.extra_media.is_empty() {
         return;
@@ -1115,7 +1138,7 @@ fn reconcile_media(
         let rels = rels_part_of(page_part);
         let mut entries = match parts.get(&rels) {
             Some(bytes) => parse_rels(bytes),
-            None => match pkg.part(&rels) {
+            None => match pkg.and_then(|p| p.part(&rels)) {
                 Some(bytes) => parse_rels(bytes),
                 None => Vec::new(),
             },
@@ -1137,7 +1160,7 @@ fn reconcile_media(
     let ct_bytes: Vec<u8> = parts
         .get(ct)
         .cloned()
-        .or_else(|| pkg.part(ct).map(<[u8]>::to_vec))
+        .or_else(|| pkg.and_then(|p| p.part(ct)).map(<[u8]>::to_vec))
         .unwrap_or_default();
     let mut xml = String::from_utf8_lossy(&ct_bytes).into_owned();
     if !xml.is_empty() {

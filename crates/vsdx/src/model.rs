@@ -1764,3 +1764,172 @@ mod snap_glue_tests {
         assert_eq!(inner, "<SnapSettings>295</SnapSettings>x");
     }
 }
+
+impl Document {
+    /// A standalone copy of `shape` with its master folded in: the
+    /// master shape's sheet with the instance's own cells, sections and
+    /// rows laid over it (deleted rows dropped, `F='Inh'` caches kept as
+    /// plain values), the same for every sub-shape (master sub-shapes
+    /// the instance deleted stay out), and the master's text and
+    /// picture when the instance has none. No `Master`/`MasterShape`
+    /// references remain — what a new stencil master is made from.
+    pub fn flatten_instance(&self, shape: &Shape, ancestors: &[&Shape]) -> Shape {
+        fn clean(c: &Cell) -> Cell {
+            let mut c = c.clone();
+            if c.f.as_deref() == Some("Inh") {
+                c.f = None;
+                c.attrs.retain(|(k, _)| k != "F");
+            }
+            c
+        }
+        fn merge_cells(base: &mut Vec<(String, Cell)>, over: &[(String, Cell)]) {
+            for (n, c) in over {
+                match base.iter_mut().find(|(b, _)| b == n) {
+                    Some((_, slot)) => *slot = clean(c),
+                    None => base.push((n.clone(), clean(c))),
+                }
+            }
+        }
+        fn merge_sheet(base: &Sheet, over: &Sheet) -> Sheet {
+            let mut out = base.clone();
+            for ch in &mut out.children {
+                if let SheetChild::Cell(_, c) = ch {
+                    *c = clean(c);
+                }
+            }
+            for ch in &over.children {
+                match ch {
+                    SheetChild::Cell(n, c) => out.set_cell(n, clean(c)),
+                    SheetChild::Section(s) => {
+                        let slot = out.children.iter_mut().find_map(|x| match x {
+                            SheetChild::Section(b) if b.name == s.name && b.ix == s.ix => Some(b),
+                            _ => None,
+                        });
+                        match slot {
+                            None => out.children.push(SheetChild::Section(s.clone())),
+                            Some(b) => {
+                                merge_cells(&mut b.cells, &s.cells);
+                                for r in &s.rows {
+                                    let pos = b.rows.iter().position(|x| x.ix == r.ix && x.n == r.n);
+                                    if r.is_deleted() {
+                                        if let Some(p) = pos {
+                                            b.rows.remove(p);
+                                        }
+                                        continue;
+                                    }
+                                    match pos {
+                                        Some(p) => {
+                                            if r.t.is_some() {
+                                                b.rows[p].t = r.t.clone();
+                                            }
+                                            merge_cells(&mut b.rows[p].cells, &r.cells);
+                                        }
+                                        None => b.rows.push(r.clone()),
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    other => out.children.push(other.clone()),
+                }
+            }
+            if over.text.is_some() {
+                out.text = over.text.clone();
+                out.text_raw = over.text_raw.clone();
+            }
+            out
+        }
+        let src = self.instance_source(shape, ancestors);
+        let mut out = match src {
+            Some(m) => {
+                let mut s = m.clone();
+                s.sheet = merge_sheet(&m.sheet, &shape.sheet);
+                if shape.raw_children.iter().any(|r| r.name == "ForeignData") {
+                    s.raw_children = shape.raw_children.clone();
+                }
+                s
+            }
+            None => shape.clone(),
+        };
+        out.id = shape.id;
+        out.name_u = shape.name_u.clone().or(out.name_u);
+        out.master = None;
+        out.master_shape = None;
+        out.attrs.retain(|(k, _)| k != "Master" && k != "MasterShape");
+        // the master decides what the shape is (an instance written as
+        // a plain Shape over a master Group keeps its sub-shapes)
+        if src.is_some() {
+            if let Some(ty) = out.type_.clone() {
+                match out.attrs.iter_mut().find(|(k, _)| k == "Type") {
+                    Some(slot) => slot.1 = ty,
+                    None => out.attrs.push(("Type".into(), ty)),
+                }
+            }
+        }
+        for (k, v) in &shape.attrs {
+            if k != "Master" && k != "MasterShape" && k != "ID" && !(k == "Type" && src.is_some()) {
+                match out.attrs.iter_mut().find(|(a, _)| a == k) {
+                    Some(slot) => slot.1 = v.clone(),
+                    None => out.attrs.push((k.clone(), v.clone())),
+                }
+            }
+        }
+        if let Some((_, id)) = out.attrs.iter_mut().find(|(k, _)| k == "ID") {
+            *id = shape.id.to_string();
+        }
+        out.line_style = shape.line_style.or(out.line_style);
+        out.fill_style = shape.fill_style.or(out.fill_style);
+        out.text_style = shape.text_style.or(out.text_style);
+        // sub-shapes: the instance's own (merged with their master
+        // shapes) where present, else the master's
+        let mut chain: Vec<&Shape> = ancestors.to_vec();
+        chain.push(shape);
+        if !shape.sub_shapes.is_empty() {
+            out.sub_shapes = shape
+                .sub_shapes
+                .iter()
+                .filter(|s| !s.attrs.iter().any(|(k, v)| k == "Del" && v == "1"))
+                .map(|s| self.flatten_instance(s, &chain))
+                .collect();
+        } else if let Some(m) = src {
+            out.sub_shapes = m.sub_shapes.iter().map(|s| self.flatten_instance(s, &[])).collect();
+        }
+        out
+    }
+}
+
+#[cfg(test)]
+mod flatten_tests {
+    use super::*;
+
+    #[test]
+    fn instance_overrides_master_and_inh_caches_become_values() {
+        let mut master_shape = Shape { id: 5, name_u: Some("Router".into()), ..Shape::default() };
+        master_shape.sheet.set_cell("Width", Cell::value("2"));
+        master_shape.sheet.set_cell("LineColor", Cell::value("#ff0000"));
+        master_shape.sheet.children.push(SheetChild::Section(Section {
+            name: "Geometry".into(),
+            rows: vec![Row { t: Some("MoveTo".into()), ix: 1, ..Row::default() }, Row { t: Some("LineTo".into()), ix: 2, ..Row::default() }],
+            ..Section::default()
+        }));
+        master_shape.sheet.text = Some("Router".into());
+        let doc = Document {
+            masters: vec![Master { id: 3, shapes: vec![master_shape], ..Master::default() }],
+            ..Document::default()
+        };
+        let mut inst = Shape { id: 9, master: Some(3), ..Shape::default() };
+        inst.sheet.set_cell("Width", Cell { v: Some("4".into()), f: Some("Inh".into()), ..Cell::default() });
+        inst.sheet.children.push(SheetChild::Section(Section {
+            name: "Geometry".into(),
+            rows: vec![Row { ix: 2, attrs: vec![("Del".into(), "1".into())], ..Row::default() }],
+            ..Section::default()
+        }));
+        let f = doc.flatten_instance(&inst, &[]);
+        assert_eq!((f.id, f.master), (9, None));
+        let w = f.sheet.cell("Width").unwrap();
+        assert_eq!((w.v.as_deref(), w.f.as_deref()), (Some("4"), None));
+        assert_eq!(f.sheet.cell("LineColor").and_then(|c| c.v.as_deref()), Some("#ff0000"));
+        assert_eq!(f.sheet.sections_named("Geometry")[0].rows.len(), 1, "deleted row gone");
+        assert_eq!(f.sheet.text.as_deref(), Some("Router"));
+    }
+}
