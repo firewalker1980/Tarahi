@@ -3480,3 +3480,37 @@ fn set_section_rows_undo_keeps_the_prestate_when_the_section_is_missing() {
     assert_eq!(geo.rows[0].cell("X").unwrap().v.as_deref(), Some("0"));
     assert_eq!(geo.rows[1].cell("X").unwrap().v.as_deref(), Some("4"));
 }
+
+/// Bring Forward / Send Backward move one z-order step and undo back.
+#[test]
+fn reorder_one_step_moves_one_place_and_undoes() {
+    let mut ed = Editor::new_blank();
+    let page = ed.doc.pages[0].id;
+    let mut ids = [0i64; 3];
+    for id in &mut ids {
+        *id = dc_core::commands::next_shape_id(&ed.doc, page);
+        ed.apply(dc_core::AddShape {
+            page,
+            parent: None,
+            shape: vsdx::model::Shape {
+                id: *id,
+                ..Default::default()
+            },
+        })
+        .unwrap();
+    }
+    let order = |ed: &Editor| -> Vec<i64> {
+        ed.doc.pages.iter().find(|p| p.id == page).unwrap().shapes.iter().map(|s| s.id).collect()
+    };
+    ed.apply(dc_core::ReorderShape::one_step(page, ids[0], true)).unwrap();
+    assert_eq!(order(&ed), vec![ids[1], ids[0], ids[2]]);
+    ed.apply(dc_core::ReorderShape::one_step(page, ids[2], false)).unwrap();
+    assert_eq!(order(&ed), vec![ids[1], ids[2], ids[0]]);
+    // already at the back: stays put
+    ed.apply(dc_core::ReorderShape::one_step(page, ids[1], false)).unwrap();
+    assert_eq!(order(&ed), vec![ids[1], ids[2], ids[0]]);
+    for _ in 0..3 {
+        ed.undo().unwrap();
+    }
+    assert_eq!(order(&ed), ids.to_vec());
+}

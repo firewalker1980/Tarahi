@@ -33,6 +33,12 @@ pub(crate) struct TabCtx {
     pub tri_sel: bool,
     pub tool: crate::app::Tool,
     pub painter_armed: bool,
+    /// The selection's Character Style bits (1 bold, 2 italic, 4
+    /// underline), Strikethru and Paragraph HorzAlign, for the Font and
+    /// Paragraph buttons' pressed state.
+    pub char_style: i64,
+    pub strike: bool,
+    pub horz_align: i64,
     pub selby_open: bool,
     pub align_to_page: bool,
     pub pagesetup_open: bool,
@@ -139,6 +145,23 @@ pub(crate) fn anchor_labels(tab: Tab, ctx: &TabCtx) -> Vec<String> {
 /// Everything the ribbon can ask the app to do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
+    /// Clipboard group (the same paths as Ctrl+X / Ctrl+C / Ctrl+V).
+    Cut,
+    Copy,
+    Paste,
+    /// Font group toggles and Paragraph alignment (Character Style bits,
+    /// Strikethru, Paragraph HorzAlign 0..=3).
+    Bold,
+    Italic,
+    Underline,
+    Strike,
+    TextAlignLeft,
+    TextAlignCenter,
+    TextAlignRight,
+    TextJustify,
+    /// Arrange ▸ Bring Forward / Send Backward: one z-order step.
+    BringForward,
+    SendBackward,
     NewDoc,
     Open,
     Save,

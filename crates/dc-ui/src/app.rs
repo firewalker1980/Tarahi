@@ -3247,6 +3247,12 @@ impl App {
             if i.key_pressed(egui::Key::F7) && (!kb_owned || self.text_edit.is_some()) {
                 self.dispatch(Action::SpellCheck);
             }
+            // Paste needs no selection: it lands on the current page.
+            if !kb_owned && ctrl && i.key_pressed(egui::Key::V) {
+                if let Some(p) = self.page_id() {
+                    self.paste_clipboard(p);
+                }
+            }
             // Shape clipboard / duplicate / text edit (Visio keys). Not
             // while a text field owns the keyboard.
             if !kb_owned && self.sel.is_some() {
@@ -3259,10 +3265,15 @@ impl App {
                 if ctrl && i.key_pressed(egui::Key::C) {
                     self.copy_selection();
                 }
-                if ctrl && i.key_pressed(egui::Key::V) {
-                    if let Some((p, _)) = self.sel {
-                        self.paste_clipboard(p);
-                    }
+
+                if ctrl && !i.modifiers.shift && i.key_pressed(egui::Key::B) {
+                    self.dispatch(Action::Bold);
+                }
+                if ctrl && !i.modifiers.shift && i.key_pressed(egui::Key::I) {
+                    self.dispatch(Action::Italic);
+                }
+                if ctrl && !i.modifiers.shift && i.key_pressed(egui::Key::U) {
+                    self.dispatch(Action::Underline);
                 }
                 if ctrl && i.key_pressed(egui::Key::D) {
                     if let Some((p, s)) = self.sel {
@@ -8522,6 +8533,34 @@ impl App {
             Action::RotateLeft => self.rotate_selection(90.0),
             Action::RotateRight => self.rotate_selection(-90.0),
             Action::Group => self.group_selection(),
+            Action::Bold => self.toggle_char_style(1),
+            Action::Italic => self.toggle_char_style(2),
+            Action::Underline => self.toggle_char_style(4),
+            Action::Strike => {
+                let on = self
+                    .eff_row_str("Character", "Strikethru")
+                    .is_some_and(|v| v == "1" || v.eq_ignore_ascii_case("true"));
+                self.fmt_set_row("Character", "Strikethru", if on { "0" } else { "1" });
+            }
+            Action::TextAlignLeft => self.fmt_set_row("Paragraph", "HorzAlign", "0"),
+            Action::TextAlignCenter => self.fmt_set_row("Paragraph", "HorzAlign", "1"),
+            Action::TextAlignRight => self.fmt_set_row("Paragraph", "HorzAlign", "2"),
+            Action::TextJustify => self.fmt_set_row("Paragraph", "HorzAlign", "3"),
+            Action::Copy => self.copy_selection(),
+            Action::Cut => {
+                self.copy_selection();
+                if let Some((p, s)) = self.sel {
+                    self.delete_one(p, s);
+                    self.set_selection(None);
+                }
+            }
+            Action::Paste => {
+                if let Some(p) = self.page_id() {
+                    self.paste_clipboard(p);
+                }
+            }
+            Action::BringForward => self.step_selection(true),
+            Action::SendBackward => self.step_selection(false),
             Action::ContainerDisband => self.disband_container(),
             Action::Ungroup => self.ungroup_selection(),
             Action::Hyperlink => {
@@ -8949,6 +8988,17 @@ impl App {
             tri_sel: sel_count >= 3,
             tool: self.tool,
             painter_armed: self.painter_armed.is_some(),
+            char_style: self
+                .eff_row_str("Character", "Style")
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(0),
+            strike: self
+                .eff_row_str("Character", "Strikethru")
+                .is_some_and(|v| v == "1" || v.eq_ignore_ascii_case("true")),
+            horz_align: self
+                .eff_row_str("Paragraph", "HorzAlign")
+                .and_then(|v| v.parse::<f64>().ok())
+                .map_or(0, |v| v as i64),
             selby_open: self.selby_open,
             align_to_page: self.align_to_page,
             pagesetup_open: self.pagesetup_open,
@@ -13425,6 +13475,49 @@ impl App {
         self.set_selection(first.map(|m| (page_id, m)));
     }
 
+    /// Toggle one Character Style bit (1 bold, 2 italic, 4 underline)
+    /// on the selection, keyed off the primary shape's current state.
+    fn toggle_char_style(&mut self, bit: i64) {
+        let bits = self
+            .eff_row_str("Character", "Style")
+            .and_then(|v| v.parse::<i64>().ok())
+            .unwrap_or(0);
+        self.fmt_set_row("Character", "Style", &format!("{}", bits ^ bit));
+    }
+
+    /// Bring Forward / Send Backward on the selection: one z-order
+    /// step each, one undo step. Shapes move front-most first when
+    /// going forward (back-most first going backward) so neighbours in
+    /// the selection don't leapfrog each other.
+    fn step_selection(&mut self, forward: bool) {
+        let Some(ed) = self.ed.as_ref() else { return };
+        let z = |page: i64, sid: i64| -> usize {
+            ed.doc
+                .pages
+                .iter()
+                .find(|p| p.id == page)
+                .and_then(|p| p.shapes.iter().position(|s| s.id == sid))
+                .unwrap_or(0)
+        };
+        let mut targets: Vec<(i64, i64)> = self.sel_set.to_vec();
+        targets.sort_by_key(|&(p, s)| z(p, s));
+        if forward {
+            targets.reverse();
+        }
+        let cmds: Vec<Box<dyn dc_core::Command>> = targets
+            .into_iter()
+            .map(|(p, s)| Box::new(ReorderShape::one_step(p, s, forward)) as Box<dyn dc_core::Command>)
+            .collect();
+        if !cmds.is_empty() {
+            let label = if forward {
+                crate::i18n::strs().msg_bring_forward()
+            } else {
+                crate::i18n::strs().msg_send_backward()
+            };
+            self.apply(Macro::new(label, cmds));
+        }
+    }
+
     fn rotate_selection(&mut self, deg: f64) {
         let targets = self.sel_set.clone();
         let Some(ed) = self.ed.as_ref() else { return };
@@ -15983,6 +16076,13 @@ impl App {
     }
     /// kittest: a shape's effective cell value (#31).
     #[doc(hidden)]
+    /// The current page's top-level shape ids, back to front.
+    #[doc(hidden)]
+    pub fn debug_z_order_for_test(&self) -> Vec<i64> {
+        let (Some(ed), Some(pid)) = (self.ed(), self.page_id()) else { return vec![] };
+        ed.doc.pages.iter().find(|p| p.id == pid).map_or(vec![], |p| p.shapes.iter().map(|s| s.id).collect())
+    }
+
     pub fn debug_cell_for_test(&self, shape_id: i64, cell: &str) -> Option<String> {
         let ed = self.ed()?;
         let page_id = self.page_id()?;

@@ -3468,6 +3468,9 @@ pub struct ReorderShape {
     pub page: i64,
     pub shape: i64,
     pub to_front: bool,
+    /// One z-order step (Bring Forward / Send Backward) instead of all
+    /// the way to the front or back.
+    pub one_step: bool,
     old_index: Option<usize>,
 }
 
@@ -3477,7 +3480,19 @@ impl ReorderShape {
             page,
             shape,
             to_front,
+            one_step: false,
             old_index: None,
+        }
+    }
+
+    /// Bring Forward (`forward`) / Send Backward: one step in z-order.
+    /// ponytail: steps past the adjacent sibling; Visio steps past the
+    /// next *overlapping* shape, add that if adjacent-but-disjoint
+    /// steps turn out to feel like no-ops.
+    pub fn one_step(page: i64, shape: i64, forward: bool) -> ReorderShape {
+        ReorderShape {
+            one_step: true,
+            ..ReorderShape::new(page, shape, forward)
         }
     }
 }
@@ -3519,10 +3534,11 @@ impl crate::Command for ReorderShape {
     fn label(&self) -> String {
         format!(
             "{} shape {} on page:{}",
-            if self.to_front {
-                "bring to front"
-            } else {
-                "send to back"
+            match (self.to_front, self.one_step) {
+                (true, false) => "bring to front",
+                (false, false) => "send to back",
+                (true, true) => "bring forward",
+                (false, true) => "send backward",
             },
             self.shape,
             self.page
@@ -3543,11 +3559,13 @@ impl crate::Command for ReorderShape {
             })?;
         self.old_index = Some(idx);
         let s = shapes.remove(idx);
-        if self.to_front {
-            shapes.push(s);
-        } else {
-            shapes.insert(0, s);
-        }
+        let at = match (self.to_front, self.one_step) {
+            (true, false) => shapes.len(),
+            (false, false) => 0,
+            (true, true) => (idx + 1).min(shapes.len()),
+            (false, true) => idx.saturating_sub(1),
+        };
+        shapes.insert(at, s);
         Ok(())
     }
     fn undo(&mut self, doc: &mut Document) -> Result<()> {

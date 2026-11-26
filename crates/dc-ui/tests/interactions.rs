@@ -10419,3 +10419,55 @@ fn options_modal_blocks_backstage_navigation() {
         "Back closes the backstage once Options is closed"
     );
 }
+
+/// Home tab buttons that used to be "planned": Bold / Center text /
+/// Send Backward / Bring Forward act on the selection, one undo each.
+#[test]
+fn home_font_paragraph_and_order_buttons_act_on_selection() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, a) = place_master(&mut h, 2);
+    let (_, b) = place_master(&mut h, 2);
+    assert_eq!(h.state().debug_z_order_for_test(), vec![a, b]);
+    // b (just placed) is selected
+    let ribbon_button = |h: &Harness<'_, App>, label: &str| {
+        h.get_all_by_label(label)
+            .into_iter()
+            .min_by(|x, y| x.rect().top().total_cmp(&y.rect().top()))
+            .unwrap_or_else(|| panic!("{label} button"))
+            .rect()
+            .center()
+    };
+    let bold = ribbon_button(&h, "Bold");
+    click_at(&mut h, bold, egui::PointerButton::Primary);
+    h.run();
+    let style = |h: &Harness<'_, App>| h.state().debug_cell_for_test(b, "Char.Style").and_then(|v| v.parse::<i64>().ok()).unwrap_or(0);
+    assert_eq!(style(&h) & 1, 1, "Bold set Style bit 1");
+    click_at(&mut h, bold, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(style(&h) & 1, 0, "second click clears it");
+
+    let center = ribbon_button(&h, "Align Center");
+    click_at(&mut h, center, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_cell_for_test(b, "Para.HorzAlign").as_deref(), Some("1"));
+
+    let back = ribbon_button(&h, "Send Backward");
+    click_at(&mut h, back, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_z_order_for_test(), vec![b, a], "one step back");
+    let fwd = ribbon_button(&h, "Bring Forward");
+    click_at(&mut h, fwd, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_z_order_for_test(), vec![a, b], "one step forward");
+
+    let n = h.state().debug_shape_count();
+    let copy = ribbon_button(&h, "Copy");
+    click_at(&mut h, copy, egui::PointerButton::Primary);
+    h.run();
+    let paste = ribbon_button(&h, "Paste");
+    click_at(&mut h, paste, egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), n + 1, "ribbon Copy + Paste");
+}
+

@@ -18,8 +18,8 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
     let tri_sel = ctx.tri_sel;
     vec![
         Group::new(s.msg_clipboard(), clipboard_cols(s, ctx, has_sel)),
-        Group::new(s.msg_font(), vec![font_grid(s, has_sel)]).with_launcher(),
-        Group::new(s.msg_paragraph(), vec![paragraph_grid(s, )]).with_launcher(),
+        Group::new(s.msg_font(), vec![font_grid(s, ctx, has_sel)]).with_launcher(),
+        Group::new(s.msg_paragraph(), vec![paragraph_grid(s, ctx)]).with_launcher(),
         Group::new(s.msg_tools(), tools_cols(s, ctx)),
         Group::new(s.msg_shape_styles(), shape_styles_cols(s, has_sel)),
         Group::new(s.msg_arrange(), arrange_cols(s, ctx, multi_sel, tri_sel)),
@@ -53,21 +53,20 @@ pub(crate) fn groups(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec
 fn clipboard_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, has_sel: bool) -> Vec<super::Col> {
     vec![
         big(
-            RibbonButton::new(Icon::Paste, s.msg_paste(), Action::Macros)
-                .enabled(false)
-                .split()
-                .tip(s.msg_clipboard_planned_for_a_later_mi()),
+            RibbonButton::new(Icon::Paste, s.msg_paste(), Action::Paste)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_paste()),
         ),
         grid(vec![
             vec![
-                RibbonButton::new(Icon::Cut, "", Action::Macros)
+                RibbonButton::new(Icon::Cut, "", Action::Cut)
                     .alt(s.msg_cut())
-                    .enabled(false)
-                    .tip(s.msg_cut_planned()),
-                RibbonButton::new(Icon::Copy, "", Action::Macros)
+                    .enabled(has_sel)
+                    .tip(s.msg_cut()),
+                RibbonButton::new(Icon::Copy, "", Action::Copy)
                     .alt(s.msg_copy())
-                    .enabled(false)
-                    .tip(s.msg_copy_planned()),
+                    .enabled(has_sel)
+                    .tip(s.msg_copy()),
             ],
             vec![RibbonButton::new(
                 Icon::Painter,
@@ -106,7 +105,7 @@ fn clipboard_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, has_sel: 
     ]
 }
 
-fn font_grid(s: &'static crate::l10n::L10nLanguage, has_sel: bool) -> super::Col {
+fn font_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, has_sel: bool) -> super::Col {
     grid(vec![
         vec![
             RibbonButton::new(Icon::FontA, s.msg_calibri(), Action::Macros)
@@ -129,22 +128,26 @@ fn font_grid(s: &'static crate::l10n::L10nLanguage, has_sel: bool) -> super::Col
                 .tip(s.msg_font_decrease_tip()),
         ],
         vec![
-            RibbonButton::new(Icon::Bold, "", Action::Macros)
+            RibbonButton::new(Icon::Bold, "", Action::Bold)
                 .alt(s.msg_bold())
-                .enabled(false)
-                .tip(s.msg_bold_planned()),
-            RibbonButton::new(Icon::Italic, "", Action::Macros)
+                .enabled(has_sel)
+                .selected(has_sel && ctx.char_style & 1 != 0)
+                .tip(s.msg_bold()),
+            RibbonButton::new(Icon::Italic, "", Action::Italic)
                 .alt(s.msg_italic())
-                .enabled(false)
-                .tip(s.msg_italic_planned()),
-            RibbonButton::new(Icon::Underline, "", Action::Macros)
+                .enabled(has_sel)
+                .selected(has_sel && ctx.char_style & 2 != 0)
+                .tip(s.msg_italic()),
+            RibbonButton::new(Icon::Underline, "", Action::Underline)
                 .alt(s.msg_underline())
-                .enabled(false)
-                .tip(s.msg_underline_planned()),
-            RibbonButton::new(Icon::Strike, "", Action::Macros)
+                .enabled(has_sel)
+                .selected(has_sel && ctx.char_style & 4 != 0)
+                .tip(s.msg_underline()),
+            RibbonButton::new(Icon::Strike, "", Action::Strike)
                 .alt(s.msg_strikethrough())
-                .enabled(false)
-                .tip(s.msg_strikethrough_planned()),
+                .enabled(has_sel)
+                .selected(has_sel && ctx.strike)
+                .tip(s.msg_strikethrough()),
             // #150: wired to the shared palette like Fill/Line — a
             // pick writes the Character row-0 Color cell across the
             // selection (#73's ColorTarget::Text path).
@@ -156,25 +159,29 @@ fn font_grid(s: &'static crate::l10n::L10nLanguage, has_sel: bool) -> super::Col
     ])
 }
 
-fn paragraph_grid(s: &'static crate::l10n::L10nLanguage) -> super::Col {
+fn paragraph_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> super::Col {
     grid(vec![
         vec![
-            RibbonButton::new(Icon::Align, "", Action::Macros)
+            RibbonButton::new(Icon::Align, "", Action::TextAlignLeft)
                 .alt(s.msg_text_align_left())
-                .enabled(false)
-                .tip(s.msg_align_left_planned()),
-            RibbonButton::new(Icon::AlignCenter, "", Action::Macros)
+                .enabled(ctx.has_sel)
+                .selected(ctx.has_sel && ctx.horz_align == 0)
+                .tip(s.msg_text_align_left()),
+            RibbonButton::new(Icon::AlignCenter, "", Action::TextAlignCenter)
                 .alt(s.msg_align_center())
-                .enabled(false)
-                .tip(s.msg_align_center_planned()),
-            RibbonButton::new(Icon::AlignRight, "", Action::Macros)
+                .enabled(ctx.has_sel)
+                .selected(ctx.has_sel && ctx.horz_align == 1)
+                .tip(s.msg_align_center()),
+            RibbonButton::new(Icon::AlignRight, "", Action::TextAlignRight)
                 .alt(s.msg_text_align_right())
-                .enabled(false)
-                .tip(s.msg_align_right_planned()),
-            RibbonButton::new(Icon::Justify, "", Action::Macros)
+                .enabled(ctx.has_sel)
+                .selected(ctx.has_sel && ctx.horz_align == 2)
+                .tip(s.msg_text_align_right()),
+            RibbonButton::new(Icon::Justify, "", Action::TextJustify)
                 .alt(s.msg_justify())
-                .enabled(false)
-                .tip(s.msg_justify_planned()),
+                .enabled(ctx.has_sel)
+                .selected(ctx.has_sel && ctx.horz_align == 3)
+                .tip(s.msg_justify()),
         ],
         vec![
             RibbonButton::new(Icon::Bullets, "", Action::Macros)
@@ -289,14 +296,14 @@ fn shape_styles_cols(s: &'static crate::l10n::L10nLanguage, has_sel: bool) -> Ve
 fn arrange_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx, multi_sel: bool, tri_sel: bool) -> Vec<super::Col> {
     vec![
         stack(vec![
-            RibbonButton::new(Icon::BringFront, "", Action::Macros)
+            RibbonButton::new(Icon::BringFront, "", Action::BringForward)
                 .alt(s.msg_bring_forward())
-                .enabled(false)
-                .tip(s.msg_bring_forward_planned()),
-            RibbonButton::new(Icon::SendBack, "", Action::Macros)
+                .enabled(ctx.has_sel)
+                .tip(s.msg_bring_forward()),
+            RibbonButton::new(Icon::SendBack, "", Action::SendBackward)
                 .alt(s.msg_send_backward())
-                .enabled(false)
-                .tip(s.msg_send_backward_planned()),
+                .enabled(ctx.has_sel)
+                .tip(s.msg_send_backward()),
         ]),
         grid(vec![
             vec![

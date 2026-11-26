@@ -184,13 +184,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "align-center-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "align-horizontal-middles",
         attribute: None,
         vars: &[],
@@ -212,13 +205,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "align-left-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "align-right",
         attribute: None,
         vars: &[],
@@ -227,13 +213,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "align-right-edges",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "align-right-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -527,13 +506,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "bold-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "boolean-shape-operations-planned",
         attribute: None,
         vars: &[],
@@ -556,13 +528,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "bring-forward",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "bring-forward-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -745,13 +710,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "clipboard-image-could-not-be-enc",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "clipboard-planned-for-a-later-mi",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -1185,13 +1143,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "copy-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "could-not-open-address-e",
         attribute: None,
         vars: &["address", "e"],
@@ -1291,13 +1242,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "cut",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "cut-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -2935,13 +2879,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "italic-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "jump-size",
         attribute: None,
         vars: &[],
@@ -2950,13 +2887,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "justify",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "justify-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -5035,13 +4965,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "send-backward-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "send-the-drawing-to-a-printer-or",
         attribute: None,
         vars: &[],
@@ -5847,13 +5770,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "strikethrough-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "style",
         attribute: None,
         vars: &[],
@@ -6310,13 +6226,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "underline",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "underline-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6869,13 +6778,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48358,
-            Self::En => 48358..95056,
-            Self::Es => 95056..146456,
-            Self::Fa => 146456..207722,
-            Self::Ja => 207722..259444,
-            Self::Ko => 259444..307104,
-            Self::ZhHans => 307104..348847,
+            Self::De => 0..47749,
+            Self::En => 47749..93870,
+            Self::Es => 93870..144643,
+            Self::Fa => 144643..204926,
+            Self::Ja => 204926..256034,
+            Self::Ko => 256034..303093,
+            Self::ZhHans => 303093..344231,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7037,9 +6946,6 @@ impl L10nLanguage {
     pub fn msg_align_center(&self) -> String {
         self.0.msg("align-center", None).unwrap()
     }
-    pub fn msg_align_center_planned(&self) -> String {
-        self.0.msg("align-center-planned", None).unwrap()
-    }
     pub fn msg_align_horizontal_middles(&self) -> String {
         self.0.msg("align-horizontal-middles", None).unwrap()
     }
@@ -7049,17 +6955,11 @@ impl L10nLanguage {
     pub fn msg_align_left_edges_first_selected(&self) -> String {
         self.0.msg("align-left-edges-first-selected", None).unwrap()
     }
-    pub fn msg_align_left_planned(&self) -> String {
-        self.0.msg("align-left-planned", None).unwrap()
-    }
     pub fn msg_align_right(&self) -> String {
         self.0.msg("align-right", None).unwrap()
     }
     pub fn msg_align_right_edges(&self) -> String {
         self.0.msg("align-right-edges", None).unwrap()
-    }
-    pub fn msg_align_right_planned(&self) -> String {
-        self.0.msg("align-right-planned", None).unwrap()
     }
     pub fn msg_align_top(&self) -> String {
         self.0.msg("align-top", None).unwrap()
@@ -7195,9 +7095,6 @@ impl L10nLanguage {
     pub fn msg_bold(&self) -> String {
         self.0.msg("bold", None).unwrap()
     }
-    pub fn msg_bold_planned(&self) -> String {
-        self.0.msg("bold-planned", None).unwrap()
-    }
     pub fn msg_boolean_shape_operations_planned(&self) -> String {
         self.0
             .msg("boolean-shape-operations-planned", None)
@@ -7211,9 +7108,6 @@ impl L10nLanguage {
     }
     pub fn msg_bring_forward(&self) -> String {
         self.0.msg("bring-forward", None).unwrap()
-    }
-    pub fn msg_bring_forward_planned(&self) -> String {
-        self.0.msg("bring-forward-planned", None).unwrap()
     }
     pub fn msg_bring_to_front(&self) -> String {
         self.0.msg("bring-to-front", None).unwrap()
@@ -7327,11 +7221,6 @@ impl L10nLanguage {
     pub fn msg_clipboard_image_could_not_be_enc(&self) -> String {
         self.0
             .msg("clipboard-image-could-not-be-enc", None)
-            .unwrap()
-    }
-    pub fn msg_clipboard_planned_for_a_later_mi(&self) -> String {
-        self.0
-            .msg("clipboard-planned-for-a-later-mi", None)
             .unwrap()
     }
     pub fn msg_clipboard_probe_failed(&self) -> String {
@@ -7601,9 +7490,6 @@ impl L10nLanguage {
     pub fn msg_copy_picture(&self) -> String {
         self.0.msg("copy-picture", None).unwrap()
     }
-    pub fn msg_copy_planned(&self) -> String {
-        self.0.msg("copy-planned", None).unwrap()
-    }
     /// $address (String) - argument
     /// $e (String) - argument
     pub fn msg_could_not_open_address_e<F0: AsRef<str>, F1: AsRef<str>>(
@@ -7676,9 +7562,6 @@ impl L10nLanguage {
     }
     pub fn msg_cut(&self) -> String {
         self.0.msg("cut", None).unwrap()
-    }
-    pub fn msg_cut_planned(&self) -> String {
-        self.0.msg("cut-planned", None).unwrap()
     }
     pub fn msg_dash(&self) -> String {
         self.0.msg("dash", None).unwrap()
@@ -8505,17 +8388,11 @@ impl L10nLanguage {
     pub fn msg_italic(&self) -> String {
         self.0.msg("italic", None).unwrap()
     }
-    pub fn msg_italic_planned(&self) -> String {
-        self.0.msg("italic-planned", None).unwrap()
-    }
     pub fn msg_jump_size(&self) -> String {
         self.0.msg("jump-size", None).unwrap()
     }
     pub fn msg_justify(&self) -> String {
         self.0.msg("justify", None).unwrap()
-    }
-    pub fn msg_justify_planned(&self) -> String {
-        self.0.msg("justify-planned", None).unwrap()
     }
     /// $key (String) - keytip key
     pub fn msg_keytip_unavailable<F0: AsRef<str>>(&self, key: F0) -> String {
@@ -9695,9 +9572,6 @@ impl L10nLanguage {
     pub fn msg_send_backward(&self) -> String {
         self.0.msg("send-backward", None).unwrap()
     }
-    pub fn msg_send_backward_planned(&self) -> String {
-        self.0.msg("send-backward-planned", None).unwrap()
-    }
     pub fn msg_send_the_drawing_to_a_printer_or(&self) -> String {
         self.0
             .msg("send-the-drawing-to-a-printer-or", None)
@@ -10123,9 +9997,6 @@ impl L10nLanguage {
     pub fn msg_strikethrough(&self) -> String {
         self.0.msg("strikethrough", None).unwrap()
     }
-    pub fn msg_strikethrough_planned(&self) -> String {
-        self.0.msg("strikethrough-planned", None).unwrap()
-    }
     pub fn msg_style(&self) -> String {
         self.0.msg("style", None).unwrap()
     }
@@ -10368,9 +10239,6 @@ impl L10nLanguage {
     }
     pub fn msg_underline(&self) -> String {
         self.0.msg("underline", None).unwrap()
-    }
-    pub fn msg_underline_planned(&self) -> String {
-        self.0.msg("underline-planned", None).unwrap()
     }
     /// $name (String) - property name
     /// $v (String) - the added choice
