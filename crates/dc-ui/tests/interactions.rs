@@ -11791,3 +11791,26 @@ fn themes_and_quick_styles() {
     h.run();
     assert_eq!(h.state().debug_cell_for_test(b, "FillForegnd"), lagoon, "undo the quick style");
 }
+
+/// Editing a white-on-black text box (TextBkgnd) keeps the black: the
+/// canvas leaves the shape's text out while editing, and the text
+/// background is part of it, so the editor paints it.
+#[test]
+fn text_background_stays_while_editing() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().debug_set_shape_text_for_test(sid, "Router");
+    for (c, v) in [("TextBkgnd", "1"), ("FillPattern", "0")] {
+        let page = h.state().debug_page_ids()[0];
+        h.state_mut().set_cell_for_test(page, sid, c, v, None);
+    }
+    h.run();
+    h.key_press(egui::Key::F2);
+    h.run();
+    h.run();
+    let r = h.state().debug_shape_screen_rect_for_test(sid).expect("on screen");
+    let img = h.render().unwrap();
+    let p = img.get_pixel((r.center().x + r.width() * 0.3) as u32, (r.center().y + r.height() * 0.3) as u32);
+    assert!(p[0] < 60 && p[1] < 60 && p[2] < 60, "text background while editing: {p:?}");
+}

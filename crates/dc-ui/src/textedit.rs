@@ -361,6 +361,13 @@ pub fn show_overlay(
         return EditFlow::Active;
     }
 
+    // The text background (TextBkgnd) is drawn with the text, which the
+    // canvas leaves out while editing: paint it here, or white text on
+    // a dark text box turns invisible.
+    if let Some((c, a)) = &tb.text_bkgnd {
+        let c = parse_hex_color(c);
+        ui.painter().rect_filled(screen, 0.0, Color32::from_rgba_unmultiplied(c.r(), c.g(), c.b(), *a));
+    }
     // Editor chrome: Visio hairlines the text block while editing.
     ui.painter().rect_stroke(
         screen,
