@@ -231,7 +231,6 @@ double-tick-dot = تیک دوتایی + نقطه
 double-tick-ring = تیک دوتایی + حلقه
 drawing-aids = ابزارهای ترسیم
 drawing-explorer = کاوشگر نقاشی
-drawing-explorer-planned = کاوشگر نقاشی — برنامه‌ریزی شده
 # $n - شمارهٔ سند بی‌نام
 drawing-n = نقشه{ $n }
 drawing-scale-planned = مقیاس نقاشی — برنامه‌ریزی شده
@@ -1142,3 +1141,6 @@ linked-n-shapes =
 no-table-imported = هنوز جدولی وارد نشده
 # $path (String) - file path
 table-file-missing = پروندهٔ جدول پیوندی پیدا نشد: { $path }
+pages = صفحه‌ها
+masters = مسترها
+drawing-explorer-tip = سند به‌صورت درخت: صفحه‌ها، شکل‌ها، مسترها و سبک‌ها

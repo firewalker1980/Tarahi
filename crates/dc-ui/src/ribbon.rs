@@ -165,6 +165,8 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Developer ▸ Drawing Explorer.
+    DrawingExplorer,
     /// Data tab: import a CSV, show it, link the selected row, link
     /// automatically, refresh.
     DataImport,

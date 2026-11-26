@@ -234,7 +234,6 @@ double-tick-dot = Doppelter Tick + Punkt
 double-tick-ring = Doppelter Tick + Ring
 drawing-aids = Zeichenhilfen
 drawing-explorer = Zeichnungs-Explorer
-drawing-explorer-planned = Zeichnungs-Explorer — geplant
 # $n - Nummer des unbenannten Dokuments
 drawing-n = Zeichnung{ $n }
 drawing-scale-planned = Zeichnungsmaßstab — geplant
@@ -1145,6 +1144,9 @@ linked-n-shapes =
 no-table-imported = Noch keine Tabelle importiert
 # $path (String) - file path
 table-file-missing = Verknüpfte Tabellendatei fehlt: { $path }
+pages = Seiten
+masters = Master
+drawing-explorer-tip = Das Dokument als Baum: Seiten, Formen, Master und Formatvorlagen
 
 
 ## ########## Resource: app ###############
@@ -1404,7 +1406,6 @@ double-tick-dot = Double Tick + Dot
 double-tick-ring = Double Tick + Ring
 drawing-aids = Drawing aids
 drawing-explorer = Drawing Explorer
-drawing-explorer-planned = Drawing explorer — planned
 # $n (Number) - untitled document number
 drawing-n = Drawing{ $n }
 drawing-scale-planned = Drawing scale — planned
@@ -2368,6 +2369,9 @@ linked-n-shapes =
 no-table-imported = No table imported yet
 # $path (String) - file path
 table-file-missing = The linked table file is missing: { $path }
+pages = Pages
+masters = Masters
+drawing-explorer-tip = The document as a tree: pages, shapes, masters and styles
 
 
 ## ########## Resource: app ###############
@@ -2625,7 +2629,6 @@ double-tick-dot = Marca doble + punto
 double-tick-ring = Marca doble + anillo
 drawing-aids = Ayudas de dibujo
 drawing-explorer = Explorador de dibujo
-drawing-explorer-planned = Explorador de dibujo — planeado
 # $n - número del documento sin título
 drawing-n = Dibujo{ $n }
 drawing-scale-planned = Escala de dibujo — planeado
@@ -3586,6 +3589,9 @@ linked-n-shapes =
 no-table-imported = Aún no se importó ninguna tabla
 # $path (String) - file path
 table-file-missing = Falta el archivo de la tabla vinculada: { $path }
+pages = Páginas
+masters = Patrones
+drawing-explorer-tip = El documento como árbol: páginas, formas, patrones y estilos
 
 
 ## ########## Resource: app ###############
@@ -3823,7 +3829,6 @@ double-tick-dot = تیک دوتایی + نقطه
 double-tick-ring = تیک دوتایی + حلقه
 drawing-aids = ابزارهای ترسیم
 drawing-explorer = کاوشگر نقاشی
-drawing-explorer-planned = کاوشگر نقاشی — برنامه‌ریزی شده
 # $n - شمارهٔ سند بی‌نام
 drawing-n = نقشه{ $n }
 drawing-scale-planned = مقیاس نقاشی — برنامه‌ریزی شده
@@ -4734,6 +4739,9 @@ linked-n-shapes =
 no-table-imported = هنوز جدولی وارد نشده
 # $path (String) - file path
 table-file-missing = پروندهٔ جدول پیوندی پیدا نشد: { $path }
+pages = صفحه‌ها
+masters = مسترها
+drawing-explorer-tip = سند به‌صورت درخت: صفحه‌ها، شکل‌ها، مسترها و سبک‌ها
 
 
 ## ########## Resource: app ###############
@@ -4956,7 +4964,6 @@ double-tick-dot = 二重チック + ドット
 double-tick-ring = 二重チック + リング
 drawing-aids = 作図支援
 drawing-explorer = 図面エクスプローラー
-drawing-explorer-planned = 図面エクスプローラー — 予定
 drawing-n = 図面{ $n }
 drawing-scale-planned = 図面の縮尺 — 予定
 drawings-you-open-will-appear-he = 開いた図面がここに表示されます。
@@ -5778,6 +5785,9 @@ linked-n-shapes =
 no-table-imported = まだ表がインポートされていません
 # $path (String) - file path
 table-file-missing = リンクされた表ファイルがありません: { $path }
+pages = ページ
+masters = マスター
+drawing-explorer-tip = ページ、図形、マスター、スタイルをツリーで表示
 
 
 ## ########## Resource: app ###############
@@ -6001,7 +6011,6 @@ double-tick-dot = 이중 눈금 + 점
 double-tick-ring = 이중 눈금 + 링
 drawing-aids = 드로잉 보조
 drawing-explorer = 드로잉 탐색기
-drawing-explorer-planned = 드로잉 탐색기 — 예정
 drawing-n = 드로잉{ $n }
 drawing-scale-planned = 드로잉 배율 — 예정
 drawings-you-open-will-appear-he = 연 드로잉이 여기에 표시됩니다.
@@ -6823,6 +6832,9 @@ linked-n-shapes =
 no-table-imported = 가져온 표가 없습니다
 # $path (String) - file path
 table-file-missing = 연결된 표 파일이 없습니다: { $path }
+pages = 페이지
+masters = 마스터
+drawing-explorer-tip = 문서를 트리로 표시: 페이지, 도형, 마스터, 스타일
 
 
 ## ########## Resource: app ###############
@@ -7044,7 +7056,6 @@ double-tick-dot = 双刻度 + 点
 double-tick-ring = 双刻度 + 圆环
 drawing-aids = 绘图辅助
 drawing-explorer = 绘图资源管理器
-drawing-explorer-planned = 绘图资源管理器 — 计划中
 drawing-n = 绘图{ $n }
 drawing-scale-planned = 绘图比例 — 计划中
 drawings-you-open-will-appear-he = 在此处显示打开的绘图。
@@ -7872,4 +7883,7 @@ linked-n-shapes =
 no-table-imported = 尚未导入表格
 # $path (String) - file path
 table-file-missing = 找不到链接的表格文件:{ $path }
+pages = 页面
+masters = 主控形状
+drawing-explorer-tip = 以树形显示文档:页面、形状、主控形状和样式
 

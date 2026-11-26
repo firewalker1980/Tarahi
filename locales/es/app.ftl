@@ -251,7 +251,6 @@ double-tick-dot = Marca doble + punto
 double-tick-ring = Marca doble + anillo
 drawing-aids = Ayudas de dibujo
 drawing-explorer = Explorador de dibujo
-drawing-explorer-planned = Explorador de dibujo — planeado
 # $n - número del documento sin título
 drawing-n = Dibujo{ $n }
 drawing-scale-planned = Escala de dibujo — planeado
@@ -1212,3 +1211,6 @@ linked-n-shapes =
 no-table-imported = Aún no se importó ninguna tabla
 # $path (String) - file path
 table-file-missing = Falta el archivo de la tabla vinculada: { $path }
+pages = Páginas
+masters = Patrones
+drawing-explorer-tip = El documento como árbol: páginas, formas, patrones y estilos

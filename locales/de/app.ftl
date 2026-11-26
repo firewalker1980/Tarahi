@@ -231,7 +231,6 @@ double-tick-dot = Doppelter Tick + Punkt
 double-tick-ring = Doppelter Tick + Ring
 drawing-aids = Zeichenhilfen
 drawing-explorer = Zeichnungs-Explorer
-drawing-explorer-planned = Zeichnungs-Explorer — geplant
 # $n - Nummer des unbenannten Dokuments
 drawing-n = Zeichnung{ $n }
 drawing-scale-planned = Zeichnungsmaßstab — geplant
@@ -1142,3 +1141,6 @@ linked-n-shapes =
 no-table-imported = Noch keine Tabelle importiert
 # $path (String) - file path
 table-file-missing = Verknüpfte Tabellendatei fehlt: { $path }
+pages = Seiten
+masters = Master
+drawing-explorer-tip = Das Dokument als Baum: Seiten, Formen, Master und Formatvorlagen

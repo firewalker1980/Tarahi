@@ -217,7 +217,6 @@ double-tick-dot = 이중 눈금 + 점
 double-tick-ring = 이중 눈금 + 링
 drawing-aids = 드로잉 보조
 drawing-explorer = 드로잉 탐색기
-drawing-explorer-planned = 드로잉 탐색기 — 예정
 drawing-n = 드로잉{ $n }
 drawing-scale-planned = 드로잉 배율 — 예정
 drawings-you-open-will-appear-he = 연 드로잉이 여기에 표시됩니다.
@@ -1039,3 +1038,6 @@ linked-n-shapes =
 no-table-imported = 가져온 표가 없습니다
 # $path (String) - file path
 table-file-missing = 연결된 표 파일이 없습니다: { $path }
+pages = 페이지
+masters = 마스터
+drawing-explorer-tip = 문서를 트리로 표시: 페이지, 도형, 마스터, 스타일

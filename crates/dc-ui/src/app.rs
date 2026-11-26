@@ -286,6 +286,8 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Developer ▸ Drawing Explorer window.
+    explorer_open: bool,
     /// Data tab: the imported table and its file, the External Data
     /// window, the selected row, the Automatically Link dialog state.
     data_table: Option<(crate::datalink::Table, PathBuf)>,
@@ -878,6 +880,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            explorer_open: false,
             data_table: None,
             data_window: false,
             data_row: None,
@@ -6156,6 +6159,79 @@ impl App {
         }
     }
 
+    /// Developer ▸ Drawing Explorer: the document as a tree — pages
+    /// (backgrounds marked) with their shapes and sub-shapes, masters,
+    /// styles. A shape click goes to its page and selects it.
+    fn explorer_window(&mut self, ctx: &egui::Context) {
+        if !self.explorer_open {
+            return;
+        }
+        let Some(ed) = self.ed() else { return };
+        let s = crate::i18n::strs();
+        fn label(sh: &Shape) -> String {
+            let name = sh
+                .attrs
+                .iter()
+                .find(|(k, _)| k == "Name")
+                .map(|(_, v)| v.clone())
+                .or(sh.name_u.clone())
+                .unwrap_or_else(|| format!("Sheet.{}", sh.id));
+            format!("{name}  ({})", sh.id)
+        }
+        fn shapes_ui(ui: &mut Ui, shapes: &[Shape], pi: usize, pick: &mut Option<(usize, i64)>) {
+            for sh in shapes {
+                if sh.sub_shapes.is_empty() {
+                    if ui.selectable_label(false, label(sh)).clicked() {
+                        *pick = Some((pi, sh.id));
+                    }
+                } else {
+                    egui::CollapsingHeader::new(label(sh)).id_salt(("dc-exp-sh", pi, sh.id)).show(ui, |ui| {
+                        if ui.small_button("↦").on_hover_text(label(sh)).clicked() {
+                            *pick = Some((pi, sh.id));
+                        }
+                        shapes_ui(ui, &sh.sub_shapes, pi, pick);
+                    });
+                }
+            }
+        }
+        let mut pick: Option<(usize, i64)> = None;
+        let mut open = true;
+        let right = ctx.input(|i| i.viewport().inner_rect).map_or(1280.0, |r| r.right());
+        egui::Window::new(s.msg_drawing_explorer())
+            .open(&mut open)
+            .default_pos(egui::pos2(right - 300.0, 120.0))
+            .default_width(260.0)
+            .show(ctx, |ui| {
+                egui::ScrollArea::vertical().max_height(480.0).show(ui, |ui| {
+                    egui::CollapsingHeader::new(s.msg_pages()).default_open(true).show(ui, |ui| {
+                        for (pi, p) in ed.doc.pages.iter().enumerate() {
+                            egui::CollapsingHeader::new(format!("{}  ({})", p.name, p.shapes.len()))
+                                .id_salt(("dc-exp-page", p.id))
+                                .show(ui, |ui| shapes_ui(ui, &p.shapes, pi, &mut pick));
+                        }
+                    });
+                    egui::CollapsingHeader::new(s.msg_masters()).show(ui, |ui| {
+                        for m in &ed.doc.masters {
+                            ui.label(format!("{}  ({})", m.name_u.as_deref().unwrap_or("-"), m.id));
+                        }
+                    });
+                    egui::CollapsingHeader::new(s.msg_styles()).show(ui, |ui| {
+                        for st in &ed.doc.stylesheets {
+                            ui.label(format!("{}  ({})", st.name_u.as_deref().unwrap_or("-"), st.id));
+                        }
+                    });
+                });
+            });
+        self.explorer_open &= open;
+        if let Some((pi, id)) = pick {
+            self.switch_page(pi);
+            if let Some(p) = self.page_id() {
+                self.set_selection(Some((p, id)));
+                self.sel_set = vec![(p, id)];
+            }
+        }
+    }
+
     /// Read a CSV into the Data tab's table and show it.
     fn load_data_table(&mut self, path: PathBuf) {
         match std::fs::read(&path) {
@@ -9789,6 +9865,7 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::DrawingExplorer => self.explorer_open = !self.explorer_open,
             Action::DataImport => self.begin_dialog(PendingKind::DataOpen),
             Action::DataWindow => self.data_window = !self.data_window,
             Action::DataAutoLink => self.autolink = Some((0, None)),
@@ -18752,6 +18829,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.explorer_window(&ctx);
         self.data_windows(&ctx);
         self.symbol_window(&ctx);
         self.panes_lists_window(&ctx);

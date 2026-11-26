@@ -11310,3 +11310,32 @@ fn data_import_autolink_and_refresh() {
     h.run();
     assert_eq!(h.state().debug_prop_value_for_test(a, "IP_address").as_deref(), Some("10.9.9.9"));
 }
+
+/// Developer ▸ Drawing Explorer: the pages' shapes as a tree; a click
+/// on a shape on another page switches there and selects it.
+#[test]
+fn drawing_explorer_goes_to_a_shape() {
+    let mut h = harness_with_blank();
+    h.run();
+    h.state_mut().debug_add_page();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    let second = h.state().debug_active_page_name();
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Developer);
+    h.run();
+    // back to the first page
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::PageUp);
+    h.run();
+    h.get_by_label("Drawing Explorer").click();
+    h.run();
+    h.run();
+    h.get_by_label_contains(&format!("{second}  (")).click();
+    h.run();
+    h.get_all_by_label_contains(&format!("({sid})"))
+        .find(|n| !format!("{:?}", n).contains(&second))
+        .expect("shape entry")
+        .click();
+    h.run();
+    assert_eq!(h.state().debug_active_page_name(), second);
+    assert_eq!(h.state().debug_sel().map(|(_, s)| s), Some(sid));
+}

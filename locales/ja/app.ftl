@@ -216,7 +216,6 @@ double-tick-dot = 二重チック + ドット
 double-tick-ring = 二重チック + リング
 drawing-aids = 作図支援
 drawing-explorer = 図面エクスプローラー
-drawing-explorer-planned = 図面エクスプローラー — 予定
 drawing-n = 図面{ $n }
 drawing-scale-planned = 図面の縮尺 — 予定
 drawings-you-open-will-appear-he = 開いた図面がここに表示されます。
@@ -1038,3 +1037,6 @@ linked-n-shapes =
 no-table-imported = まだ表がインポートされていません
 # $path (String) - file path
 table-file-missing = リンクされた表ファイルがありません: { $path }
+pages = ページ
+masters = マスター
+drawing-explorer-tip = ページ、図形、マスター、スタイルをツリーで表示

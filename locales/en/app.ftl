@@ -253,7 +253,6 @@ double-tick-dot = Double Tick + Dot
 double-tick-ring = Double Tick + Ring
 drawing-aids = Drawing aids
 drawing-explorer = Drawing Explorer
-drawing-explorer-planned = Drawing explorer — planned
 # $n (Number) - untitled document number
 drawing-n = Drawing{ $n }
 drawing-scale-planned = Drawing scale — planned
@@ -1217,3 +1216,6 @@ linked-n-shapes =
 no-table-imported = No table imported yet
 # $path (String) - file path
 table-file-missing = The linked table file is missing: { $path }
+pages = Pages
+masters = Masters
+drawing-explorer-tip = The document as a tree: pages, shapes, masters and styles

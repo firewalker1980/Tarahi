@@ -1493,13 +1493,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "drawing-explorer-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "drawing-n",
         attribute: None,
         vars: &["n"],
@@ -6980,6 +6973,27 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "pages",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "masters",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "drawing-explorer-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7079,13 +7093,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..49404,
-            Self::En => 49404..97043,
-            Self::Es => 97043..149545,
-            Self::Fa => 149545..211236,
-            Self::Ja => 211236..264208,
-            Self::Ko => 264208..313036,
-            Self::ZhHans => 313036..355354,
+            Self::De => 0..49465,
+            Self::En => 49465..97161,
+            Self::Es => 97161..149724,
+            Self::Fa => 149724..211496,
+            Self::Ja => 211496..264533,
+            Self::Ko => 264533..313432,
+            Self::ZhHans => 313432..355810,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7983,9 +7997,6 @@ impl L10nLanguage {
     }
     pub fn msg_drawing_explorer(&self) -> String {
         self.0.msg("drawing-explorer", None).unwrap()
-    }
-    pub fn msg_drawing_explorer_planned(&self) -> String {
-        self.0.msg("drawing-explorer-planned", None).unwrap()
     }
     /// $n (Number) - untitled document number
     pub fn msg_drawing_n<F0: Into<FluentNumber>>(&self, n: F0) -> String {
@@ -10970,5 +10981,14 @@ impl L10nLanguage {
         let mut _args = FluentArgs::new();
         _args.set("path", path.as_ref());
         self.0.msg("table-file-missing", Some(_args)).unwrap()
+    }
+    pub fn msg_pages(&self) -> String {
+        self.0.msg("pages", None).unwrap()
+    }
+    pub fn msg_masters(&self) -> String {
+        self.0.msg("masters", None).unwrap()
+    }
+    pub fn msg_drawing_explorer_tip(&self) -> String {
+        self.0.msg("drawing-explorer-tip", None).unwrap()
     }
 }

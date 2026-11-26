@@ -111,9 +111,9 @@ fn show_hide_grid(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<su
                 .tip(s.msg_toggle_display_units_model_stays()),
         ],
         vec![
-            RibbonButton::new(Icon::Shapes, s.msg_drawing_explorer(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_drawing_explorer_planned()),
+            RibbonButton::new(Icon::Shapes, s.msg_drawing_explorer(), Action::DrawingExplorer)
+                .enabled(ctx.has_doc)
+                .tip(s.msg_drawing_explorer_tip()),
             RibbonButton::new(Icon::Shapes, s.msg_show_document_stencil(), Action::ToggleDocStencil)
                 .enabled(ctx.has_doc)
                 .selected(ctx.doc_stencil)

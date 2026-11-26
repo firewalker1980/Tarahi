@@ -215,7 +215,6 @@ double-tick-dot = 双刻度 + 点
 double-tick-ring = 双刻度 + 圆环
 drawing-aids = 绘图辅助
 drawing-explorer = 绘图资源管理器
-drawing-explorer-planned = 绘图资源管理器 — 计划中
 drawing-n = 绘图{ $n }
 drawing-scale-planned = 绘图比例 — 计划中
 drawings-you-open-will-appear-he = 在此处显示打开的绘图。
@@ -1043,3 +1042,6 @@ linked-n-shapes =
 no-table-imported = 尚未导入表格
 # $path (String) - file path
 table-file-missing = 找不到链接的表格文件:{ $path }
+pages = 页面
+masters = 主控形状
+drawing-explorer-tip = 以树形显示文档:页面、形状、主控形状和样式
