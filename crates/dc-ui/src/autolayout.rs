@@ -113,8 +113,8 @@ pub fn layout(nodes: &[Node], edges: &[(i64, i64)], style: Style, gap: f64, cent
     };
     set_pos(&rows, &mut pos);
     let mut pred = vec![Vec::new(); n];
-    for v in 0..n {
-        for &w in &dag[v] {
+    for (v, outs) in dag.iter().enumerate() {
+        for &w in outs {
             pred[w].push(v);
         }
     }
