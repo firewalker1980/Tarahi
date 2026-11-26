@@ -506,13 +506,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "borders-titles-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "bring-forward",
         attribute: None,
         vars: &[],
@@ -584,13 +577,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "callout",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "callouts-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -5875,13 +5861,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "title-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "to-page",
         attribute: None,
         vars: &[],
@@ -6903,6 +6882,27 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "callout-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "title-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "border-title-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7002,13 +7002,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48612,
-            Self::En => 48612..95516,
-            Self::Es => 95516..147201,
-            Self::Fa => 147201..207970,
-            Self::Ja => 207970..260094,
-            Self::Ko => 260094..308183,
-            Self::ZhHans => 308183..349867,
+            Self::De => 0..48645,
+            Self::En => 48645..95592,
+            Self::Es => 95592..147352,
+            Self::Fa => 147352..208097,
+            Self::Ja => 208097..260270,
+            Self::Ko => 260270..308403,
+            Self::ZhHans => 308403..350096,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7319,9 +7319,6 @@ impl L10nLanguage {
     pub fn msg_border_title(&self) -> String {
         self.0.msg("border-title", None).unwrap()
     }
-    pub fn msg_borders_titles_planned(&self) -> String {
-        self.0.msg("borders-titles-planned", None).unwrap()
-    }
     pub fn msg_bring_forward(&self) -> String {
         self.0.msg("bring-forward", None).unwrap()
     }
@@ -7375,9 +7372,6 @@ impl L10nLanguage {
     }
     pub fn msg_callout(&self) -> String {
         self.0.msg("callout", None).unwrap()
-    }
-    pub fn msg_callouts_planned(&self) -> String {
-        self.0.msg("callouts-planned", None).unwrap()
     }
     pub fn msg_cancel(&self) -> String {
         self.0.msg("cancel", None).unwrap()
@@ -10289,9 +10283,6 @@ impl L10nLanguage {
     pub fn msg_title(&self) -> String {
         self.0.msg("title", None).unwrap()
     }
-    pub fn msg_title_planned(&self) -> String {
-        self.0.msg("title-planned", None).unwrap()
-    }
     pub fn msg_to_page(&self) -> String {
         self.0.msg("to-page", None).unwrap()
     }
@@ -10856,5 +10847,14 @@ impl L10nLanguage {
     }
     pub fn msg_presentation_mode_tip(&self) -> String {
         self.0.msg("presentation-mode-tip", None).unwrap()
+    }
+    pub fn msg_callout_tip(&self) -> String {
+        self.0.msg("callout-tip", None).unwrap()
+    }
+    pub fn msg_title_tip(&self) -> String {
+        self.0.msg("title-tip", None).unwrap()
+    }
+    pub fn msg_border_title_tip(&self) -> String {
+        self.0.msg("border-title-tip", None).unwrap()
     }
 }

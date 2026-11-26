@@ -163,6 +163,9 @@ pub enum Action {
     FontSizeMenu,
     Bullets,
     Indent(bool),
+    /// Insert ▸ Callout, Title (false) / Border & Title (true).
+    InsertCallout,
+    InsertTitle(bool),
     /// View ▸ Presentation Mode (F5).
     PresentationMode,
     /// Design ▸ Auto Size (page DrawingResizeType).

@@ -658,6 +658,13 @@ fn overlay_font(
             priority: egui::FontPriority::Highest,
         }],
     ));
+    // egui defers a font added after this pass started laying out:
+    // until it is live, lay out in the default face (one frame) rather
+    // than ask for a family with no fonts, which panics (bold text
+    // first opened mid-frame, e.g. a new title box)
+    if !ctx.fonts(|f| f.families().contains(&family)) {
+        return (egui::FontFamily::Proportional, ascent);
+    }
     (family, ascent)
 }
 

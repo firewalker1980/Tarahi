@@ -77,9 +77,9 @@ fn diagram_parts_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Ve
                 .tip(s.msg_wrap_the_selection_in_this_conta()),
         ),
         big(
-            RibbonButton::new(Icon::Callout, s.msg_callout(), Action::Macros)
-                .enabled(false)
-                .tip(s.msg_callouts_planned()),
+            RibbonButton::new(Icon::Callout, s.msg_callout(), Action::InsertCallout)
+                .enabled(ctx.has_sel)
+                .tip(s.msg_callout_tip()),
         ),
         grid(vec![
             vec![
@@ -98,15 +98,15 @@ fn diagram_parts_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Ve
                     .alt(s.msg_legend())
                     .enabled(false)
                     .tip(s.msg_legends_m6_visio_paints_legend_o()),
-                RibbonButton::new(Icon::Title, "", Action::Macros)
+                RibbonButton::new(Icon::Title, "", Action::InsertTitle(false))
                     .alt(s.msg_title())
-                    .enabled(false)
-                    .tip(s.msg_title_planned()),
+                    .enabled(ctx.has_doc)
+                    .tip(s.msg_title_tip()),
             ],
-            vec![RibbonButton::new(Icon::Picture, "", Action::Macros)
+            vec![RibbonButton::new(Icon::Picture, "", Action::InsertTitle(true))
                 .alt(s.msg_border_title())
-                .enabled(false)
-                .tip(s.msg_borders_titles_planned())],
+                .enabled(ctx.has_doc)
+                .tip(s.msg_border_title_tip())],
         ]),
     ]
 }

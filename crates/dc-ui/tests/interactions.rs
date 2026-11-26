@@ -11163,3 +11163,31 @@ fn presentation_mode_pages_and_exits() {
     h.run();
     assert!(h.query_by_label("Home").is_some(), "ribbon back");
 }
+
+/// Insert ▸ Callout: a text box glued to the selected shape by a leader
+/// (two glue records); Border & Title adds a bold 24 pt title and frame.
+#[test]
+fn insert_callout_and_border_title() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Insert);
+    h.run();
+    let n = h.state().debug_shape_count();
+    h.get_by_label("Callout").click();
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), n + 2, "box + leader");
+    assert!(h.state().debug_text_edit().is_some(), "callout opens for typing");
+    let connects = h.state().debug_connects();
+    assert_eq!(connects.iter().filter(|c| format!("{c:?}").contains(&format!("{sid}"))).count() >= 1, true, "{connects:?}");
+    assert_eq!(connects.len(), 2, "leader glued at both ends: {connects:?}");
+    h.key_press(egui::Key::Escape);
+    h.run();
+
+    let n = h.state().debug_shape_count();
+    h.get_by_label("Border & Title").click();
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), n + 3, "title, frame, rule");
+    let (_, title) = h.state().debug_sel().unwrap();
+    assert_eq!(h.state().debug_cell_for_test(title, "Char.Style").as_deref(), Some("1"));
+}

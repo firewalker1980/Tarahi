@@ -80,7 +80,6 @@ blank-drawing = Leere Zeichnung
 bold = Fett
 boolean-shape-operations-planned = Boolesche Formoperationen — geplant
 border-title = Rahmen & Titel
-borders-titles-planned = Rahmen & Titel — geplant
 bring-forward = Nach vorn
 bring-to-front = In den Vordergrund
 browse = Durchsuchen …
@@ -96,7 +95,6 @@ bullets = Aufzählungszeichen
 cad-drawing = CAD-Zeichnung
 cad-drawing-import-planned-later = CAD-Zeichnungsimport — geplant (späterer Meilenstein)
 callout = Legendenbeschriftung
-callouts-planned = Legendenbeschriftungen — geplant
 cancel = Abbrechen
 # $name - Zellenname
 # $f - die schützende Formel
@@ -922,7 +920,6 @@ tick-double-chevron = Tick + Doppelwinkel
 tick-ring = Tick + Ring
 tint-the-container-s-members-whi = Die Mitglieder des Containers einfärben, solange er ausgewählt ist
 title = Titel
-title-planned = Titel — geplant
 to-page = An Seite
 toggle-display-units-model-stays = Anzeigeeinheiten umschalten (das Modell bleibt in Zoll)
 toggle-member-highlight = Member-Hervorhebung umschalten
@@ -1128,6 +1125,9 @@ selection-pane-tip = Alle Formen der Seite; zum Auswählen klicken
 reviewing-pane-tip = Alle Kommentare der Zeichnung; zum Hinspringen klicken
 auto-size-tip = Seite wächst mit der Zeichnung
 presentation-mode-tip = Seiten im Vollbild zeigen; Pfeile blättern, Esc beendet (F5)
+callout-tip = Ein Textfeld mit Verbindungslinie zur ausgewählten Form
+title-tip = Ein großer Titel oben auf der Seite
+border-title-tip = Ein Rahmen um die Seite mit Titel
 
 
 ## ########## Resource: app ###############
@@ -1218,7 +1218,6 @@ blank-drawing = Blank drawing
 bold = Bold
 boolean-shape-operations-planned = Boolean shape operations — planned
 border-title = Border & Title
-borders-titles-planned = Borders & titles — planned
 bring-forward = Bring Forward
 bring-to-front = Bring to Front
 browse = Browse…
@@ -1234,7 +1233,6 @@ bullets = Bullets
 cad-drawing = CAD Drawing
 cad-drawing-import-planned-later = CAD drawing import — planned (later milestone)
 callout = Callout
-callouts-planned = Callouts — planned
 cancel = Cancel
 # $name (String) - cell name
 # $f (String) - the guarding formula
@@ -2127,7 +2125,6 @@ tick-double-chevron = Tick + Double Chevron
 tick-ring = Tick + Ring
 tint-the-container-s-members-whi = Tint the container's members while it is selected
 title = Title
-title-planned = Title — planned
 to-page = To Page
 toggle-display-units-model-stays = Toggle display units (model stays inches)
 toggle-member-highlight = toggle member highlight
@@ -2334,6 +2331,9 @@ selection-pane-tip = Every shape on the page; click to select
 reviewing-pane-tip = Every comment in the drawing; click to go to it
 auto-size-tip = Grow the page to hold the drawing
 presentation-mode-tip = Show the pages full screen; arrows change page, Esc ends (F5)
+callout-tip = A text box with a leader line to the selected shape
+title-tip = A large title at the top of the page
+border-title-tip = A frame around the page with a title
 
 
 ## ########## Resource: app ###############
@@ -2422,7 +2422,6 @@ blank-drawing = Dibujo en blanco
 bold = Negrita
 boolean-shape-operations-planned = Operaciones booleanas de formas — planeado
 border-title = Bordes y títulos
-borders-titles-planned = Bordes y títulos — planeado
 bring-forward = Traer adelante
 bring-to-front = Traer al frente
 browse = Examinar…
@@ -2438,7 +2437,6 @@ bullets = Viñetas
 cad-drawing = Dibujo CAD
 cad-drawing-import-planned-later = Importación de dibujos CAD — planeado (hito posterior)
 callout = Globo
-callouts-planned = Globos — planeado
 cancel = Cancelar
 # $name - nombre de la celda
 # $f - la fórmula protectora
@@ -3328,7 +3326,6 @@ tick-double-chevron = Marca + doble galón
 tick-ring = Marca + anillo
 tint-the-container-s-members-whi = Teñir los miembros del contenedor mientras está seleccionado
 title = Título
-title-planned = Título — planeado
 to-page = A la página
 toggle-display-units-model-stays = Alternar las unidades de presentación (el modelo permanece en pulgadas)
 toggle-member-highlight = alternar el resaltado de miembros
@@ -3535,6 +3532,9 @@ selection-pane-tip = Todas las formas de la página; haga clic para seleccionar
 reviewing-pane-tip = Todos los comentarios del dibujo; haga clic para ir a ellos
 auto-size-tip = Agrandar la página para que quepa el dibujo
 presentation-mode-tip = Mostrar las páginas a pantalla completa; las flechas cambian de página, Esc termina (F5)
+callout-tip = Un cuadro de texto con una línea guía a la forma seleccionada
+title-tip = Un título grande en la parte superior de la página
+border-title-tip = Un marco alrededor de la página con título
 
 
 ## ########## Resource: app ###############
@@ -3618,7 +3618,6 @@ blank-drawing = نقاشی خالی
 bold = درشت
 boolean-shape-operations-planned = عملیات بولی شکل‌ها — برنامه‌ریزی شده
 border-title = کادر و عنوان
-borders-titles-planned = کادرها و عنوان‌ها — برنامه‌ریزی شده
 bring-forward = آوردن به جلو
 bring-to-front = آوردن به رو
 browse = مرور…
@@ -3634,7 +3633,6 @@ bullets = فهرست نقطه‌ای
 cad-drawing = نقاشی CAD
 cad-drawing-import-planned-later = درون‌ریزی نقاشی CAD — برنامه‌ریزی شده (نقطهٔ عطف بعدی)
 callout = حاشیه‌نویسی
-callouts-planned = حاشیه‌نویسی‌ها — برنامه‌ریزی شده
 cancel = لغو
 # $name - نام سلول
 # $f - فرمول نگهبان
@@ -4460,7 +4458,6 @@ tick-double-chevron = تیک + شورون دوتایی
 tick-ring = تیک + حلقه
 tint-the-container-s-members-whi = رنگ‌پاشی اعضای ظرف هنگام گزینش آن
 title = عنوان
-title-planned = عنوان — برنامه‌ریزی شده
 to-page = به صفحه
 toggle-display-units-model-stays = تغییر واحدهای نمایش (مدل بر حسب اینچ می‌ماند)
 toggle-member-highlight = تغییر برجسته‌سازی اعضا
@@ -4666,6 +4663,9 @@ selection-pane-tip = همهٔ شکل‌های صفحه؛ برای انتخاب �
 reviewing-pane-tip = همهٔ نظرهای نقشه؛ برای رفتن به آن کلیک کنید
 auto-size-tip = بزرگ‌کردن صفحه تا نقشه در آن جا شود
 presentation-mode-tip = نمایش صفحه‌ها در تمام‌صفحه؛ پیکان‌ها صفحه را عوض می‌کنند، Esc پایان (F5)
+callout-tip = کادر متن با خط راهنما به شکل انتخاب‌شده
+title-tip = عنوانی بزرگ در بالای صفحه
+border-title-tip = قابی دور صفحه همراه با عنوان
 
 
 ## ########## Resource: app ###############
@@ -4747,7 +4747,6 @@ blank-drawing = 空の図面
 bold = 太字
 boolean-shape-operations-planned = 図形のブール演算 — 予定
 border-title = 罫線とタイトル
-borders-titles-planned = 罫線とタイトル — 予定
 bring-forward = 前面へ
 bring-to-front = 最前面へ移動
 browse = 参照…
@@ -4759,7 +4758,6 @@ bullets = 箇条書き
 cad-drawing = CAD 図面
 cad-drawing-import-planned-later = CAD 図面の取り込み — 予定（後のマイルストーン）
 callout = 吹き出し
-callouts-planned = 吹き出し — 予定
 cancel = キャンセル
 cell-is-formula-driven = { $name } は数式で管理されています（{ $f }）
 center = 中央
@@ -5523,7 +5521,6 @@ tick-double-chevron = チック + 二重シェブロン
 tick-ring = チック + リング
 tint-the-container-s-members-whi = 選択中はコンテナーのメンバーに色を付けます
 title = タイトル
-title-planned = タイトル — 予定
 to-page = ページへ
 toggle-display-units-model-stays = 表示単位を切り替えます（モデルはインチのまま）
 toggle-member-highlight = メンバーの強調表示を切り替え
@@ -5694,6 +5691,9 @@ selection-pane-tip = ページ上のすべての図形 (クリックで選択)
 reviewing-pane-tip = 図面内のすべてのコメント (クリックで移動)
 auto-size-tip = 図面が収まるようにページを拡張
 presentation-mode-tip = ページを全画面表示。矢印でページ切り替え、Esc で終了 (F5)
+callout-tip = 選択した図形への引き出し線付きテキスト ボックス
+title-tip = ページ上部の大きなタイトル
+border-title-tip = タイトル付きのページ枠
 
 
 ## ########## Resource: app ###############
@@ -5776,7 +5776,6 @@ blank-drawing = 빈 드로잉
 bold = 굵게
 boolean-shape-operations-planned = 셰이프 부울 연산 — 예정
 border-title = 테두리 & 제목
-borders-titles-planned = 테두리 & 제목 — 예정
 bring-forward = 한 칸 앞으로
 bring-to-front = 맨 앞으로
 browse = 찾아보기…
@@ -5788,7 +5787,6 @@ bullets = 글머리 기호
 cad-drawing = CAD 드로잉
 cad-drawing-import-planned-later = CAD 드로잉 가져오기 — 예정(이후 마일스톤)
 callout = 설명선
-callouts-planned = 설명선 — 예정
 cancel = 취소
 cell-is-formula-driven = { $name }은(는) 수식으로 관리됩니다({ $f })
 center = 가운데
@@ -6552,7 +6550,6 @@ tick-double-chevron = 눈금 + 이중 셰브론
 tick-ring = 눈금 + 링
 tint-the-container-s-members-whi = 선택되어 있는 동안 컨테이너 멤버에 색조를 입힙니다
 title = 제목
-title-planned = 제목 — 예정
 to-page = 페이지로
 toggle-display-units-model-stays = 표시 단위 전환(모델은 인치 유지)
 toggle-member-highlight = 멤버 강조 표시 전환
@@ -6723,6 +6720,9 @@ selection-pane-tip = 페이지의 모든 도형; 클릭하여 선택
 reviewing-pane-tip = 그림의 모든 메모; 클릭하여 이동
 auto-size-tip = 그림이 들어가도록 페이지 확장
 presentation-mode-tip = 페이지를 전체 화면으로 표시; 화살표로 페이지 이동, Esc로 종료 (F5)
+callout-tip = 선택한 도형으로 지시선이 있는 텍스트 상자
+title-tip = 페이지 위쪽의 큰 제목
+border-title-tip = 제목이 있는 페이지 테두리
 
 
 ## ########## Resource: app ###############
@@ -6803,7 +6803,6 @@ blank-drawing = 空白绘图
 bold = 加粗
 boolean-shape-operations-planned = 布尔形状运算 — 计划中
 border-title = 边框和标题
-borders-titles-planned = 边框和标题 — 计划中
 bring-forward = 上移一层
 bring-to-front = 置于顶层
 browse = 浏览…
@@ -6815,7 +6814,6 @@ bullets = 项目符号
 cad-drawing = CAD 绘图
 cad-drawing-import-planned-later = CAD 绘图导入 — 计划中（后期里程碑）
 callout = 标注
-callouts-planned = 标注 — 计划中
 cancel = 取消
 cell-is-formula-driven = { $name }由公式驱动（{ $f }）
 center = 居中
@@ -7585,7 +7583,6 @@ tick-double-chevron = 刻度 + 双 V 形
 tick-ring = 刻度 + 圆环
 tint-the-container-s-members-whi = 选中容器时为其成员着色
 title = 标题
-title-planned = 标题 — 计划中
 to-page = 到页面
 toggle-display-units-model-stays = 切换显示单位（模型保持英寸）
 toggle-member-highlight = 切换成员突出显示
@@ -7756,4 +7753,7 @@ selection-pane-tip = 页面上的所有形状;单击以选择
 reviewing-pane-tip = 绘图中的所有批注;单击以转到
 auto-size-tip = 扩展页面以容纳绘图
 presentation-mode-tip = 全屏显示页面;方向键翻页,按 Esc 结束 (F5)
+callout-tip = 带有指向所选形状的引线的文本框
+title-tip = 页面顶部的大标题
+border-title-tip = 带标题的页面边框
 

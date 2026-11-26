@@ -5979,6 +5979,95 @@ impl App {
         self.status = crate::i18n::strs().msg_shape_dup_id_connected_to_sid_au(dup_id, sid);
     }
 
+    /// Insert ▸ Callout: a text box up and right of the selected shape,
+    /// joined to it by a straight leader glued at both ends (it follows
+    /// either shape); one undo step, the box opens for typing.
+    fn insert_callout(&mut self) {
+        use crate::connectors::{bake_end, bake_trigger, connector_shape, glue_connect, walkglue_formula, End, GlueKind, GlueTarget};
+        let Some((page_id, sid)) = self.sel else { return };
+        let Some(ed) = self.ed() else { return };
+        let Some(page) = ed.doc.pages.iter().find(|p| p.id == page_id) else { return };
+        let Some(sh) = vsdx::model::find_shape_by_id(&page.shapes, sid) else { return };
+        let Some(r) = self.shape_rect(&ed.doc, page_id, sh) else { return };
+        let (bw, bh) = (1.5, 0.5);
+        let b0 = (r.0 + r.2 + 0.4, r.1 + r.3 + 0.3);
+        let box_id = dc_core::commands::next_shape_id(&ed.doc, page_id);
+        let conn_id = box_id + 1;
+        let callout = crate::drawtools::build(crate::drawtools::Kind::Rect, box_id, b0, (b0.0 + bw, b0.1 + bh));
+        let beg = crate::connectors::attach_point((b0.0, b0.1, bw, bh), (r.0 + r.2 / 2.0, r.1 + r.3 / 2.0));
+        let end = crate::connectors::attach_point(r, (b0.0 + bw / 2.0, b0.1 + bh / 2.0));
+        let mut leader = connector_shape(conn_id, beg, end);
+        leader.sheet.set_cell("EndArrow", vsdx::Cell::value("0"));
+        leader.sheet.set_cell("ShapeRouteStyle", vsdx::Cell::value(crate::connectors::ROUTE_STRAIGHT));
+        bake_end(&mut leader, End::Begin, beg, &walkglue_formula(End::Begin));
+        bake_trigger(&mut leader, End::Begin, box_id);
+        bake_end(&mut leader, End::End, end, &walkglue_formula(End::End));
+        bake_trigger(&mut leader, End::End, sid);
+        let t_beg = GlueTarget { shape_id: box_id, kind: GlueKind::Dynamic, attach: beg };
+        let t_end = GlueTarget { shape_id: sid, kind: GlueKind::Dynamic, attach: end };
+        let cmds: Vec<Box<dyn dc_core::Command>> = vec![
+            Box::new(dc_core::AddShape { page: page_id, parent: None, shape: callout }),
+            Box::new(dc_core::AddShape { page: page_id, parent: None, shape: leader }),
+            Box::new(dc_core::AddConnect { owner: dc_core::ConnectsOwner::Page(page_id), connect: glue_connect(conn_id, End::Begin, &t_beg) }),
+            Box::new(dc_core::AddConnect { owner: dc_core::ConnectsOwner::Page(page_id), connect: glue_connect(conn_id, End::End, &t_end) }),
+        ];
+        self.apply(Macro::new(crate::i18n::strs().msg_callout(), cmds));
+        self.set_selection(Some((page_id, box_id)));
+        self.sel_set = vec![(page_id, box_id)];
+        self.begin_text_edit(box_id, String::new());
+    }
+
+    /// Insert ▸ Title (and Border & Title): a large bold title box at
+    /// the top of the page (with `border`, a frame 0.25 in inside the
+    /// page edge too); the title opens for typing.
+    fn insert_title(&mut self, border: bool) {
+        let Some(page_id) = self.page_id() else { return };
+        let Some(ed) = self.ed() else { return };
+        let (w, h) = {
+            let g = self.page_geom();
+            (g.w_in, g.h_in)
+        };
+        let id = dc_core::commands::next_shape_id(&ed.doc, page_id);
+        let m = 0.25;
+        let title_y = h - m - 0.8;
+        let mut title = crate::drawtools::build(crate::drawtools::Kind::Text, id, (m + 0.25, title_y), (w - m - 0.25, h - m - 0.2));
+        title.sheet.children.push(vsdx::model::SheetChild::Section(vsdx::model::Section {
+            name: "Character".into(),
+            rows: vec![vsdx::model::Row {
+                ix: 0,
+                cells: vec![
+                    ("Size".into(), vsdx::Cell::value(format!("{:.10}", 24.0 / 72.0))),
+                    ("Style".into(), vsdx::Cell::value("1")),
+                ],
+                ..Default::default()
+            }],
+            ..Default::default()
+        }));
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = vec![Box::new(dc_core::AddShape { page: page_id, parent: None, shape: title })];
+        if border {
+            let mut frame = crate::drawtools::build(crate::drawtools::Kind::Rect, id + 1, (m, m), (w - m, h - m));
+            frame.sheet.set_cell("FillPattern", vsdx::Cell::value("0"));
+            frame.sheet.set_cell("LineWeight", vsdx::Cell::value(format!("{:.10}", 1.5 / 72.0)));
+            let mut rule = crate::drawtools::build(crate::drawtools::Kind::Line, id + 2, (m, title_y - 0.05), (w - m, title_y - 0.05));
+            rule.sheet.set_cell("LineWeight", vsdx::Cell::value(format!("{:.10}", 1.0 / 72.0)));
+            // the frame and rule go behind everything
+            cmds.push(Box::new(dc_core::AddShape { page: page_id, parent: None, shape: frame }));
+            cmds.push(Box::new(dc_core::ReorderShape::new(page_id, id + 1, false)));
+            cmds.push(Box::new(dc_core::AddShape { page: page_id, parent: None, shape: rule }));
+        }
+        let label = if border { crate::i18n::strs().msg_border_title() } else { crate::i18n::strs().msg_title() };
+        self.apply(Macro::new(label, cmds));
+        self.set_selection(Some((page_id, id)));
+        self.sel_set = vec![(page_id, id)];
+        let draft = self
+            .path
+            .file_stem()
+            .map(|s| s.to_string_lossy().into_owned())
+            .filter(|s| !s.is_empty())
+            .unwrap_or_else(|| crate::i18n::strs().msg_title());
+        self.begin_text_edit(id, draft);
+    }
+
     /// #156: is the primary selection a container — the target of a
     /// member-side `msvSDContainerShape` reference, a `Container.`
     /// synthetic (#138), or an effective `msvStructureType=Container`
@@ -9380,6 +9469,8 @@ impl App {
             Action::ClearFormatting => self.clear_formatting(),
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
+            Action::InsertCallout => self.insert_callout(),
+            Action::InsertTitle(border) => self.insert_title(border),
             Action::PresentationMode => self.present_toggle_pending = true,
             Action::AutoSize => {
                 if let Some(page) = self.page_id() {
