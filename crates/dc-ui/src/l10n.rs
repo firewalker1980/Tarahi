@@ -6735,6 +6735,69 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "add-field",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "field-label",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "field-type-text",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "field-type-number",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "field-type-fixed-list",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "field-type-variable-list",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "field-type-yes-no",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "field-type-date",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "field-choices",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -6834,13 +6897,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..48030,
-            Self::En => 48030..94407,
-            Self::Es => 94407..145475,
-            Self::Fa => 145475..206133,
-            Self::Ja => 206133..257577,
-            Self::Ko => 257577..304929,
-            Self::ZhHans => 304929..346327,
+            Self::De => 0..48310,
+            Self::En => 48310..94945,
+            Self::Es => 94945..146284,
+            Self::Fa => 146284..207265,
+            Self::Ja => 207265..259013,
+            Self::Ko => 259013..306651,
+            Self::ZhHans => 306651..348313,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -10615,5 +10678,32 @@ impl L10nLanguage {
     }
     pub fn msg_zoom_to_selection_shift_z(&self) -> String {
         self.0.msg("zoom-to-selection-shift-z", None).unwrap()
+    }
+    pub fn msg_add_field(&self) -> String {
+        self.0.msg("add-field", None).unwrap()
+    }
+    pub fn msg_field_label(&self) -> String {
+        self.0.msg("field-label", None).unwrap()
+    }
+    pub fn msg_field_type_text(&self) -> String {
+        self.0.msg("field-type-text", None).unwrap()
+    }
+    pub fn msg_field_type_number(&self) -> String {
+        self.0.msg("field-type-number", None).unwrap()
+    }
+    pub fn msg_field_type_fixed_list(&self) -> String {
+        self.0.msg("field-type-fixed-list", None).unwrap()
+    }
+    pub fn msg_field_type_variable_list(&self) -> String {
+        self.0.msg("field-type-variable-list", None).unwrap()
+    }
+    pub fn msg_field_type_yes_no(&self) -> String {
+        self.0.msg("field-type-yes-no", None).unwrap()
+    }
+    pub fn msg_field_type_date(&self) -> String {
+        self.0.msg("field-type-date", None).unwrap()
+    }
+    pub fn msg_field_choices(&self) -> String {
+        self.0.msg("field-choices", None).unwrap()
     }
 }

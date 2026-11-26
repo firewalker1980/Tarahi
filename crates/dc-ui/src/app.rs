@@ -179,6 +179,8 @@ pub struct App {
     /// The Shape Data "add choice" row is open for this variable-list
     /// (Type 4) Prop row (#30).
     prop_add: Option<String>,
+    /// Shape Data ▸ Add field: label, Prop Type, choices (lists).
+    prop_new: (String, u8, String),
     tab: Tab,
     /// #237: a pending zoom-to-selection (the ribbon action / Shift+Z)
     /// — the canvas frame centers + fills the selection's union bounds
@@ -754,6 +756,7 @@ impl App {
             shape_data_open: None,
             prop_bufs: std::collections::HashMap::new(),
             prop_add: None,
+            prop_new: (String::new(), 0, String::new()),
             format_pane_open: false,
             format_pane_focus: None,
             format_pane_last_focus: None,
@@ -11742,6 +11745,39 @@ impl App {
     /// Shape Data… (#30): one field per visible Prop row, ordered by
     /// SortKey; the editor follows the row's Type/Format. Edits write
     /// the row's Value through SetRowCell (one undo per change).
+    /// Define Shape Data: a new Prop row on `shape_id` and every other
+    /// selected shape on the page, one undo step. Rows are named
+    /// `Row_N` (first free N per shape, as Visio does); the label is
+    /// what the user typed. List choices go in Format.
+    fn add_prop_field(&mut self, page_id: i64, shape_id: i64, label: &str, ty: u8, choices: &str) {
+        let mut targets: Vec<i64> = self.sel_set.iter().filter(|(p, _)| *p == page_id).map(|(_, s)| *s).collect();
+        if !targets.contains(&shape_id) {
+            targets.push(shape_id);
+        }
+        let mut cmds: Vec<Box<dyn dc_core::Command>> = Vec::new();
+        for sid in targets {
+            let taken: Vec<String> = self.prop_rows(sid).into_iter().map(|(n, _)| n).collect();
+            let name = (1..).map(|n| format!("Row_{n}")).find(|n| !taken.contains(n)).unwrap_or_default();
+            let fmt = if matches!(ty, 1 | 4) {
+                choices.split(';').map(str::trim).filter(|c| !c.is_empty()).collect::<Vec<_>>().join(";")
+            } else {
+                String::new()
+            };
+            let value = if ty == 3 { "0" } else { "" };
+            for (cell, v) in [("Label", label), ("Type", &ty.to_string()), ("Format", &fmt), ("Value", value)] {
+                cmds.push(Box::new(dc_core::SetRowCell::new(
+                    Scope::Shape { page: page_id, shape: sid },
+                    "Prop",
+                    0,
+                    dc_core::commands::RowSel::Named(name.clone()),
+                    cell,
+                    vsdx::model::Cell::value(v.to_string()),
+                )));
+            }
+        }
+        self.apply(dc_core::Macro::new(crate::i18n::strs().msg_add_field(), cmds));
+    }
+
     fn shape_data_window(&mut self, ctx: &egui::Context) {
         fn write_value(app: &mut App, page_id: i64, shape_id: i64, name: &str, val: &str) {
             app.apply(dc_core::SetRowCell::new(
@@ -11782,6 +11818,7 @@ impl App {
         // pins its Shape Data pane.
         let mut open = true;
         let mut close_btn = false;
+        let mut add_field: Option<(String, u8, String)> = None;
         let top_right = ctx
             .input(|i| i.viewport().inner_rect)
             .map_or(egui::pos2(900.0, 60.0), |r| {
@@ -12113,6 +12150,38 @@ impl App {
                                 ui.end_row();
                             }
                         });
+                    // Visio's Define Shape Data (new fields): label,
+                    // type, choices for lists; lands on the selection.
+                    ui.separator();
+                    let s = crate::i18n::strs();
+                    let (lbl, ty, choices) = &mut self.prop_new;
+                    row(ui, |ui| {
+                        let r = ui.add(egui::TextEdit::singleline(lbl).hint_text(s.msg_field_label()).desired_width(150.0));
+                        r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, s.msg_field_label()));
+                    });
+                    ui.horizontal_wrapped(|ui| {
+                        for (v, name) in [
+                            (0u8, s.msg_field_type_text()),
+                            (2, s.msg_field_type_number()),
+                            (1, s.msg_field_type_fixed_list()),
+                            (4, s.msg_field_type_variable_list()),
+                            (3, s.msg_field_type_yes_no()),
+                            (5, s.msg_field_type_date()),
+                        ] {
+                            if ui.selectable_label(*ty == v, name).clicked() {
+                                *ty = v;
+                            }
+                        }
+                    });
+                    if matches!(*ty, 1 | 4) {
+                        let r = ui.add(egui::TextEdit::singleline(choices).hint_text(s.msg_field_choices()).desired_width(240.0));
+                        r.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, s.msg_field_choices()));
+                    }
+                    if ui.add_enabled(!lbl.trim().is_empty(), egui::Button::new(s.msg_add_field())).clicked() {
+                        add_field = Some(self.prop_new.clone());
+                        self.prop_new.0.clear();
+                        self.prop_new.2.clear();
+                    }
                     // Always-visible action bar: Close bottom-right —
                     // #257: mirrored to the bottom-left under RTL.
                     ui.add_space(4.0);
@@ -12125,6 +12194,9 @@ impl App {
                     });
                 });
             });
+        if let Some((label, ty, choices)) = add_field {
+            self.add_prop_field(page_id, shape_id, label.trim(), ty, &choices);
+        }
         if open && !close_btn {
             self.prop_bufs = bufs;
         } else {
@@ -12197,7 +12269,7 @@ impl App {
                             };
                             let resp = ui.add(egui::TextEdit::singleline(&mut buf).desired_width(140.0));
                             resp.widget_info(|| {
-                                egui::WidgetInfo::text_edit(true, name.clone(), buf.clone(), format!("{} {name}", s.msg_name()))
+                                egui::WidgetInfo::labeled(egui::Role::TextInput, true, format!("{} {name}", s.msg_name()))
                             });
                             if resp.changed() || resp.has_focus() {
                                 self.layer_edit = Some((ix, buf.clone()));

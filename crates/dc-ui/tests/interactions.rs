@@ -10519,3 +10519,43 @@ fn layers_dialog_adds_assigns_hides_and_locks() {
     h.run();
     assert_eq!(h.state().debug_sel_set_len(), 0, "Select All skips it too");
 }
+
+/// Shape Data ▸ Add field (Visio's Define Shape Data): a fixed-list
+/// field lands as Prop.Row_1 with its label and choices; one undo.
+#[test]
+fn shape_data_add_field_defines_a_list_field() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    let at = h.state().debug_shape_screen_rect(sid).unwrap().center();
+    click_at(&mut h, at, egui::PointerButton::Secondary);
+    h.run();
+    h.get_all_by_label_contains("Shape Data")
+        .filter(|n| n.rect().height() < 30.0)
+        .find(|n| n.rect().min.y > 250.0)
+        .expect("Shape Data… row")
+        .click();
+    h.run();
+    h.run();
+    h.get_by_label("Label").focus();
+    h.run();
+    h.get_by_label("Label").type_text("VLAN");
+    h.run();
+    h.get_by_label("Fixed list").click();
+    h.run();
+    h.get_by_label("Choices, separated by ;").focus();
+    h.run();
+    h.get_by_label("Choices, separated by ;").type_text("10; 20;30");
+    h.run();
+    h.get_by_label("Add field").click();
+    h.run();
+    h.run();
+    assert_eq!(h.state().debug_prop_cell_for_test(sid, "Row_1", "Label").as_deref(), Some("VLAN"));
+    assert_eq!(h.state().debug_prop_cell_for_test(sid, "Row_1", "Type").as_deref(), Some("1"));
+    assert_eq!(h.state().debug_prop_cell_for_test(sid, "Row_1", "Format").as_deref(), Some("10;20;30"));
+    // the new field shows in the grid as a list
+    assert!(h.query_all_by_label("VLAN").count() >= 1, "field listed");
+    h.key_press_modifiers(egui::Modifiers::CTRL, egui::Key::Z);
+    h.run();
+    assert_eq!(h.state().debug_prop_cell_for_test(sid, "Row_1", "Label"), None, "one undo removes it");
+}

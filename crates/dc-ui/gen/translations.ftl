@@ -1094,6 +1094,15 @@ zoom-menu = Zoom …
 zoom-out = Verkleinern
 zoom-out-tip = Verkleinern
 zoom-to-selection-shift-z = Auf die Auswahl zoomen (Umschalt+Z)
+add-field = Feld hinzufügen
+field-label = Bezeichnung
+field-type-text = Text
+field-type-number = Zahl
+field-type-fixed-list = Feste Liste
+field-type-variable-list = Variable Liste
+field-type-yes-no = Ja/Nein
+field-type-date = Datum
+field-choices = Auswahlwerte, durch ; getrennt
 
 
 ## ########## Resource: app ###############
@@ -2266,6 +2275,15 @@ zoom-menu = Zoom…
 zoom-out = Zoom Out
 zoom-out-tip = Zoom out
 zoom-to-selection-shift-z = Zoom to selection (Shift+Z)
+add-field = Add field
+field-label = Label
+field-type-text = Text
+field-type-number = Number
+field-type-fixed-list = Fixed list
+field-type-variable-list = Variable list
+field-type-yes-no = Yes/No
+field-type-date = Date
+field-choices = Choices, separated by ;
 
 
 ## ########## Resource: app ###############
@@ -3433,6 +3451,15 @@ zoom-menu = Zoom…
 zoom-out = Alejar
 zoom-out-tip = Alejar
 zoom-to-selection-shift-z = Zoom a la selección (Mayús+Z)
+add-field = Agregar campo
+field-label = Etiqueta
+field-type-text = Texto
+field-type-number = Número
+field-type-fixed-list = Lista fija
+field-type-variable-list = Lista variable
+field-type-yes-no = Sí/No
+field-type-date = Fecha
+field-choices = Opciones, separadas por ;
 
 
 ## ########## Resource: app ###############
@@ -4530,6 +4557,15 @@ zoom-menu = بزرگ‌نمایی…
 zoom-out = کوچک‌نمایی
 zoom-out-tip = کوچک‌نمایی
 zoom-to-selection-shift-z = بزرگ‌نمایی به گزینش (Shift+Z)
+add-field = افزودن فیلد
+field-label = برچسب
+field-type-text = متن
+field-type-number = عدد
+field-type-fixed-list = فهرست ثابت
+field-type-variable-list = فهرست متغیر
+field-type-yes-no = بله/خیر
+field-type-date = تاریخ
+field-choices = گزینه‌ها، جداشده با ;
 
 
 ## ########## Resource: app ###############
@@ -5525,6 +5561,15 @@ zoom-menu = ズーム…
 zoom-out = 縮小
 zoom-out-tip = 縮小します
 zoom-to-selection-shift-z = 選択範囲にズーム（Shift+Z）
+add-field = フィールドの追加
+field-label = ラベル
+field-type-text = テキスト
+field-type-number = 数値
+field-type-fixed-list = 固定リスト
+field-type-variable-list = 可変リスト
+field-type-yes-no = はい/いいえ
+field-type-date = 日付
+field-choices = 選択肢 (; 区切り)
 
 
 ## ########## Resource: app ###############
@@ -6521,6 +6566,15 @@ zoom-menu = 확대/축소…
 zoom-out = 축소
 zoom-out-tip = 축소합니다
 zoom-to-selection-shift-z = 선택 영역에 확대/축소(Shift+Z)
+add-field = 필드 추가
+field-label = 레이블
+field-type-text = 텍스트
+field-type-number = 숫자
+field-type-fixed-list = 고정 목록
+field-type-variable-list = 가변 목록
+field-type-yes-no = 예/아니요
+field-type-date = 날짜
+field-choices = 선택 항목, ;로 구분
 
 
 ## ########## Resource: app ###############
@@ -7521,4 +7575,13 @@ zoom-menu = 缩放…
 zoom-out = 缩小
 zoom-out-tip = 缩小
 zoom-to-selection-shift-z = 缩放到选定内容 (Shift+Z)
+add-field = 添加字段
+field-label = 标签
+field-type-text = 文本
+field-type-number = 数字
+field-type-fixed-list = 固定列表
+field-type-variable-list = 可变列表
+field-type-yes-no = 是/否
+field-type-date = 日期
+field-choices = 选项,以 ; 分隔
 
