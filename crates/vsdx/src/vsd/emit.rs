@@ -169,17 +169,14 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
     let mut master_parts: Vec<(u32, String)> = vec![];
     if let Some(p) = find(0x1d) {
         let s = stream(&doc, &p);
-        let kids = children(&p, &s);
+        let (kids, order) = super::children_ordered(&p, &s);
         let names = kids
             .iter()
             .find(|k| k.typ == 0xc9)
             .map(|k| name_idx(&rec_data(&doc, k)))
             .unwrap_or_default();
-        for (id, m) in kids.iter().enumerate() {
-            if m.typ != 0x1e {
-                continue;
-            }
-            let id = id as u32;
+        for id in display_order(&kids, &order, 0x1e) {
+            let m = &kids[id as usize];
             let (nm, nmu) = names.get(&id).copied().map_or((None, None), |(a, b)| {
                 (cx.name(a).map(str::to_owned), cx.name(b).map(str::to_owned))
             });
@@ -215,17 +212,31 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
     let mut page_parts: Vec<String> = vec![];
     if let Some(p) = find(0x27) {
         let s = stream(&doc, &p);
-        for (i, pg) in children(&p, &s).iter().enumerate() {
-            if pg.typ != 0x15 {
-                continue;
-            }
+        let (kids, order) = super::children_ordered(&p, &s);
+        let names = kids
+            .iter()
+            .find(|k| k.typ == 0xc9)
+            .map(|k| name_idx(&rec_data(&doc, k)))
+            .unwrap_or_default();
+        for i in display_order(&kids, &order, 0x15) {
+            let pg = &kids[i as usize];
+            // page header: background page id at 8 (u32::MAX = none)
+            let ps = stream(&doc, pg);
+            let head = super::chunks(&ps).into_iter().find(|c| c.level == 0).map(|c| c.data.to_vec()).unwrap_or_default();
+            let back = u32_at(&head, 8);
             let (sheet, shapes) = contents(&mut cx, pg, &format!("page{}", page_parts.len() + 1));
             let n = page_parts.len() + 1;
-            let _ = write!(
-                pages_xml,
-                "<Page ID='{i}' NameU='Page-{n}' Name='Page-{n}'>{}<Rel r:id='rId{n}'/></Page>",
-                sheet
-            );
+            let (nm, nmu) = names.get(&i).copied().map_or((None, None), |(a, b)| (cx.name(a).map(str::to_owned), cx.name(b).map(str::to_owned)));
+            let nmu = nmu.or_else(|| nm.clone()).unwrap_or_else(|| format!("Page-{n}"));
+            let nm = nm.unwrap_or_else(|| nmu.clone());
+            let mut attrs = format!("ID='{i}' NameU='{}' Name='{}'", esc(&nmu), esc(&nm));
+            if !order.is_empty() && !order.contains(&i) {
+                attrs.push_str(" Background='1'");
+            }
+            if back != u32::MAX && head.len() >= 12 {
+                let _ = write!(attrs, " BackPage='{back}'");
+            }
+            let _ = write!(pages_xml, "<Page {attrs}>{sheet}<Rel r:id='rId{n}'/></Page>");
             page_parts.push(format!("<?xml version='1.0' encoding='utf-8' ?>\n<PageContents {NS}><Shapes>{shapes}</Shapes></PageContents>"));
         }
     }
@@ -239,6 +250,22 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
         &page_parts,
         &cx.media,
     )
+}
+
+/// Slots of `kind` in display order: those missing from the order
+/// array first (background pages), then the order array's slots.
+fn display_order(kids: &[Ptr], order: &[u32], kind: u32) -> Vec<u32> {
+    let is = |i: u32| kids.get(i as usize).is_some_and(|k| k.typ == kind);
+    // (padding after the array can repeat a slot: keep first sightings)
+    let mut listed: Vec<u32> = vec![];
+    for &i in order {
+        if is(i) && !listed.contains(&i) {
+            listed.push(i);
+        }
+    }
+    let mut out: Vec<u32> = (0..kids.len() as u32).filter(|&i| is(i) && !listed.contains(&i)).collect();
+    out.extend(listed);
+    out
 }
 
 /// Stylesheets (0x1a): one inline chunk stream; each level-1 0x4a
@@ -328,7 +355,7 @@ fn contents(cx: &mut Ctx, container: &Ptr, part: &str) -> (String, String) {
     let mut out = String::new();
     let mut seen = std::collections::HashSet::new();
     for id in top {
-        shape_xml(cx, &shapes, &names, id, part, &mut out, &mut seen);
+        shape_xml(cx, &shapes, &names, id, part, &mut out, &mut seen, u32::MAX);
     }
     (sheet_xml, out)
 }
@@ -359,6 +386,7 @@ fn shape_xml(
     part: &str,
     out: &mut String,
     seen: &mut std::collections::HashSet<u32>,
+    parent_master: u32,
 ) {
     let Some((typ, recs)) = shapes.get(&id) else {
         return;
@@ -382,13 +410,24 @@ fn shape_xml(
         }
     }
     attrs.push_str(&style_attrs(u32::MAX, l, f, t));
+    // master instance: the master's id, and for a sub-shape the shape
+    // of the master it instances (u32::MAX = none)
+    let (m, ms) = (u32_at(&head, cells::HDR_MASTER), u32_at(&head, cells::HDR_MASTER_SHAPE));
+    // (the binary repeats the master on every sub-shape; VSDX names it
+    // only on the instance root, its children carry MasterShape)
+    let m = if head.len() > cells::HDR_MASTER_SHAPE + 3 { m } else { u32::MAX };
+    if m != u32::MAX && m != parent_master {
+        let _ = write!(attrs, " Master='{m}'");
+    } else if m != u32::MAX && ms != u32::MAX {
+        let _ = write!(attrs, " MasterShape='{ms}'");
+    }
     cx.cur = id;
     let _ = write!(out, "<Shape {attrs}>{}", sheet_body(cx, recs, Some(part)));
     let kids = child_ids(recs);
     if !kids.is_empty() {
         out.push_str("<Shapes>");
         for k in kids {
-            shape_xml(cx, shapes, names, k, part, out, seen);
+            shape_xml(cx, shapes, names, k, part, out, seen, m);
         }
         out.push_str("</Shapes>");
     }

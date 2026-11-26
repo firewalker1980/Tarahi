@@ -143,13 +143,27 @@ pub fn trailer(doc: &[u8]) -> Ptr {
 /// the list offset relative to `base`. There: `u32 count`, `u32 ?`,
 /// then `count` pointers (usually followed by an order array).
 pub fn children(p: &Ptr, s: &[u8]) -> Vec<Ptr> {
+    children_ordered(p, s).0
+}
+
+/// [`children`] plus the order array that follows the list (`u32 n`,
+/// `n` slot indices): the display order of pages and masters.
+pub fn children_ordered(p: &Ptr, s: &[u8]) -> (Vec<Ptr>, Vec<u32>) {
     let base = if p.compressed() { 4 } else { 0 };
     let lo = u32_at(s, base) as usize + base;
     let n = u32_at(s, lo) as usize;
     if n > 100_000 || lo + 8 + 18 * n > s.len() {
-        return vec![];
+        return (vec![], vec![]);
     }
-    (0..n).map(|k| Ptr::at(s, lo + 8 + 18 * k)).collect()
+    // The order array fills the rest of the stream; its count is either
+    // its first word or (page lists) the word just before the list.
+    let after = lo + 8 + 18 * n;
+    let words: Vec<u32> = (after..s.len().saturating_sub(3)).step_by(4).map(|o| u32_at(s, o)).collect();
+    let order = match words.first() {
+        Some(&m) if m as usize == words.len() - 1 => words[1..].to_vec(),
+        _ => words,
+    };
+    ((0..n).map(|k| Ptr::at(s, lo + 8 + 18 * k)).collect(), order)
 }
 
 /// One ShapeSheet record in a chunk stream.
