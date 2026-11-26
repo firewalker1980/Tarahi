@@ -77,6 +77,9 @@ fn name_idx(d: &[u8]) -> HashMap<u32, (u32, u32)> {
 struct Ctx<'a> {
     doc: &'a [u8],
     palette: Vec<[u8; 3]>,
+    /// face name by id (Character `Font` cells are written as names, as
+    /// Visio's own conversions do)
+    faces: HashMap<u32, String>,
     /// id of the sheet being written (self references drop `Sheet.N!`)
     cur: u32,
     pool: Vec<String>,
@@ -108,6 +111,7 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
     let mut cx = Ctx {
         doc: &doc,
         palette: vec![],
+        faces: HashMap::new(),
         cur: u32::MAX,
         pool: vec![],
         media: vec![],
@@ -152,6 +156,7 @@ pub fn to_package(bytes: &[u8]) -> Result<Vec<u8>> {
                 continue;
             }
             let name = utf16(rec_data(&doc, c).get(4..).unwrap_or(&[]));
+            cx.faces.insert(i as u32, name.clone());
             let _ = write!(
                 docxml,
                 "<FaceName ID='{i}' NameU='{0}' Name='{0}'/>",
@@ -592,6 +597,11 @@ fn record_cells(
             }
         }
     }
+    for c in out.iter_mut().filter(|c| c.0 == "Font") {
+        if let Some(name) = c.1.as_ref().and_then(|(v, _)| v.parse::<u32>().ok()).and_then(|id| cx.faces.get(&id)) {
+            c.1 = Some((name.clone(), None));
+        }
+    }
     out
 }
 
@@ -661,7 +671,14 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
             String::new()
         };
         let _ = write!(out, "<Section N='{sec}'{ix}>");
-        for r in &rows[&l] {
+        // non-geometry rows are numbered 0.. in id order (text run
+        // markers index them that way); geometry keeps its row ids
+        let mut sec_rows = rows[&l].clone();
+        if *sec != "Geometry" {
+            sec_rows.sort_by_key(|r| r.id);
+        }
+        let mut ord = 0;
+        for r in sec_rows {
             let Some(rd) = ROWS.iter().find(|d| d.t == r.typ) else {
                 continue;
             };
@@ -680,9 +697,11 @@ fn sheet_body(cx: &mut Ctx, recs: &[Rec], part: Option<&str>) -> String {
                     let _ = write!(out, "<Row N='{}'{t}>", esc(&n));
                 }
                 _ => {
-                    let _ = write!(out, "<Row{t} IX='{}'>", r.id);
+                    let ix = if *sec == "Geometry" { r.id } else { ord };
+                    let _ = write!(out, "<Row{t} IX='{ix}'>");
                 }
             }
+            ord += 1;
             write_cells(&mut out, &cells);
             out.push_str("</Row>");
         }
