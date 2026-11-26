@@ -69,7 +69,6 @@ auto-size = Tamaño automático
 autoconnect = Autoconexión
 autoconnect-needs-a-2d-shape = La autoconexión necesita una forma 2D
 autocorrect-options = Opciones de Autocorrección
-autocorrect-options-planned = Opciones de Autocorrección — planeado
 automatic-resize = Cambio de tamaño automático
 automatically-link = Vincular automáticamente
 background = Fondo
@@ -1243,3 +1242,8 @@ page-breaks-tip = Mostrar dónde se divide la página en hojas de papel
 # $n (Number) - style number
 heading-style-n = Estilo de encabezado { $n }
 heading-style-tip = Dónde muestra el contenedor su encabezado
+autocorrect-replace-as-you-type = Reemplazar texto mientras escribe
+autocorrect-capitalize = Poner en mayúscula la primera letra de las oraciones
+autocorrect-replace = Reemplazar
+autocorrect-with = Con
+autocorrect-tip = Correcciones al escribir texto

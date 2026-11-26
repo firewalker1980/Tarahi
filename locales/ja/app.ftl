@@ -62,7 +62,6 @@ auto-size = 自動サイズ
 autoconnect = 自動接続
 autoconnect-needs-a-2d-shape = 自動接続には 2D 図形が必要です
 autocorrect-options = オートコレクトのオプション
-autocorrect-options-planned = オートコレクトのオプション — 予定
 automatic-resize = 自動サイズ変更
 automatically-link = 自動リンク
 background = 背景
@@ -1069,3 +1068,8 @@ page-breaks-tip = ページが用紙のどこで分かれるかを表示
 # $n (Number) - style number
 heading-style-n = 見出しスタイル { $n }
 heading-style-tip = コンテナーの見出しの位置
+autocorrect-replace-as-you-type = 入力中に自動修正する
+autocorrect-capitalize = 文の先頭文字を大文字にする
+autocorrect-replace = 修正文字列
+autocorrect-with = 修正後の文字列
+autocorrect-tip = テキスト入力時の自動修正

@@ -63,7 +63,6 @@ auto-size = 자동 크기
 autoconnect = 자동 연결
 autoconnect-needs-a-2d-shape = 자동 연결에는 2D 셰이프가 필요합니다
 autocorrect-options = 자동 고침 옵션
-autocorrect-options-planned = 자동 고침 옵션 — 예정
 automatic-resize = 자동 크기 조정
 automatically-link = 자동 연결(링크)
 background = 배경
@@ -1070,3 +1069,8 @@ page-breaks-tip = 페이지가 용지에서 나뉘는 위치 표시
 # $n (Number) - style number
 heading-style-n = 머리글 스타일 { $n }
 heading-style-tip = 컨테이너 머리글 위치
+autocorrect-replace-as-you-type = 입력할 때 자동으로 바꾸기
+autocorrect-capitalize = 문장의 첫 글자를 대문자로
+autocorrect-replace = 바꿀 내용
+autocorrect-with = 결과
+autocorrect-tip = 텍스트를 입력할 때의 자동 고침

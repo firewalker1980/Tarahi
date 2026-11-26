@@ -92,6 +92,10 @@ pub struct TextEditSession {
     /// the same frame may carry the click that opened the session,
     /// which must not count as click-away).
     pub focus_requested: bool,
+    /// Review ▸ AutoCorrect rules for this session (None = off) and the
+    /// draft as last checked.
+    pub autocorrect: Option<crate::autocorrect::AutoCorrect>,
+    ac_seen: String,
 }
 
 impl TextEditSession {
@@ -107,6 +111,8 @@ impl TextEditSession {
             prev_view: view.clone(),
             zoomed_in: false,
             focus_requested: false,
+            autocorrect: None,
+            ac_seen: String::new(),
         }
     }
 
@@ -566,6 +572,19 @@ pub fn show_overlay(
         .and_then(|st| st.cursor.char_range())
         .map(|r| r.primary.index.0);
     session.sync_frame(caret);
+    // AutoCorrect: a character just typed that ends a word
+    if session.draft != session.ac_seen {
+        let typed_one = session.draft.chars().count() == session.ac_seen.chars().count() + 1;
+        if typed_one && session.field_marks.is_empty() {
+            if let Some((text, c)) = session.autocorrect.as_ref().and_then(|ac| ac.apply(&session.draft, session.caret)) {
+                session.draft = text;
+                session.last_draft = session.draft.clone();
+                session.caret = c;
+                session.pending_caret = Some(c);
+            }
+        }
+        session.ac_seen = session.draft.clone();
+    }
 
     // Esc discards: the shape's text reverts to its pre-edit value
     // (owner review, 2026-10-27).

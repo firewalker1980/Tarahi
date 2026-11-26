@@ -34,10 +34,9 @@ fn proofing_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<sup
                     .tip(s.msg_word_count_tip()),
             ],
             vec![
-                RibbonButton::new(Icon::Check, "", Action::Macros)
+                RibbonButton::new(Icon::Check, "", Action::AutoCorrectOptions)
                     .alt(s.msg_autocorrect_options())
-                    .enabled(false)
-                    .tip(s.msg_autocorrect_options_planned()),
+                    .tip(s.msg_autocorrect_tip()),
             ],
         ]),
     ]

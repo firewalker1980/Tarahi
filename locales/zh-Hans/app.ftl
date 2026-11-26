@@ -61,7 +61,6 @@ auto-size = 自动调整大小
 autoconnect = 自动连接
 autoconnect-needs-a-2d-shape = 自动连接需要一个二维形状
 autocorrect-options = 自动更正选项
-autocorrect-options-planned = 自动更正选项 — 计划中
 automatic-resize = 自动调整大小
 automatically-link = 自动链接
 background = 背景
@@ -1074,3 +1073,8 @@ page-breaks-tip = 显示页面在纸张上的分页位置
 # $n (Number) - style number
 heading-style-n = 标题样式 { $n }
 heading-style-tip = 容器标题的显示位置
+autocorrect-replace-as-you-type = 键入时自动替换
+autocorrect-capitalize = 句首字母大写
+autocorrect-replace = 替换
+autocorrect-with = 替换为
+autocorrect-tip = 键入文本时的自动更正

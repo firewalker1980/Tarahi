@@ -173,6 +173,8 @@ pub enum Action {
     LayoutSize,
     /// Design ▸ Scale (drawing scale).
     DrawingScale,
+    /// Review ▸ AutoCorrect Options.
+    AutoCorrectOptions,
     /// Review ▸ Language (Options' language page) and Set Proofing
     /// Language (the spell-check dictionary).
     LanguageOptions,

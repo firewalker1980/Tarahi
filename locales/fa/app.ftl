@@ -64,7 +64,6 @@ auto-size = اندازهٔ خودکار
 autoconnect = اتصال خودکار
 autoconnect-needs-a-2d-shape = اتصال خودکار به یک شکل دوبعدی نیاز دارد
 autocorrect-options = گزینه‌های خودتصحیح
-autocorrect-options-planned = گزینه‌های خودتصحیح — برنامه‌ریزی شده
 automatic-resize = تغییر اندازهٔ خودکار
 automatically-link = پیوند خودکار
 background = پس‌زمینه
@@ -1173,3 +1172,8 @@ page-breaks-tip = نمایش جایی که صفحه روی چند برگ کاغ�
 # $n (Number) - style number
 heading-style-n = سبک سرعنوان { $n }
 heading-style-tip = جایی که ظرف سرعنوانش را نشان می‌دهد
+autocorrect-replace-as-you-type = جایگزینی متن هنگام تایپ
+autocorrect-capitalize = بزرگ‌کردن حرف اول جمله‌ها
+autocorrect-replace = جایگزینی
+autocorrect-with = با
+autocorrect-tip = اصلاحات هنگام تایپ متن

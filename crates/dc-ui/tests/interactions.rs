@@ -11607,3 +11607,45 @@ fn container_heading_style() {
         }
     }
 }
+
+fn type_slowly(h: &mut Harness<'_, App>, s: &str) {
+    for c in s.chars() {
+        h.event(egui::Event::Text(c.to_string()));
+        h.run();
+    }
+}
+
+/// AutoCorrect while typing: "core -> " becomes "Core → " (sentence
+/// capital, arrow); switched off in Review ▸ AutoCorrect Options it
+/// leaves the text alone.
+#[test]
+fn autocorrect_while_typing_and_switch_off() {
+    let mut h = harness_with_blank();
+    h.run();
+    let (_, sid) = place_master(&mut h, 2);
+    h.key_press(egui::Key::F2);
+    h.run();
+    h.run();
+    type_slowly(&mut h, "core -> ");
+    click_at(&mut h, egui::pos2(640.0, 760.0), egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_shape_plain_text(sid).as_deref(), Some("Core → "));
+
+    h.state_mut().set_tab_for_test(dc_ui::ribbon::Tab::Review);
+    h.run();
+    h.get_by_label("AutoCorrect Options").click();
+    h.run();
+    h.run();
+    h.get_by_label("Replace text as you type").click();
+    h.run();
+    h.get_by_label("OK").click();
+    h.run();
+    let (_, b) = place_master(&mut h, 2);
+    h.key_press(egui::Key::F2);
+    h.run();
+    h.run();
+    type_slowly(&mut h, "(c) ");
+    click_at(&mut h, egui::pos2(640.0, 760.0), egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_shape_plain_text(b).as_deref(), Some("(c) "));
+}

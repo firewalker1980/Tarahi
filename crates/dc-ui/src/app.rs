@@ -286,6 +286,9 @@ pub struct App {
     panes_menu: bool,
     /// Home ▸ Tools ▸ Stamp: every page click places the armed master.
     stamp: bool,
+    /// Review ▸ AutoCorrect Options: the dialog's working copy and the
+    /// new-entry fields.
+    autocorrect_draft: Option<(crate::autocorrect::AutoCorrect, String, String)>,
     /// Design ▸ Layout: the style menu / options dialog, and the gap
     /// between shapes (inches).
     layout_menu: Option<bool>,
@@ -892,6 +895,7 @@ impl App {
             font_menu: None,
             panes_menu: false,
             stamp: false,
+            autocorrect_draft: None,
             layout_menu: None,
             layout_gap: 0.5,
             scale_menu: false,
@@ -6410,6 +6414,58 @@ impl App {
         self.view.fit_pending = true;
     }
 
+    /// Review ▸ AutoCorrect Options: on/off, sentence capitals, and the
+    /// replacement list (add, remove); OK stores it in the options file.
+    fn autocorrect_window(&mut self, ctx: &egui::Context) {
+        let Some((mut ac, mut from, mut to)) = self.autocorrect_draft.take() else { return };
+        let s = crate::i18n::strs();
+        let mut open = true;
+        let mut ok = false;
+        egui::Window::new(s.msg_autocorrect_options()).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            ui.checkbox(&mut ac.enabled, s.msg_autocorrect_replace_as_you_type());
+            ui.checkbox(&mut ac.capitalize, s.msg_autocorrect_capitalize());
+            ui.separator();
+            let mut remove = None;
+            egui::ScrollArea::vertical().max_height(220.0).show(ui, |ui| {
+                egui::Grid::new("dc-ac").striped(true).show(ui, |ui| {
+                    for (i, (a, b)) in ac.list.iter().enumerate() {
+                        ui.label(a);
+                        ui.label("→");
+                        ui.label(b);
+                        if ui.small_button("×").on_hover_text(s.msg_remove()).clicked() {
+                            remove = Some(i);
+                        }
+                        ui.end_row();
+                    }
+                });
+            });
+            if let Some(i) = remove {
+                ac.list.remove(i);
+            }
+            ui.horizontal(|ui| {
+                let r1 = ui.add(egui::TextEdit::singleline(&mut from).desired_width(80.0).hint_text(s.msg_autocorrect_replace()));
+                r1.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, s.msg_autocorrect_replace()));
+                let r2 = ui.add(egui::TextEdit::singleline(&mut to).desired_width(80.0).hint_text(s.msg_autocorrect_with()));
+                r2.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, s.msg_autocorrect_with()));
+                if ui.add_enabled(!from.trim().is_empty(), egui::Button::new(s.msg_add())).clicked() {
+                    ac.list.retain(|(a, _)| !a.eq_ignore_ascii_case(from.trim()));
+                    ac.list.push((from.trim().to_string(), to.clone()));
+                    from.clear();
+                    to.clear();
+                }
+            });
+            ui.separator();
+            ok = ui.button(s.msg_ok()).clicked();
+        });
+        if ok {
+            if let Err(e) = self.options_store.set_autocorrect(ac) {
+                self.status = e.to_string();
+            }
+        } else if open {
+            self.autocorrect_draft = Some((ac, from, to));
+        }
+    }
+
     /// Review ▸ Set Proofing Language: the dictionaries the spell checker
     /// has; the pick is the language Check Spelling uses from now on.
     fn proof_lang_window(&mut self, ctx: &egui::Context) {
@@ -6615,7 +6671,7 @@ impl App {
                     }
                 } else {
                     egui::CollapsingHeader::new(label(sh)).id_salt(("dc-exp-sh", pi, sh.id)).show(ui, |ui| {
-                        if ui.small_button("↦").on_hover_text(label(sh)).clicked() {
+                        if ui.small_button("›").on_hover_text(label(sh)).clicked() {
                             *pick = Some((pi, sh.id));
                         }
                         shapes_ui(ui, &sh.sub_shapes, pi, pick);
@@ -10301,6 +10357,9 @@ impl App {
             Action::Protection => self.protection_open = !self.protection_open,
             Action::SelectionPane => self.selpane_open = !self.selpane_open,
             Action::InsertCallout => self.insert_callout(),
+            Action::AutoCorrectOptions => {
+                self.autocorrect_draft = Some((self.options_store.autocorrect.clone(), String::new(), String::new()));
+            }
             Action::ReLayout => self.layout_menu = Some(false),
             Action::LayoutOptions => self.layout_menu = Some(true),
             Action::LayoutSize => self.fit_page_to_drawing(),
@@ -17169,6 +17228,9 @@ impl App {
         self.text_edit = Some(crate::textedit::TextEditSession::new(
             page_id, shape_id, draft, &self.view,
         ));
+        if let Some(s) = self.text_edit.as_mut() {
+            s.autocorrect = Some(self.options_store.autocorrect.clone());
+        }
     }
 
     /// End the in-place editor: restore the pre-edit view, and commit
@@ -19293,6 +19355,7 @@ impl App {
         self.panes_menu_window(&ctx);
         self.report_window(&ctx);
         self.protection_window(&ctx);
+        self.autocorrect_window(&ctx);
         self.layout_window(&ctx);
         self.scale_window(&ctx);
         self.proof_lang_window(&ctx);

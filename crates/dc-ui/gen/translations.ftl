@@ -67,7 +67,6 @@ auto-size = Automatische Größe
 autoconnect = AutoConnect
 autoconnect-needs-a-2d-shape = AutoConnect benötigt eine 2D-Form
 autocorrect-options = AutoKorrektur-Optionen
-autocorrect-options-planned = AutoKorrektur-Optionen — geplant
 automatic-resize = Automatische Größe
 automatically-link = Automatisch verknüpfen
 background = Hintergrund
@@ -1176,6 +1175,11 @@ page-breaks-tip = Zeigen, wo die Seite auf mehrere Blätter aufgeteilt wird
 # $n (Number) - style number
 heading-style-n = Überschriftenstil { $n }
 heading-style-tip = Wo der Container seine Überschrift zeigt
+autocorrect-replace-as-you-type = Während der Eingabe ersetzen
+autocorrect-capitalize = Jeden Satz mit einem Großbuchstaben beginnen
+autocorrect-replace = Ersetzen
+autocorrect-with = Durch
+autocorrect-tip = Korrekturen während der Texteingabe
 
 
 ## ########## Resource: app ###############
@@ -1253,7 +1257,6 @@ auto-size = Auto Size
 autoconnect = AutoConnect
 autoconnect-needs-a-2d-shape = AutoConnect needs a 2D shape
 autocorrect-options = AutoCorrect Options
-autocorrect-options-planned = AutoCorrect options — planned
 automatic-resize = Automatic Resize
 automatically-link = Automatically Link
 background = Background
@@ -2430,6 +2433,11 @@ page-breaks-tip = Show where the page splits across sheets of paper
 # $n (Number) - style number
 heading-style-n = Heading style { $n }
 heading-style-tip = Where the container shows its heading
+autocorrect-replace-as-you-type = Replace text as you type
+autocorrect-capitalize = Capitalize the first letter of sentences
+autocorrect-replace = Replace
+autocorrect-with = With
+autocorrect-tip = Corrections made as you type text
 
 
 ## ########## Resource: app ###############
@@ -2505,7 +2513,6 @@ auto-size = Tamaño automático
 autoconnect = Autoconexión
 autoconnect-needs-a-2d-shape = La autoconexión necesita una forma 2D
 autocorrect-options = Opciones de Autocorrección
-autocorrect-options-planned = Opciones de Autocorrección — planeado
 automatic-resize = Cambio de tamaño automático
 automatically-link = Vincular automáticamente
 background = Fondo
@@ -3679,6 +3686,11 @@ page-breaks-tip = Mostrar dónde se divide la página en hojas de papel
 # $n (Number) - style number
 heading-style-n = Estilo de encabezado { $n }
 heading-style-tip = Dónde muestra el contenedor su encabezado
+autocorrect-replace-as-you-type = Reemplazar texto mientras escribe
+autocorrect-capitalize = Poner en mayúscula la primera letra de las oraciones
+autocorrect-replace = Reemplazar
+autocorrect-with = Con
+autocorrect-tip = Correcciones al escribir texto
 
 
 ## ########## Resource: app ###############
@@ -3749,7 +3761,6 @@ auto-size = اندازهٔ خودکار
 autoconnect = اتصال خودکار
 autoconnect-needs-a-2d-shape = اتصال خودکار به یک شکل دوبعدی نیاز دارد
 autocorrect-options = گزینه‌های خودتصحیح
-autocorrect-options-planned = گزینه‌های خودتصحیح — برنامه‌ریزی شده
 automatic-resize = تغییر اندازهٔ خودکار
 automatically-link = پیوند خودکار
 background = پس‌زمینه
@@ -4858,6 +4869,11 @@ page-breaks-tip = نمایش جایی که صفحه روی چند برگ کاغ�
 # $n (Number) - style number
 heading-style-n = سبک سرعنوان { $n }
 heading-style-tip = جایی که ظرف سرعنوانش را نشان می‌دهد
+autocorrect-replace-as-you-type = جایگزینی متن هنگام تایپ
+autocorrect-capitalize = بزرگ‌کردن حرف اول جمله‌ها
+autocorrect-replace = جایگزینی
+autocorrect-with = با
+autocorrect-tip = اصلاحات هنگام تایپ متن
 
 
 ## ########## Resource: app ###############
@@ -4926,7 +4942,6 @@ auto-size = 自動サイズ
 autoconnect = 自動接続
 autoconnect-needs-a-2d-shape = 自動接続には 2D 図形が必要です
 autocorrect-options = オートコレクトのオプション
-autocorrect-options-planned = オートコレクトのオプション — 予定
 automatic-resize = 自動サイズ変更
 automatically-link = 自動リンク
 background = 背景
@@ -5933,6 +5948,11 @@ page-breaks-tip = ページが用紙のどこで分かれるかを表示
 # $n (Number) - style number
 heading-style-n = 見出しスタイル { $n }
 heading-style-tip = コンテナーの見出しの位置
+autocorrect-replace-as-you-type = 入力中に自動修正する
+autocorrect-capitalize = 文の先頭文字を大文字にする
+autocorrect-replace = 修正文字列
+autocorrect-with = 修正後の文字列
+autocorrect-tip = テキスト入力時の自動修正
 
 
 ## ########## Resource: app ###############
@@ -6002,7 +6022,6 @@ auto-size = 자동 크기
 autoconnect = 자동 연결
 autoconnect-needs-a-2d-shape = 자동 연결에는 2D 셰이프가 필요합니다
 autocorrect-options = 자동 고침 옵션
-autocorrect-options-planned = 자동 고침 옵션 — 예정
 automatic-resize = 자동 크기 조정
 automatically-link = 자동 연결(링크)
 background = 배경
@@ -7009,6 +7028,11 @@ page-breaks-tip = 페이지가 용지에서 나뉘는 위치 표시
 # $n (Number) - style number
 heading-style-n = 머리글 스타일 { $n }
 heading-style-tip = 컨테이너 머리글 위치
+autocorrect-replace-as-you-type = 입력할 때 자동으로 바꾸기
+autocorrect-capitalize = 문장의 첫 글자를 대문자로
+autocorrect-replace = 바꿀 내용
+autocorrect-with = 결과
+autocorrect-tip = 텍스트를 입력할 때의 자동 고침
 
 
 ## ########## Resource: app ###############
@@ -7076,7 +7100,6 @@ auto-size = 自动调整大小
 autoconnect = 自动连接
 autoconnect-needs-a-2d-shape = 自动连接需要一个二维形状
 autocorrect-options = 自动更正选项
-autocorrect-options-planned = 自动更正选项 — 计划中
 automatic-resize = 自动调整大小
 automatically-link = 自动链接
 background = 背景
@@ -8089,4 +8112,9 @@ page-breaks-tip = 显示页面在纸张上的分页位置
 # $n (Number) - style number
 heading-style-n = 标题样式 { $n }
 heading-style-tip = 容器标题的显示位置
+autocorrect-replace-as-you-type = 键入时自动替换
+autocorrect-capitalize = 句首字母大写
+autocorrect-replace = 替换
+autocorrect-with = 替换为
+autocorrect-tip = 键入文本时的自动更正
 

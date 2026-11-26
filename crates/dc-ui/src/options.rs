@@ -50,6 +50,8 @@ pub struct Options {
     pub autorecover_minutes: u32,
     /// The AutoRecover file location; empty = the app default.
     pub autorecover_dir: String,
+    /// Review ▸ AutoCorrect Options.
+    pub autocorrect: crate::autocorrect::AutoCorrect,
     /// Where the options persist; `None` = in-memory (ephemeral
     /// constructors — headless tests never touch the user's config).
     store: Option<PathBuf>,
@@ -63,6 +65,7 @@ impl Default for Options {
             autorecover: true,
             autorecover_minutes: 10,
             autorecover_dir: String::new(),
+            autocorrect: crate::autocorrect::AutoCorrect::default(),
             store: None,
         }
     }
@@ -114,6 +117,25 @@ impl Options {
                 .map(|m| m.clamp(1, 120) as u32)
                 .unwrap_or(10),
             autorecover_dir: get_str("autorecover_dir"),
+            autocorrect: {
+                let d = crate::autocorrect::AutoCorrect::default();
+                match v.get("autocorrect") {
+                    Some(a) => crate::autocorrect::AutoCorrect {
+                        enabled: a.get("enabled").and_then(|x| x.as_bool()).unwrap_or(d.enabled),
+                        capitalize: a.get("capitalize").and_then(|x| x.as_bool()).unwrap_or(d.capitalize),
+                        list: a
+                            .get("list")
+                            .and_then(|l| l.as_array())
+                            .map(|l| {
+                                l.iter()
+                                    .filter_map(|p| Some((p.get(0)?.as_str()?.to_string(), p.get(1)?.as_str()?.to_string())))
+                                    .collect()
+                            })
+                            .unwrap_or(d.list),
+                    },
+                    None => d,
+                }
+            },
             store: None,
         })
     }
@@ -167,9 +189,20 @@ impl Options {
             "autorecover": self.autorecover,
             "autorecover_minutes": self.autorecover_minutes,
             "autorecover_dir": self.autorecover_dir,
+            "autocorrect": {
+                "enabled": self.autocorrect.enabled,
+                "capitalize": self.autocorrect.capitalize,
+                "list": self.autocorrect.list.iter().map(|(a, b)| [a, b]).collect::<Vec<_>>(),
+            },
         })
         .to_string();
         std::fs::write(path, text)
+    }
+
+    /// Review ▸ AutoCorrect Options: store the rules (and persist).
+    pub(crate) fn set_autocorrect(&mut self, ac: crate::autocorrect::AutoCorrect) -> std::io::Result<()> {
+        self.autocorrect = ac;
+        self.persist()
     }
 
     fn persist(&self) -> std::io::Result<()> {

@@ -71,7 +71,6 @@ auto-size = Auto Size
 autoconnect = AutoConnect
 autoconnect-needs-a-2d-shape = AutoConnect needs a 2D shape
 autocorrect-options = AutoCorrect Options
-autocorrect-options-planned = AutoCorrect options — planned
 automatic-resize = Automatic Resize
 automatically-link = Automatically Link
 background = Background
@@ -1248,3 +1247,8 @@ page-breaks-tip = Show where the page splits across sheets of paper
 # $n (Number) - style number
 heading-style-n = Heading style { $n }
 heading-style-tip = Where the container shows its heading
+autocorrect-replace-as-you-type = Replace text as you type
+autocorrect-capitalize = Capitalize the first letter of sentences
+autocorrect-replace = Replace
+autocorrect-with = With
+autocorrect-tip = Corrections made as you type text

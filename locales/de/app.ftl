@@ -64,7 +64,6 @@ auto-size = Automatische Größe
 autoconnect = AutoConnect
 autoconnect-needs-a-2d-shape = AutoConnect benötigt eine 2D-Form
 autocorrect-options = AutoKorrektur-Optionen
-autocorrect-options-planned = AutoKorrektur-Optionen — geplant
 automatic-resize = Automatische Größe
 automatically-link = Automatisch verknüpfen
 background = Hintergrund
@@ -1173,3 +1172,8 @@ page-breaks-tip = Zeigen, wo die Seite auf mehrere Blätter aufgeteilt wird
 # $n (Number) - style number
 heading-style-n = Überschriftenstil { $n }
 heading-style-tip = Wo der Container seine Überschrift zeigt
+autocorrect-replace-as-you-type = Während der Eingabe ersetzen
+autocorrect-capitalize = Jeden Satz mit einem Großbuchstaben beginnen
+autocorrect-replace = Ersetzen
+autocorrect-with = Durch
+autocorrect-tip = Korrekturen während der Texteingabe

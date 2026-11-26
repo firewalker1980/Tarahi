@@ -415,13 +415,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "autocorrect-options-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "automatic-resize",
         attribute: None,
         vars: &[],
@@ -7183,6 +7176,41 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "autocorrect-replace-as-you-type",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "autocorrect-capitalize",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "autocorrect-replace",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "autocorrect-with",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "autocorrect-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7282,13 +7310,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..50667,
-            Self::En => 50667..99423,
-            Self::Es => 99423..153114,
-            Self::Fa => 153114..216037,
-            Self::Ja => 216037..270349,
-            Self::Ko => 270349..320377,
-            Self::ZhHans => 320377..363702,
+            Self::De => 0..50848,
+            Self::En => 50848..99773,
+            Self::Es => 99773..153645,
+            Self::Fa => 153645..216742,
+            Self::Ja => 216742..271237,
+            Self::Ko => 271237..321460,
+            Self::ZhHans => 321460..364929,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -7555,9 +7583,6 @@ impl L10nLanguage {
     }
     pub fn msg_autocorrect_options(&self) -> String {
         self.0.msg("autocorrect-options", None).unwrap()
-    }
-    pub fn msg_autocorrect_options_planned(&self) -> String {
-        self.0.msg("autocorrect-options-planned", None).unwrap()
     }
     pub fn msg_automatic_resize(&self) -> String {
         self.0.msg("automatic-resize", None).unwrap()
@@ -11264,5 +11289,20 @@ impl L10nLanguage {
     }
     pub fn msg_heading_style_tip(&self) -> String {
         self.0.msg("heading-style-tip", None).unwrap()
+    }
+    pub fn msg_autocorrect_replace_as_you_type(&self) -> String {
+        self.0.msg("autocorrect-replace-as-you-type", None).unwrap()
+    }
+    pub fn msg_autocorrect_capitalize(&self) -> String {
+        self.0.msg("autocorrect-capitalize", None).unwrap()
+    }
+    pub fn msg_autocorrect_replace(&self) -> String {
+        self.0.msg("autocorrect-replace", None).unwrap()
+    }
+    pub fn msg_autocorrect_with(&self) -> String {
+        self.0.msg("autocorrect-with", None).unwrap()
+    }
+    pub fn msg_autocorrect_tip(&self) -> String {
+        self.0.msg("autocorrect-tip", None).unwrap()
     }
 }

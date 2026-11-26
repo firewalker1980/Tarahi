@@ -5,6 +5,7 @@
 
 pub mod align;
 pub mod app;
+pub mod autocorrect;
 pub mod autolayout;
 pub mod canvas;
 pub mod cmd;
