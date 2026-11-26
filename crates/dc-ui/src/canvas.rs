@@ -379,6 +379,9 @@ pub struct CanvasOut {
     /// Marquee (empty-area drag) finished: rect in page inches, y-up,
     /// (x0, y0, x1, y1) with y0 <= y1.
     pub marquee_done: Option<(f64, f64, f64, f64)>,
+    /// Where that marquee drag started (the drawing tools' Line runs
+    /// from here).
+    pub marquee_from: Option<(f64, f64)>,
     /// Lasso drag finished (#110, Visio's Lasso Select): the freehand
     /// trail in page inches, y-up. The app selects every shape the
     /// trail touches or encloses.
@@ -788,6 +791,7 @@ pub fn show(
         handle_drag_done: None,
         press_page_pos: None,
         marquee_done: None,
+        marquee_from: None,
         lasso_done: None,
         freeform_done: None,
         guide_drop: None,
@@ -1251,6 +1255,7 @@ pub fn show(
                 if (ex - sx).abs() > 1e-6 || (ey - sy).abs() > 1e-6 {
                     let (y0, y1) = if sy < ey { (sy, ey) } else { (ey, sy) };
                     out.marquee_done = Some((sx.min(ex), y0, sx.max(ex), y1));
+                    out.marquee_from = Some((sx, sy));
                 }
             }
         } else if let Some(start) = ui.ctx().memory(|m| m.data.get_temp::<Pos2>(mem_start)) {

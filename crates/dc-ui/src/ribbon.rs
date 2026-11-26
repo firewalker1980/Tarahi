@@ -145,6 +145,8 @@ pub(crate) fn anchor_labels(tab: Tab, ctx: &TabCtx) -> Vec<String> {
 /// Everything the ribbon can ask the app to do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
+    /// Home ▸ Tools drawing tools (Rectangle, Ellipse, Line, Text).
+    DrawTool(crate::drawtools::Kind),
     /// Home ▸ Editing ▸ Layers: the Layer Properties dialog.
     Layers,
     /// Home ▸ Editing ▸ Find / Replace (Ctrl+F / Ctrl+H).

@@ -1731,13 +1731,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "ellipse-tool-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "endpoint-begin",
         attribute: None,
         vars: &[],
@@ -3173,13 +3166,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "line-tool-planned",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "line-weight",
         attribute: None,
         vars: &[],
@@ -4420,13 +4406,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
     },
     MessageContract {
         message: "rectangle-tool",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
-        message: "rectangle-tool-planned",
         attribute: None,
         vars: &[],
         bool_vars: &[],
@@ -6008,13 +5987,6 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         elements: &[],
     },
     MessageContract {
-        message: "text-tool-planned-double-click-e",
-        attribute: None,
-        vars: &[],
-        bool_vars: &[],
-        elements: &[],
-    },
-    MessageContract {
         message: "the-current-drawing-has-unsaved",
         attribute: None,
         vars: &[],
@@ -6903,6 +6875,34 @@ pub static MESSAGE_CONTRACTS: &[MessageContract] = &[
         bool_vars: &[],
         elements: &[],
     },
+    MessageContract {
+        message: "rectangle-tool-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "ellipse-tool-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "line-tool-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
+    MessageContract {
+        message: "text-tool-tip",
+        attribute: None,
+        vars: &[],
+        bool_vars: &[],
+        elements: &[],
+    },
 ];
 #[allow(dead_code)]
 static ALL_LANGS: [L10n; 7] = [
@@ -7002,13 +7002,13 @@ impl L10n {
 
     fn byte_range(&self) -> std::ops::Range<usize> {
         match self {
-            Self::De => 0..49053,
-            Self::En => 49053..96397,
-            Self::Es => 96397..148513,
-            Self::Fa => 148513..210366,
-            Self::Ja => 210366..262933,
-            Self::Ko => 262933..311296,
-            Self::ZhHans => 311296..353634,
+            Self::De => 0..49120,
+            Self::En => 49120..96514,
+            Self::Es => 96514..148688,
+            Self::Fa => 148688..210582,
+            Self::Ja => 210582..263257,
+            Self::Ko => 263257..311727,
+            Self::ZhHans => 311727..354066,
         }
     }
     /// Load a L10nLanguage from the embedded data.
@@ -8026,9 +8026,6 @@ impl L10nLanguage {
     pub fn msg_ellipse_tool(&self) -> String {
         self.0.msg("ellipse-tool", None).unwrap()
     }
-    pub fn msg_ellipse_tool_planned(&self) -> String {
-        self.0.msg("ellipse-tool-planned", None).unwrap()
-    }
     pub fn msg_endpoint_begin(&self) -> String {
         self.0.msg("endpoint-begin", None).unwrap()
     }
@@ -8785,9 +8782,6 @@ impl L10nLanguage {
     pub fn msg_line_tool(&self) -> String {
         self.0.msg("line-tool", None).unwrap()
     }
-    pub fn msg_line_tool_planned(&self) -> String {
-        self.0.msg("line-tool-planned", None).unwrap()
-    }
     pub fn msg_line_weight(&self) -> String {
         self.0.msg("line-weight", None).unwrap()
     }
@@ -9506,9 +9500,6 @@ impl L10nLanguage {
     }
     pub fn msg_rectangle_tool(&self) -> String {
         self.0.msg("rectangle-tool", None).unwrap()
-    }
-    pub fn msg_rectangle_tool_planned(&self) -> String {
-        self.0.msg("rectangle-tool-planned", None).unwrap()
     }
     pub fn msg_redo_ctrl_y(&self) -> String {
         self.0.msg("redo-ctrl-y", None).unwrap()
@@ -10352,11 +10343,6 @@ impl L10nLanguage {
     pub fn msg_text_tool(&self) -> String {
         self.0.msg("text-tool", None).unwrap()
     }
-    pub fn msg_text_tool_planned_double_click_e(&self) -> String {
-        self.0
-            .msg("text-tool-planned-double-click-e", None)
-            .unwrap()
-    }
     pub fn msg_the_current_drawing_has_unsaved(&self) -> String {
         self.0.msg("the-current-drawing-has-unsaved", None).unwrap()
     }
@@ -10876,5 +10862,17 @@ impl L10nLanguage {
     }
     pub fn msg_print_range(&self) -> String {
         self.0.msg("print-range", None).unwrap()
+    }
+    pub fn msg_rectangle_tool_tip(&self) -> String {
+        self.0.msg("rectangle-tool-tip", None).unwrap()
+    }
+    pub fn msg_ellipse_tool_tip(&self) -> String {
+        self.0.msg("ellipse-tool-tip", None).unwrap()
+    }
+    pub fn msg_line_tool_tip(&self) -> String {
+        self.0.msg("line-tool-tip", None).unwrap()
+    }
+    pub fn msg_text_tool_tip(&self) -> String {
+        self.0.msg("text-tool-tip", None).unwrap()
     }
 }

@@ -247,24 +247,28 @@ fn tools_cols(s: &'static crate::l10n::L10nLanguage, ctx: &TabCtx) -> Vec<super:
         // Visio's shape-drawing tools, compact icon tier (planned).
         grid(vec![
             vec![
-                RibbonButton::new(Icon::TextTool, "", Action::Macros)
+                RibbonButton::new(Icon::TextTool, "", Action::DrawTool(crate::drawtools::Kind::Text))
                     .alt(s.msg_text_tool())
-                    .enabled(false)
-                    .tip(s.msg_text_tool_planned_double_click_e()),
-                RibbonButton::new(Icon::RectTool, "", Action::Macros)
+                    .enabled(ctx.has_doc)
+                    .selected(ctx.tool == crate::app::Tool::Draw(crate::drawtools::Kind::Text))
+                    .tip(s.msg_text_tool_tip()),
+                RibbonButton::new(Icon::RectTool, "", Action::DrawTool(crate::drawtools::Kind::Rect))
                     .alt(s.msg_rectangle_tool())
-                    .enabled(false)
-                    .tip(s.msg_rectangle_tool_planned()),
+                    .enabled(ctx.has_doc)
+                    .selected(ctx.tool == crate::app::Tool::Draw(crate::drawtools::Kind::Rect))
+                    .tip(s.msg_rectangle_tool_tip()),
             ],
             vec![
-                RibbonButton::new(Icon::EllipseTool, "", Action::Macros)
+                RibbonButton::new(Icon::EllipseTool, "", Action::DrawTool(crate::drawtools::Kind::Ellipse))
                     .alt(s.msg_ellipse_tool())
-                    .enabled(false)
-                    .tip(s.msg_ellipse_tool_planned()),
-                RibbonButton::new(Icon::LineTool, "", Action::Macros)
+                    .enabled(ctx.has_doc)
+                    .selected(ctx.tool == crate::app::Tool::Draw(crate::drawtools::Kind::Ellipse))
+                    .tip(s.msg_ellipse_tool_tip()),
+                RibbonButton::new(Icon::LineTool, "", Action::DrawTool(crate::drawtools::Kind::Line))
                     .alt(s.msg_line_tool())
-                    .enabled(false)
-                    .tip(s.msg_line_tool_planned()),
+                    .enabled(ctx.has_doc)
+                    .selected(ctx.tool == crate::app::Tool::Draw(crate::drawtools::Kind::Line))
+                    .tip(s.msg_line_tool_tip()),
             ],
             vec![
                 RibbonButton::new(Icon::Stamp, "", Action::Macros)

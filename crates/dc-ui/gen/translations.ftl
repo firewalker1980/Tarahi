@@ -269,7 +269,6 @@ editing = Bearbeitung
 editing-text-of-shape-shape-id = Text der Form { $shape_id } wird bearbeitet
 effects = Effekte
 ellipse-tool = Ellipsenwerkzeug
-ellipse-tool-planned = Ellipsenwerkzeug — geplant
 endpoint-begin = Anfang
 endpoint-drag-refused-reason = Endpunktverschiebung abgelehnt: { $reason }
 endpoint-end = Ende
@@ -500,7 +499,6 @@ line-jumps-shown = Linienversätze eingeblendet
 line-move-refused-reason = Linienverschiebung abgelehnt: { $reason }
 line-moved-but-name-is-formula-d = Linie verschoben, aber { $name } ist formelgesteuert und blieb erhalten
 line-tool = Linienwerkzeug
-line-tool-planned = Linienwerkzeug — geplant
 line-weight = Linienstärke
 link-data-to-shapes = Daten an Formen anknüpfen
 links = Verknüpfungen
@@ -701,7 +699,6 @@ rail-print = Drucken
 re-layout-page = Seite neu anordnen
 recent = Zuletzt verwendet
 rectangle-tool = Rechteckwerkzeug
-rectangle-tool-planned = Rechteckwerkzeug — geplant
 redo-ctrl-y = Wiederherstellen (Strg+Y)
 redo-l = Wiederherstellen: { $l }
 refresh-all = Alle aktualisieren
@@ -941,7 +938,6 @@ text-field = Textfeld (Feld)
 text-formatting-arrives-with-a-l = Textformatierung kommt in einem späteren Meilenstein
 text-shapes-planned = Textformen — geplant
 text-tool = Textwerkzeug
-text-tool-planned-double-click-e = Textwerkzeug — geplant (Doppelklick bearbeitet heute den Text)
 the-current-drawing-has-unsaved = Die aktuelle Zeichnung hat ungespeicherte Änderungen.
 the-drawing = die Zeichnung
 the-grid = das Raster
@@ -1128,6 +1124,10 @@ print-failed = Drucken fehlgeschlagen: { $e }
 # $total (Number) - page count
 page-n-of-total = Seite { $n } von { $total }
 print-range = Seiten
+rectangle-tool-tip = Ziehen, um ein Rechteck zu zeichnen (Esc: zurück zum Zeiger)
+ellipse-tool-tip = Ziehen, um eine Ellipse zu zeichnen (Esc: zurück zum Zeiger)
+line-tool-tip = Ziehen, um eine Linie zu zeichnen (Esc: zurück zum Zeiger)
+text-tool-tip = Klicken oder ziehen für ein Textfeld (Esc: zurück zum Zeiger)
 
 
 ## ########## Resource: app ###############
@@ -1423,7 +1423,6 @@ editing = Editing
 editing-text-of-shape-shape-id = editing text of shape { $shape_id }
 effects = Effects
 ellipse-tool = Ellipse Tool
-ellipse-tool-planned = Ellipse tool — planned
 endpoint-begin = begin
 # $reason (String) - argument
 endpoint-drag-refused-reason = endpoint drag refused: { $reason }
@@ -1668,7 +1667,6 @@ line-move-refused-reason = line move refused: { $reason }
 # $name (String) - argument
 line-moved-but-name-is-formula-d = line moved, but { $name } is formula-driven and kept
 line-tool = Line Tool
-line-tool-planned = Line tool — planned
 line-weight = Line weight
 link-data-to-shapes = Link Data to Shapes
 links = Links
@@ -1887,7 +1885,6 @@ rail-print = Print
 re-layout-page = Re-layout Page
 recent = Recent
 rectangle-tool = Rectangle Tool
-rectangle-tool-planned = Rectangle tool — planned
 redo-ctrl-y = Redo (Ctrl+Y)
 # $l (String) - argument
 redo-l = redo: { $l }
@@ -2146,7 +2143,6 @@ text-field = Text Field
 text-formatting-arrives-with-a-l = Text formatting arrives with a later milestone
 text-shapes-planned = Text shapes — planned
 text-tool = Text Tool
-text-tool-planned-double-click-e = Text tool — planned (double-click edits text today)
 the-current-drawing-has-unsaved = The current drawing has unsaved changes.
 the-drawing = the drawing
 the-grid = the grid
@@ -2334,6 +2330,10 @@ print-failed = Printing failed: { $e }
 # $total (Number) - page count
 page-n-of-total = Page { $n } of { $total }
 print-range = Pages
+rectangle-tool-tip = Drag to draw a rectangle (Esc: back to the pointer)
+ellipse-tool-tip = Drag to draw an ellipse (Esc: back to the pointer)
+line-tool-tip = Drag to draw a line (Esc: back to the pointer)
+text-tool-tip = Click or drag to add a text box (Esc: back to the pointer)
 
 
 ## ########## Resource: app ###############
@@ -2627,7 +2627,6 @@ editing = Edición
 editing-text-of-shape-shape-id = editando el texto de la forma { $shape_id }
 effects = Efectos
 ellipse-tool = Herramienta Elipse
-ellipse-tool-planned = Herramienta Elipse — planeado
 endpoint-begin = inicio
 # $reason - argumento
 endpoint-drag-refused-reason = arrastre del extremo rechazado: { $reason }
@@ -2872,7 +2871,6 @@ line-move-refused-reason = movimiento de línea rechazado: { $reason }
 # $name - argumento
 line-moved-but-name-is-formula-d = línea movida, pero { $name } está controlado por una fórmula y se conserva
 line-tool = Herramienta Línea
-line-tool-planned = Herramienta Línea — planeado
 line-weight = Grosor de línea
 link-data-to-shapes = Vincular datos a formas
 links = Vínculos
@@ -3090,7 +3088,6 @@ rail-print = Imprimir
 re-layout-page = Rediseñar página
 recent = Reciente
 rectangle-tool = Herramienta Rectángulo
-rectangle-tool-planned = Herramienta Rectángulo — planeado
 redo-ctrl-y = Rehacer (Ctrl+Y)
 # $l - argumento
 redo-l = rehacer: { $l }
@@ -3347,7 +3344,6 @@ text-field = Campo de texto
 text-formatting-arrives-with-a-l = El formato de texto llega con un hito posterior
 text-shapes-planned = Formas de texto — planeado
 text-tool = Herramienta Texto
-text-tool-planned-double-click-e = Herramienta Texto — planeado (hoy el doble clic edita el texto)
 the-current-drawing-has-unsaved = El dibujo actual tiene cambios sin guardar.
 the-drawing = el dibujo
 the-grid = la cuadrícula
@@ -3535,6 +3531,10 @@ print-failed = Error al imprimir: { $e }
 # $total (Number) - page count
 page-n-of-total = Página { $n } de { $total }
 print-range = Páginas
+rectangle-tool-tip = Arrastre para dibujar un rectángulo (Esc: volver al puntero)
+ellipse-tool-tip = Arrastre para dibujar una elipse (Esc: volver al puntero)
+line-tool-tip = Arrastre para dibujar una línea (Esc: volver al puntero)
+text-tool-tip = Haga clic o arrastre para agregar un cuadro de texto (Esc: volver al puntero)
 
 
 ## ########## Resource: app ###############
@@ -3807,7 +3807,6 @@ editing = ویرایش
 editing-text-of-shape-shape-id = ویرایش متن شکل { $shape_id }
 effects = جلوه‌ها
 ellipse-tool = ابزار بیضی
-ellipse-tool-planned = ابزار بیضی — برنامه‌ریزی شده
 endpoint-begin = آغاز
 endpoint-drag-refused-reason = کشیدن درگاه رد شد: { $reason }
 endpoint-end = پایان
@@ -4038,7 +4037,6 @@ line-jumps-shown = پرش‌های خط نشان داده می‌شود
 line-move-refused-reason = جابه‌جایی خط رد شد: { $reason }
 line-moved-but-name-is-formula-d = خط جابه‌جا شد، اما { $name } فرمول‌محور است و حفظ شد
 line-tool = ابزار خط
-line-tool-planned = ابزار خط — برنامه‌ریزی شده
 line-weight = ضخامت خط
 link-data-to-shapes = پیوند داده به شکل‌ها
 links = پیوندها
@@ -4239,7 +4237,6 @@ rail-print = چاپ
 re-layout-page = چیدمان دوبارهٔ صفحه
 recent = اخیر
 rectangle-tool = ابزار مستطیل
-rectangle-tool-planned = ابزار مستطیل — برنامه‌ریزی شده
 redo-ctrl-y = اجرای دوباره (Ctrl+Y)
 redo-l = اجرای دوباره: { $l }
 refresh-all = بازخوانی همه
@@ -4479,7 +4476,6 @@ text-field = فیلد متنی
 text-formatting-arrives-with-a-l = قالب‌بندی متن با نقطهٔ عطف بعدی می‌آید
 text-shapes-planned = شکل‌های متنی — برنامه‌ریزی شده
 text-tool = ابزار متن
-text-tool-planned-double-click-e = ابزار متن — برنامه‌ریزی‌شده (امروز دابل‌کلیک متن را ویرایش می‌کند)
 the-current-drawing-has-unsaved = نقاشی جاری تغییرات ذخیره‌نشده دارد.
 the-drawing = نقشه
 the-grid = شبکه
@@ -4666,6 +4662,10 @@ print-failed = چاپ ناموفق بود: { $e }
 # $total (Number) - page count
 page-n-of-total = صفحهٔ { $n } از { $total }
 print-range = صفحه‌ها
+rectangle-tool-tip = برای کشیدن مستطیل بکشید (Esc: بازگشت به اشاره‌گر)
+ellipse-tool-tip = برای کشیدن بیضی بکشید (Esc: بازگشت به اشاره‌گر)
+line-tool-tip = برای کشیدن خط بکشید (Esc: بازگشت به اشاره‌گر)
+text-tool-tip = برای افزودن کادر متن کلیک کنید یا بکشید (Esc: بازگشت به اشاره‌گر)
 
 
 ## ########## Resource: app ###############
@@ -4922,7 +4922,6 @@ editing = 編集
 editing-text-of-shape-shape-id = 図形 { $shape_id } の文字を編集中
 effects = 効果
 ellipse-tool = 楕円ツール
-ellipse-tool-planned = 楕円ツール — 予定
 endpoint-begin = 始点
 endpoint-drag-refused-reason = 端点のドラッグを拒否しました: { $reason }
 endpoint-end = 終点
@@ -5137,7 +5136,6 @@ line-jumps-shown = 線のジャンプを表示しました
 line-move-refused-reason = 線の移動を拒否しました: { $reason }
 line-moved-but-name-is-formula-d = 線を移動しましたが、{ $name } は数式で管理されているため維持しました
 line-tool = 線ツール
-line-tool-planned = 線ツール — 予定
 line-weight = 線の太さ
 link-data-to-shapes = 図形へのデータのリンク
 links = リンク
@@ -5316,7 +5314,6 @@ rail-print = 印刷
 re-layout-page = ページの再レイアウト
 recent = 最近
 rectangle-tool = 四角形ツール
-rectangle-tool-planned = 四角形ツール — 予定
 redo-ctrl-y = 繰り返し（Ctrl+Y）
 redo-l = 繰り返し: { $l }
 refresh-all = すべて更新
@@ -5542,7 +5539,6 @@ text-field = 文字フィールド
 text-formatting-arrives-with-a-l = 文字書式は後のマイルストーンで提供されます
 text-shapes-planned = 文字図形 — 予定
 text-tool = 文字ツール
-text-tool-planned-double-click-e = 文字ツール — 予定（ダブルクリックで文字を編集できます）
 the-current-drawing-has-unsaved = 現在の図面には未保存の変更があります。
 the-drawing = 図面
 the-grid = グリッド
@@ -5694,6 +5690,10 @@ print-failed = 印刷に失敗しました: { $e }
 # $total (Number) - page count
 page-n-of-total = { $total } ページ中 { $n } ページ
 print-range = ページ
+rectangle-tool-tip = ドラッグして四角形を描画 (Esc: ポインターに戻る)
+ellipse-tool-tip = ドラッグして楕円を描画 (Esc: ポインターに戻る)
+line-tool-tip = ドラッグして線を描画 (Esc: ポインターに戻る)
+text-tool-tip = クリックまたはドラッグしてテキスト ボックスを追加 (Esc: ポインターに戻る)
 
 
 ## ########## Resource: app ###############
@@ -5951,7 +5951,6 @@ editing = 편집
 editing-text-of-shape-shape-id = 셰이프 { $shape_id }의 텍스트 편집 중
 effects = 효과
 ellipse-tool = 타원 도구
-ellipse-tool-planned = 타원 도구 — 예정
 endpoint-begin = 시작점
 endpoint-drag-refused-reason = 끝점 끌기가 거부되었습니다: { $reason }
 endpoint-end = 끝점
@@ -6166,7 +6165,6 @@ line-jumps-shown = 선 점프를 표시했습니다
 line-move-refused-reason = 선 이동이 거부되었습니다: { $reason }
 line-moved-but-name-is-formula-d = 선을 이동했지만 { $name }은(는) 수식으로 관리되어 유지했습니다
 line-tool = 선 도구
-line-tool-planned = 선 도구 — 예정
 line-weight = 선 굵기
 link-data-to-shapes = 셰이프에 데이터 연결
 links = 링크
@@ -6345,7 +6343,6 @@ rail-print = 인쇄
 re-layout-page = 페이지 다시 레이아웃
 recent = 최근
 rectangle-tool = 사각형 도구
-rectangle-tool-planned = 사각형 도구 — 예정
 redo-ctrl-y = 다시 실행(Ctrl+Y)
 redo-l = 다시 실행: { $l }
 refresh-all = 모두 새로 고침
@@ -6571,7 +6568,6 @@ text-field = 텍스트 필드
 text-formatting-arrives-with-a-l = 텍스트 서식은 이후 마일스톤에서 제공됩니다
 text-shapes-planned = 텍스트 셰이프 — 예정
 text-tool = 텍스트 도구
-text-tool-planned-double-click-e = 텍스트 도구 — 예정(두 번 클릭으로 오늘 텍스트 편집)
 the-current-drawing-has-unsaved = 현재 드로잉에 저장되지 않은 변경 내용이 있습니다.
 the-drawing = 드로잉
 the-grid = 눈금선
@@ -6723,6 +6719,10 @@ print-failed = 인쇄 실패: { $e }
 # $total (Number) - page count
 page-n-of-total = { $total }페이지 중 { $n }페이지
 print-range = 페이지
+rectangle-tool-tip = 드래그하여 사각형 그리기 (Esc: 포인터로 돌아가기)
+ellipse-tool-tip = 드래그하여 타원 그리기 (Esc: 포인터로 돌아가기)
+line-tool-tip = 드래그하여 선 그리기 (Esc: 포인터로 돌아가기)
+text-tool-tip = 클릭하거나 드래그하여 텍스트 상자 추가 (Esc: 포인터로 돌아가기)
 
 
 ## ########## Resource: app ###############
@@ -6978,7 +6978,6 @@ editing = 编辑中
 editing-text-of-shape-shape-id = 正在编辑形状 { $shape_id } 的文本
 effects = 效果
 ellipse-tool = 椭圆工具
-ellipse-tool-planned = 椭圆工具 — 计划中
 endpoint-begin = 起点
 endpoint-drag-refused-reason = 端点拖动被拒绝：{ $reason }
 endpoint-end = 终点
@@ -7194,7 +7193,6 @@ line-jumps-shown = 线条跳跃已显示
 line-move-refused-reason = 线条移动被拒绝：{ $reason }
 line-moved-but-name-is-formula-d = 线条已移动，但 { $name } 由公式驱动并保持不变
 line-tool = 线条工具
-line-tool-planned = 线条工具 — 计划中
 line-weight = 线条粗细
 link-data-to-shapes = 将数据链接到形状
 links = 链接
@@ -7373,7 +7371,6 @@ rail-print = 打印
 re-layout-page = 重新布局页面
 recent = 最近
 rectangle-tool = 矩形工具
-rectangle-tool-planned = 矩形工具 — 计划中
 redo-ctrl-y = 恢复 (Ctrl+Y)
 redo-l = 恢复：{ $l }
 refresh-all = 全部刷新
@@ -7604,7 +7601,6 @@ text-field = 域
 text-formatting-arrives-with-a-l = 文本格式设置将在后期里程碑提供
 text-shapes-planned = 文本形状 — 计划中
 text-tool = 文本工具
-text-tool-planned-double-click-e = 文本工具 — 计划中（现在双击即可编辑文本）
 the-current-drawing-has-unsaved = 当前绘图有未保存的更改。
 the-drawing = 绘图
 the-grid = 网格
@@ -7756,4 +7752,8 @@ print-failed = 打印失败:{ $e }
 # $total (Number) - page count
 page-n-of-total = 第 { $n } 页,共 { $total } 页
 print-range = 页面
+rectangle-tool-tip = 拖动以绘制矩形 (Esc:返回指针)
+ellipse-tool-tip = 拖动以绘制椭圆 (Esc:返回指针)
+line-tool-tip = 拖动以绘制线条 (Esc:返回指针)
+text-tool-tip = 单击或拖动以添加文本框 (Esc:返回指针)
 

@@ -289,7 +289,6 @@ editing = Editing
 editing-text-of-shape-shape-id = editing text of shape { $shape_id }
 effects = Effects
 ellipse-tool = Ellipse Tool
-ellipse-tool-planned = Ellipse tool — planned
 endpoint-begin = begin
 # $reason (String) - argument
 endpoint-drag-refused-reason = endpoint drag refused: { $reason }
@@ -534,7 +533,6 @@ line-move-refused-reason = line move refused: { $reason }
 # $name (String) - argument
 line-moved-but-name-is-formula-d = line moved, but { $name } is formula-driven and kept
 line-tool = Line Tool
-line-tool-planned = Line tool — planned
 line-weight = Line weight
 link-data-to-shapes = Link Data to Shapes
 links = Links
@@ -753,7 +751,6 @@ rail-print = Print
 re-layout-page = Re-layout Page
 recent = Recent
 rectangle-tool = Rectangle Tool
-rectangle-tool-planned = Rectangle tool — planned
 redo-ctrl-y = Redo (Ctrl+Y)
 # $l (String) - argument
 redo-l = redo: { $l }
@@ -1012,7 +1009,6 @@ text-field = Text Field
 text-formatting-arrives-with-a-l = Text formatting arrives with a later milestone
 text-shapes-planned = Text shapes — planned
 text-tool = Text Tool
-text-tool-planned-double-click-e = Text tool — planned (double-click edits text today)
 the-current-drawing-has-unsaved = The current drawing has unsaved changes.
 the-drawing = the drawing
 the-grid = the grid
@@ -1200,3 +1196,7 @@ print-failed = Printing failed: { $e }
 # $total (Number) - page count
 page-n-of-total = Page { $n } of { $total }
 print-range = Pages
+rectangle-tool-tip = Drag to draw a rectangle (Esc: back to the pointer)
+ellipse-tool-tip = Drag to draw an ellipse (Esc: back to the pointer)
+line-tool-tip = Drag to draw a line (Esc: back to the pointer)
+text-tool-tip = Click or drag to add a text box (Esc: back to the pointer)

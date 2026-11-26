@@ -8636,7 +8636,7 @@ fn container_instance_fixture(dir: &std::path::Path) -> std::path::PathBuf {
 <Default Extension="xml" ContentType="application/xml"/>
 <Override PartName="/visio/document.xml" ContentType="application/vnd.ms-visio.drawing.main+xml"/>
 <Override PartName="/visio/pages/pages.xml" ContentType="application/vnd.ms-visio.pages+xml"/>
-<Override PartName="/visio/pages/page1.xml" ContentType="application/vnd.ms-visio.pages+xml"/>
+<Override PartName="/visio/pages/page1.xml" ContentType="application/vnd.ms-visio.page+xml"/>
 <Override PartName="/visio/masters/masters.xml" ContentType="application/vnd.ms-visio.masters+xml"/>
 <Override PartName="/visio/masters/master1.xml" ContentType="application/vnd.ms-visio.master+xml"/>
 </Types>"#;
@@ -10656,4 +10656,72 @@ fn print_page_lists_printers_and_builds_the_pdf() {
     let one = h.state().debug_print_pdf_for_test(false).expect("pdf");
     assert!(all.starts_with(b"%PDF"));
     assert_eq!((count(&all), count(&one)), (2, 1), "all pages vs current page");
+}
+
+fn drag_on_canvas(h: &mut Harness<'_, App>, from: Pos2, to: Pos2) {
+    h.hover_at(from);
+    h.event(egui::Event::PointerButton {
+        pos: from,
+        button: egui::PointerButton::Primary,
+        pressed: true,
+        modifiers: egui::Modifiers::NONE,
+    });
+    h.run();
+    h.hover_at(from + (to - from) * 0.5);
+    h.run();
+    h.hover_at(to);
+    h.run();
+    h.event(egui::Event::PointerButton {
+        pos: to,
+        button: egui::PointerButton::Primary,
+        pressed: false,
+        modifiers: egui::Modifiers::NONE,
+    });
+    h.run();
+}
+
+/// Home ▸ Tools: Rectangle / Ellipse / Line drag out shapes (over other
+/// shapes too, without moving them); Text places a box on a click and
+/// opens it for typing; Esc returns to the pointer.
+#[test]
+fn drawing_tools_create_shapes() {
+    let mut h = harness_with_blank();
+    h.run();
+    let c = h.state().debug_canvas_rect().center();
+    h.get_by_label("Rectangle Tool").click();
+    h.run();
+    drag_on_canvas(&mut h, c + egui::vec2(-150.0, -60.0), c + egui::vec2(-50.0, 20.0));
+    assert_eq!(h.state().debug_shape_count(), 1, "rectangle drawn");
+    let (_, rect) = h.state().debug_sel().unwrap();
+    let r = h.state().debug_shape_screen_rect(rect).unwrap();
+    assert!((r.width() - 100.0).abs() < 3.0 && (r.height() - 80.0).abs() < 3.0, "{r:?}");
+
+    // drawing over the rectangle draws, it doesn't move the rectangle
+    h.get_by_label("Ellipse Tool").click();
+    h.run();
+    drag_on_canvas(&mut h, r.center(), r.center() + egui::vec2(60.0, 40.0));
+    assert_eq!(h.state().debug_shape_count(), 2, "ellipse drawn");
+    assert_eq!(h.state().debug_shape_screen_rect(rect).unwrap(), r, "rectangle stayed put");
+
+    // a line keeps its direction: begin where the press was
+    h.get_by_label("Line Tool").click();
+    h.run();
+    drag_on_canvas(&mut h, c + egui::vec2(150.0, 100.0), c + egui::vec2(50.0, 100.0));
+    let (_, line) = h.state().debug_sel().unwrap();
+    let bx: f64 = h.state().debug_cell_for_test(line, "BeginX").unwrap().parse().unwrap();
+    let ex: f64 = h.state().debug_cell_for_test(line, "EndX").unwrap().parse().unwrap();
+    assert!(bx > ex, "drawn right to left: {bx} {ex}");
+
+    // Text: a click places a box and opens the editor
+    h.get_by_label("Text Tool").click();
+    h.run();
+    click_at(&mut h, c + egui::vec2(0.0, -150.0), egui::PointerButton::Primary);
+    h.run();
+    assert_eq!(h.state().debug_shape_count(), 4, "text box placed");
+    assert!(h.state().debug_text_edit().is_some(), "typing into it");
+    h.key_press(egui::Key::Escape);
+    h.run();
+    h.key_press(egui::Key::Escape);
+    h.run();
+    assert_eq!(h.state().debug_tool(), dc_ui::app::Tool::Pointer);
 }

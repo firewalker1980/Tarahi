@@ -625,6 +625,10 @@ pub enum Tool {
     /// #283: the Pan tool — a plain drag moves the view (Visio's
     /// hand); nothing arms, Esc returns to the pointer.
     Pan,
+    /// Home ▸ Tools Rectangle / Ellipse / Line / Text: a drag on the
+    /// page (over shapes too) draws the shape; Text also places a
+    /// default box on a click and opens it for typing.
+    Draw(crate::drawtools::Kind),
 }
 
 struct DragState {
@@ -3256,6 +3260,7 @@ impl App {
                             | Tool::ConnectionPoint
                             | Tool::Freeform
                             | Tool::Pan
+                            | Tool::Draw(_)
                     ) {
                         self.tool = Tool::Pointer;
                     }
@@ -6133,6 +6138,21 @@ impl App {
         self.status = crate::i18n::strs().msg_freeform_shape_created_segs_segm(segs);
     }
 
+    /// A drawing-tool shape (Rectangle, Ellipse, Line, Text) from `a`
+    /// to `b`: one undo step, selected; a text box opens for typing.
+    fn create_drawn(&mut self, kind: crate::drawtools::Kind, a: (f64, f64), b: (f64, f64)) {
+        let (Some(page_id), Some(ed)) = (self.page_id(), self.ed.as_ref()) else { return };
+        let id = dc_core::commands::next_shape_id(&ed.doc, page_id);
+        let shape = crate::drawtools::build(kind, id, a, b);
+        let label = format!("draw {kind:?} {id}");
+        self.apply(Macro::new(label, vec![Box::new(dc_core::AddShape { page: page_id, parent: None, shape })]));
+        self.set_selection(Some((page_id, id)));
+        self.sel_set = vec![(page_id, id)];
+        if kind == crate::drawtools::Kind::Text {
+            self.begin_text_edit(id, String::new());
+        }
+    }
+
     /// #108 reroute: a deferred [`crate::cmd::RerouteConnectors`]
     /// riding at the tail of the move/resize Macro — it evaluates
     /// against the post-move document (an eager build would read
@@ -8599,6 +8619,9 @@ impl App {
                     self.status = crate::i18n::strs().msg_freeform_drag_on_the_page_to_dra();
                 }
             }
+            Action::DrawTool(kind) => {
+                self.tool = if self.tool == Tool::Draw(kind) { Tool::Pointer } else { Tool::Draw(kind) };
+            }
             Action::PanTool => {
                 // #283: toggle like the other tools; a plain drag pans,
                 // presses arm nothing, clicks change nothing.
@@ -10570,11 +10593,16 @@ impl App {
             }
         }
         let App {
-            view, ed, page_idx, ..
+            view, ed, page_idx, tool, ..
         } = self;
+        let drawing = matches!(tool, Tool::Draw(_));
         let ed = ed.as_ref();
         let page = ed.map(|e| &e.doc.pages[(*page_idx).min(e.doc.pages.len().saturating_sub(1))]);
         let hit = |pos: (f64, f64)| -> bool {
+            // drawing tools draw over shapes: every press starts a box
+            if drawing {
+                return false;
+            }
             let Some(ed) = ed else { return false };
             let Some(page) = page else { return false };
             // Guides count as occupied page (#113): a press on one
@@ -10624,7 +10652,7 @@ impl App {
             *conn_fx_seen.borrow_mut() = fx.clone();
             fx
         };
-        let out = canvas::show(
+        let mut out = canvas::show(
             ui,
             view,
             &geom,
@@ -10678,7 +10706,25 @@ impl App {
             // double-click text edit, no move-drag arming (right-click
             // keeps its context menu, like Visio's pan mode).
             let pan_clicks = self.tool != Tool::Pan;
-            if pan_clicks {
+            if let Tool::Draw(kind) = self.tool {
+                // drawing tools: a drag draws, a plain click places a
+                // Text box; nothing selects or moves
+                if let (Some(pos), crate::drawtools::Kind::Text) = (out.click_page_pos, kind) {
+                    let (w, h) = crate::drawtools::TEXT_DEFAULT;
+                    self.create_drawn(kind, (pos.0 - w / 2.0, pos.1 - h / 2.0), (pos.0 + w / 2.0, pos.1 + h / 2.0));
+                }
+                if let Some((x0, y0, x1, y1)) = out.marquee_done.take() {
+                    // the line runs from the press to the far corner
+                    let p = out.marquee_from.unwrap_or((x0, y0));
+                    let far = |v: f64, a: f64, b: f64| if (v - a).abs() < (v - b).abs() { b } else { a };
+                    let (a, b) = if kind == crate::drawtools::Kind::Line {
+                        (p, (far(p.0, x0, x1), far(p.1, y0, y1)))
+                    } else {
+                        ((x0, y0), (x1, y1))
+                    };
+                    self.create_drawn(kind, a, b);
+                }
+            } else if pan_clicks {
                 if let Some(pos) = out.dbl_click_page_pos {
                     // The second click of the pair completes a double-click
                     // instead of a plain click: the first click already ran its

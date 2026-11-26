@@ -8,6 +8,7 @@ pub mod app;
 pub mod canvas;
 pub mod cmd;
 pub mod connectors;
+pub mod drawtools;
 pub mod export;
 pub mod fields_dlg;
 pub mod find;

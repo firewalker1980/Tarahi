@@ -287,7 +287,6 @@ editing = Edición
 editing-text-of-shape-shape-id = editando el texto de la forma { $shape_id }
 effects = Efectos
 ellipse-tool = Herramienta Elipse
-ellipse-tool-planned = Herramienta Elipse — planeado
 endpoint-begin = inicio
 # $reason - argumento
 endpoint-drag-refused-reason = arrastre del extremo rechazado: { $reason }
@@ -532,7 +531,6 @@ line-move-refused-reason = movimiento de línea rechazado: { $reason }
 # $name - argumento
 line-moved-but-name-is-formula-d = línea movida, pero { $name } está controlado por una fórmula y se conserva
 line-tool = Herramienta Línea
-line-tool-planned = Herramienta Línea — planeado
 line-weight = Grosor de línea
 link-data-to-shapes = Vincular datos a formas
 links = Vínculos
@@ -750,7 +748,6 @@ rail-print = Imprimir
 re-layout-page = Rediseñar página
 recent = Reciente
 rectangle-tool = Herramienta Rectángulo
-rectangle-tool-planned = Herramienta Rectángulo — planeado
 redo-ctrl-y = Rehacer (Ctrl+Y)
 # $l - argumento
 redo-l = rehacer: { $l }
@@ -1007,7 +1004,6 @@ text-field = Campo de texto
 text-formatting-arrives-with-a-l = El formato de texto llega con un hito posterior
 text-shapes-planned = Formas de texto — planeado
 text-tool = Herramienta Texto
-text-tool-planned-double-click-e = Herramienta Texto — planeado (hoy el doble clic edita el texto)
 the-current-drawing-has-unsaved = El dibujo actual tiene cambios sin guardar.
 the-drawing = el dibujo
 the-grid = la cuadrícula
@@ -1195,3 +1191,7 @@ print-failed = Error al imprimir: { $e }
 # $total (Number) - page count
 page-n-of-total = Página { $n } de { $total }
 print-range = Páginas
+rectangle-tool-tip = Arrastre para dibujar un rectángulo (Esc: volver al puntero)
+ellipse-tool-tip = Arrastre para dibujar una elipse (Esc: volver al puntero)
+line-tool-tip = Arrastre para dibujar una línea (Esc: volver al puntero)
+text-tool-tip = Haga clic o arrastre para agregar un cuadro de texto (Esc: volver al puntero)
